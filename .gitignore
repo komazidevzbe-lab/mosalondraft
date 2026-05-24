@@ -483,3 +483,17 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 API/appsettings.json
+
+# Project-specific cleanup rules
+API/bin/
+API/obj/
+client/.angular/
+client/dist/
+client/node_modules/
+.vscode/settings.json
+
+**/bin/
+**/obj/
+**/.angular/
+**/dist/
+**/node_modules/
