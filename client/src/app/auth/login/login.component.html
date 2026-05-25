@@ -1,0 +1,245 @@
+<section class="landing-page">
+  <!-- ===============================
+       Background decorative assets
+       These images create the soft pink salon aesthetic.
+       =============================== -->
+
+  <img
+    class="asset asset-powder-top-left"
+    src="assets/landing/fullpinkpowder.svg"
+    alt=""
+    aria-hidden="true"
+  />
+
+  <img
+    class="asset asset-brushes"
+    src="assets/landing/brushwithpowderimage.svg"
+    alt=""
+    aria-hidden="true"
+  />
+
+  <img
+    class="asset asset-powder-left"
+    src="assets/landing/halfpinkpowder.svg"
+    alt=""
+    aria-hidden="true"
+  />
+
+  <img
+    class="asset asset-cutex"
+    src="assets/landing/cutexdropped.svg"
+    alt=""
+    aria-hidden="true"
+  />
+
+  <img
+    class="asset asset-hearts"
+    src="assets/landing/3pinkhearts.svg"
+    alt=""
+    aria-hidden="true"
+  />
+
+  <img
+    class="asset asset-stars"
+    src="assets/landing/3goldstars.svg"
+    alt=""
+    aria-hidden="true"
+  />
+
+  <img
+    class="asset asset-powder-top-right"
+    src="assets/landing/fullpinkpowder.svg"
+    alt=""
+    aria-hidden="true"
+  />
+
+  <img
+    class="asset asset-smudge"
+    src="assets/landing/makeupsmudge.svg"
+    alt=""
+    aria-hidden="true"
+  />
+
+  <!-- ===============================
+       Left side: coded brand message and photo collage
+       =============================== -->
+
+  <div class="landing-left">
+    <!-- ===============================
+         Coded brand feature
+         This replaces the previous MO logo image asset.
+         Move the whole brand block using .brand-feature in CSS.
+         =============================== -->
+
+    <section class="brand-feature" aria-label="MO Nail and Makeup Artist brand message">
+      <div class="brand-logo-code">
+        <span class="brand-crown">♛</span>
+
+        <div class="brand-mo-text">
+          <span>M</span>
+          <span>O</span>
+        </div>
+
+        <p class="brand-service-label">NAIL &amp; MAKEUP ARTIST</p>
+        <p class="brand-tagline">BLACK-OWNED. BEAUTY-FOCUSED.</p>
+      </div>
+
+      <div class="brand-message">
+        <h2>
+          BEAUTY THAT
+          <span>Empowers</span>
+        </h2>
+
+        <p>
+          Premium nail and makeup services rooted in self-love, confidence,
+          and culture.
+        </p>
+      </div>
+
+      <div class="brand-divider">
+        <span></span>
+        <small>♥</small>
+        <span></span>
+      </div>
+    </section>
+
+    <div class="asset-image-collage" aria-label="Salon service image collage">
+      <img
+        class="asset asset-collage-card asset-collage-card-one"
+        src="assets/landing/cardimage1.svg"
+        alt="Pink nail design"
+      />
+
+      <img
+        class="asset asset-collage-card asset-collage-card-two"
+        src="assets/landing/cardimage2.svg"
+        alt="Makeup look"
+      />
+
+      <img
+        class="asset asset-collage-card asset-collage-card-three"
+        src="assets/landing/cardimage3.svg"
+        alt="Pedicure design"
+      />
+    </div>
+  </div>
+
+  <!-- ===============================
+       Right side: login form card
+       =============================== -->
+
+  <div class="landing-right">
+    <div class="auth-card">
+      <!-- Sign in / sign up switch -->
+      <div class="auth-tabs">
+        <a class="auth-tab active" routerLink="/">Sign In</a>
+        <span class="tab-divider"></span>
+        <a class="auth-tab" routerLink="/signup">Sign Up</a>
+      </div>
+
+      <!-- Welcome heading -->
+      <div class="welcome-text">
+        <h1><span>W</span>elcome</h1>
+        <p>Login to your account</p>
+      </div>
+
+      <!-- Login form -->
+      <form class="login-form" (ngSubmit)="login()" #loginForm="ngForm">
+        <!-- Username input -->
+        <div class="form-field">
+          <span class="field-icon user-icon"></span>
+
+          <input
+            type="text"
+            name="username"
+            [(ngModel)]="loginModel.username"
+            placeholder="Username"
+            required
+          />
+        </div>
+
+        <!-- Password input -->
+        <div class="form-field">
+          <span class="field-icon lock-icon"></span>
+
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            name="password"
+            [(ngModel)]="loginModel.password"
+            placeholder="Password"
+            required
+          />
+
+          <button
+            class="eye-button"
+            type="button"
+            (click)="togglePasswordVisibility()"
+            aria-label="Show or hide password"
+          >
+            <img
+              class="asset-password-eye-icon"
+              [src]="showPassword ? 'assets/landing/pinkeyeicon.svg' : 'assets/landing/pinkcloseeyeicon.svg'"
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+
+        <!-- Remember me and forgot password -->
+        <div class="form-options">
+          <label class="remember-option">
+            <input
+              type="checkbox"
+              name="rememberMe"
+              [(ngModel)]="loginModel.rememberMe"
+            />
+            <span>Remember me</span>
+          </label>
+
+          <a href="#" class="forgot-link">Forget Password?</a>
+        </div>
+
+        <!-- Login button -->
+        <button class="login-button" type="submit">
+          LOGIN
+        </button>
+
+        <!-- Social sign in divider -->
+        <div class="social-divider">
+          <span></span>
+          <p>or sign in with</p>
+          <span></span>
+        </div>
+
+        <!-- Social sign in options -->
+        <div class="social-login-options" aria-label="Social sign in options">
+          <a href="#" class="social-login-link google-login-link" aria-label="Sign in with Google">
+            <span class="google-icon">G</span>
+            <span>google</span>
+          </a>
+
+          <a href="#" class="social-login-link facebook-login-link" aria-label="Sign in with Facebook">
+            <i class="bi bi-facebook"></i>
+            <span>facebook</span>
+          </a>
+
+          <a href="#" class="social-login-link instagram-login-link" aria-label="Sign in with Instagram">
+            <i class="bi bi-instagram"></i>
+            <span>instagram</span>
+          </a>
+
+          <a href="#" class="social-login-link apple-login-link" aria-label="Sign in with Apple">
+            <i class="bi bi-apple"></i>
+            <span>apple</span>
+          </a>
+        </div>
+
+        <!-- Signup link -->
+        <p class="auth-switch">
+          Don’t have an Account?
+          <a routerLink="/signup">SignUp</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</section>

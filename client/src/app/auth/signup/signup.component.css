@@ -1,0 +1,1227 @@
+/* ===============================
+   Page setup
+   Full landing page canvas.
+   Main items are placed freely using absolute positioning.
+   =============================== */
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+:host,
+:host * {
+  box-sizing: border-box;
+}
+
+.landing-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+
+  background:
+    #f9e2df
+    url("/assets/landing/backgroundimage10.png")
+    center center / cover
+    no-repeat;
+
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===============================
+   Shared decorative asset setup
+   All background images use this base class.
+   =============================== */
+
+.asset {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ===============================
+   Decorative assets: top left
+   Move/resize these freely.
+   =============================== */
+
+.asset-powder-top-left {
+  top: -85px;
+  right: 5px;
+  width: 560px;
+  opacity: 0.95;
+  display: block;
+}
+
+.asset-brushes {
+  top: -160px;
+  left: -150px;
+  width: 760px;
+  z-index: 2;
+  display: none;
+}
+
+/* ===============================
+   Decorative assets: left and bottom left
+   =============================== */
+
+.asset-powder-left {
+  left: -35px;
+  top: 310px;
+  width: 320px;
+  opacity: 0.85;
+  display: none;
+}
+
+.asset-cutex {
+  left: -225px;
+  bottom: -190px;
+  width: 880px;
+  z-index: 2;
+  display: none;
+}
+
+/* ===============================
+   Decorative assets: centre details
+   =============================== */
+
+.asset-hearts {
+  top: 18px;
+  left: 47%;
+  width: 380px;
+  opacity: 0.85;
+}
+
+.asset-stars {
+  left: 360px;
+  top: 40px;
+  width: 560px;
+  opacity: 0.45;
+}
+
+/* ===============================
+   Decorative assets: right side
+   =============================== */
+
+.asset-powder-top-right {
+  top: -300px;
+  right: -265px;
+  width: 840px;
+  opacity: 0.75;
+  transform: rotate(170deg);
+}
+
+.asset-smudge {
+  right: -150px;
+  bottom: -150px;
+  width: 670px;
+  z-index: 2;
+  display: none;
+}
+
+/* ===============================
+   Left section layout
+   This wrapper does not restrict placement.
+   It only groups the left-side assets in the HTML.
+   =============================== */
+
+.landing-left {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ===============================
+   Coded brand feature
+   Move the whole brand block here.
+   =============================== */
+
+.brand-feature {
+  position: absolute;
+  left: 170px;
+  top: 160px;
+  width: 360px;
+  z-index: 4;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+  color: #111;
+  pointer-events: auto;
+}
+
+/* ===============================
+   Coded MO logo section
+   This creates the MO logo using text instead of an image.
+   =============================== */
+
+.brand-logo-code {
+  position: relative;
+  width: 100%;
+  margin-bottom: 28px;
+  transform: translate(0, 0);
+}
+
+.brand-crown {
+  display: block;
+  margin-bottom: 14px;
+
+  color: #d6a85a;
+  font-size: 58px;
+  line-height: 1;
+
+  opacity: 0.85;
+  text-shadow: 0 0 12px rgba(214, 168, 90, 0.35);
+  transform: translate(0, 0);
+}
+
+.brand-mo-text {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 110px;
+  font-weight: 400;
+  line-height: 0.72;
+  letter-spacing: -8px;
+
+  transform: translate(0, 0);
+}
+
+.brand-mo-letter-m {
+  font-size: inherit;
+  transform: translate(0, 0);
+}
+
+.brand-mo-letter-o {
+  font-size: inherit;
+  transform: translate(0, 0);
+}
+
+.brand-service-label {
+  position: absolute;
+  left: 50%;
+  top: 88px;
+  transform: translateX(-50%) translate(0, 0);
+
+  margin: 0;
+  padding: 3px 12px;
+
+  background: rgba(255, 225, 225, 0.72);
+
+  color: #111;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  white-space: nowrap;
+}
+
+.brand-tagline {
+  margin: 10px 0 0;
+
+  color: #555;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 4px;
+
+  transform: translate(0, 0);
+}
+
+/* ===============================
+   Brand message
+   Adjust typography here for the "Beauty That Empowers" section.
+   =============================== */
+
+.brand-message {
+  width: 100%;
+  transform: translate(0, 0);
+}
+
+.brand-message h2 {
+  margin: 0;
+
+  color: #111;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: 2px;
+
+  transform: translate(0, 0);
+}
+
+.brand-message h2 span {
+  display: block;
+  margin-top: -4px;
+
+  color: #e79a94;
+  font-family: 'Brush Script MT', 'Segoe Script', cursive;
+  font-size: 58px;
+  font-weight: 400;
+  letter-spacing: 3px;
+
+  transform: translate(0, 0);
+}
+
+.brand-message p {
+  width: 280px;
+  margin: 22px auto 0;
+
+  color: #444;
+  font-size: 16px;
+  line-height: 1.45;
+
+  transform: translate(0, 0);
+}
+
+/* ===============================
+   Brand divider
+   Small decorative line under the brand message.
+   =============================== */
+
+.brand-divider {
+  width: 300px;
+  margin-top: 22px;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+
+  transform: translate(0, 0);
+}
+
+.brand-divider span {
+  height: 4px;
+  background: #ee9b94;
+}
+
+.brand-divider small {
+  color: #ee9b94;
+  font-size: 26px;
+  line-height: 1;
+}
+
+/* ===============================
+   Asset image collage container
+   Adjust left/top/width/height freely.
+   =============================== */
+
+.asset-image-collage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+/* ===============================
+   Shared asset collage card setup
+   =============================== */
+
+.asset-collage-card {
+  position: absolute;
+  display: block;
+  filter: drop-shadow(0 12px 18px rgba(148, 83, 78, 0.14));
+}
+
+/* ===============================
+   Individual asset collage cards
+   Adjust top/left/width/rotation freely.
+   =============================== */
+
+.asset-collage-card-one {
+  top: -50px;
+  left: 400px;
+  width: 520px;
+  transform: rotate(0deg);
+  z-index: 1;
+}
+
+.asset-collage-card-two {
+  top: 140px;
+  left: 510px;
+  width: 520px;
+  transform: rotate(0deg);
+  z-index: 3;
+}
+
+.asset-collage-card-three {
+  top: 360px;
+  left: 440px;
+  width: 520px;
+  transform: rotate(0deg);
+  z-index: 2;
+}
+
+/* ===============================
+   Right section layout
+   This wrapper does not create a grid.
+   It allows the card to be positioned freely.
+   =============================== */
+
+.landing-right {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* ===============================
+   Signup card
+   Same position and width as login.
+   Only the height and padding are adjusted for extra signup fields.
+   =============================== */
+
+.auth-card {
+  position: absolute;
+  right: 130px;
+  top: 50px;
+
+  width: 450px;
+  min-height: 620px;
+  padding: 32px 68px 24px;
+
+  background: rgba(255, 249, 249, 0.68);
+  border-radius: 28px;
+  box-shadow: 0 18px 45px rgba(180, 96, 90, 0.08);
+
+  pointer-events: auto;
+}
+
+/* ===============================
+   Sign In / Sign Up tabs
+   =============================== */
+
+.auth-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  margin-bottom: 28px;
+}
+
+.auth-tab {
+  position: relative;
+  color: #111;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.auth-tab.active::after {
+  content: "";
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  bottom: -13px;
+  height: 3px;
+  background: #ee9b94;
+}
+
+.tab-divider {
+  width: 2px;
+  height: 26px;
+  background: #f2d1cf;
+}
+
+/* ===============================
+   Signup heading
+   =============================== */
+
+.signup-heading {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.signup-heading h1 {
+  margin: 0;
+  white-space: nowrap;
+
+  font-family: 'Quintessential', Georgia, Times New Roman, serif;
+  font-size: 46px;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: 1.5px;
+  color: #000;
+}
+
+.signup-heading h1 span {
+  color: #ef948c;
+  font-size: 52px;
+}
+
+.signup-heading p {
+  margin: 8px 0 0;
+  color: #222;
+  font-size: 14px;
+}
+
+/* ===============================
+   Signup form
+   The max-width controls how wide the form fields and button are.
+   =============================== */
+
+.signup-form {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* ===============================
+   Form fields
+   Reusable style for signup rows.
+   =============================== */
+
+.form-field {
+  width: 100%;
+  height: 40px;
+  margin-bottom: 10px;
+  padding: 0 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  background: rgba(255, 255, 255, 0.58);
+  border: 2px solid rgba(210, 188, 185, 0.48);
+  border-radius: 10px;
+}
+
+.form-field input {
+  flex: 1;
+  height: 100%;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  color: #111;
+  font-size: 15px;
+}
+
+.form-field input::placeholder {
+  color: #111;
+}
+
+/* ===============================
+   Input icons
+   =============================== */
+
+.field-icon {
+  position: relative;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  opacity: 0.8;
+}
+
+/* User icon */
+.user-icon::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 7px;
+
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #f3b2ad;
+}
+
+.user-icon::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  bottom: 2px;
+
+  width: 16px;
+  height: 9px;
+  border-radius: 10px 10px 4px 4px;
+  background: #f3b2ad;
+}
+
+/* SVG asset form icon slot */
+.asset-form-icon-slot {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0.8;
+}
+
+/* Email SVG asset icon */
+.asset-email-icon {
+  width: 50px;
+  height: 50px;
+
+  display: block;
+  object-fit: contain;
+  transform: translate(0, 0);
+}
+
+/* Phone SVG asset icon */
+.asset-phone-icon {
+  width: 50px;
+  height: 50px;
+
+  display: block;
+  object-fit: contain;
+  transform: translate(0, 0);
+}
+
+/* Lock icon */
+.lock-icon::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 5px;
+
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f3b2ad;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+
+.lock-icon::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  bottom: 1px;
+
+  width: 16px;
+  height: 13px;
+  border-radius: 3px;
+  background: #f3b2ad;
+}
+
+/* ===============================
+   Password eye button
+   Uses the pink eye SVG asset.
+   =============================== */
+
+.eye-button {
+  flex: 0 0 30px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+/* Password eye SVG asset icon */
+.asset-password-eye-icon {
+  width: 70px;
+  height: 70px;
+
+  display: block;
+  object-fit: contain;
+  transform: translate(0, 0);
+}
+
+/* Confirm password eye SVG asset icon */
+.asset-confirm-password-eye-icon {
+  width: 70px;
+  height: 70px;
+
+
+  display: block;
+  object-fit: contain;
+  transform: translate(0, 0);
+}
+
+/* ===============================
+   Terms and conditions
+   =============================== */
+
+.terms-option {
+  margin: 4px 0 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  color: #222;
+  font-size: 16px;
+}
+
+.terms-option input {
+  width: 14px;
+  height: 14px;
+  accent-color: #ee9b94;
+}
+
+.terms-option a {
+  color: #ee938b;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ===============================
+   Signup button
+   =============================== */
+
+.signup-button {
+  width: 100%;
+  height: 42px;
+
+  border: none;
+  border-radius: 10px;
+  background: #000;
+
+  color: #fff;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 1.5px;
+
+  cursor: pointer;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.23);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signup-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 13px 18px rgba(0, 0, 0, 0.26);
+}
+
+/* ===============================
+   Social sign up divider
+   =============================== */
+
+.social-divider {
+  margin: 15px 0 12px;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.social-divider span {
+  height: 3px;
+  background: #ee9b94;
+}
+
+.social-divider p {
+  margin: 0;
+  color: #111;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ===============================
+   Social sign up options
+   Google, Facebook, Instagram and Apple signup links.
+   =============================== */
+
+.social-login-options {
+  margin-bottom: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.social-login-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  color: #111;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 400;
+
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.social-login-link:hover {
+  transform: translateY(-2px);
+  opacity: 0.85;
+}
+
+.social-login-link i,
+.google-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.google-icon {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  background: conic-gradient(
+    from -45deg,
+    #4285f4 0deg 90deg,
+    #34a853 90deg 180deg,
+    #fbbc05 180deg 260deg,
+    #ea4335 260deg 360deg
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.facebook-login-link i {
+  color: #1877f2;
+}
+
+.instagram-login-link i {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.apple-login-link i {
+  color: #000;
+}
+
+/* ===============================
+   Bottom login switch
+   =============================== */
+
+.auth-switch {
+  margin: 0;
+  text-align: center;
+
+  color: #111;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.auth-switch a {
+  color: #ee938b;
+  font-style: italic;
+  font-weight: 900;
+}
+
+/* ===============================
+   Responsive design
+   Tablet and smaller screens.
+   This only helps smaller screens.
+   Desktop placement above stays fully adjustable.
+   =============================== */
+
+@media (max-width: 1180px) {
+  .landing-left {
+    display: none;
+  }
+
+  .asset-stars,
+  .asset-hearts {
+    display: none;
+  }
+
+  .auth-card {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: min(620px, 94%);
+    min-height: auto;
+    margin: 70px auto;
+    padding: 54px 48px 34px;
+  }
+}
+
+/* ===============================
+   Responsive design
+   Mobile screens.
+   =============================== */
+
+@media (max-width: 560px) {
+  .auth-card {
+    min-height: auto;
+    padding: 42px 22px 30px;
+    border-radius: 24px;
+  }
+
+  .auth-tabs {
+    gap: 24px;
+  }
+
+  .auth-tab {
+    font-size: 22px;
+  }
+
+  .signup-heading h1 {
+    font-size: 46px;
+  }
+
+  .signup-heading h1 span {
+    font-size: 52px;
+  }
+
+  .social-login-options {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* ===============================
+   Extra feminine glow layer
+   Adds soft glowing light behind the whole landing page.
+   =============================== */
+
+.landing-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background:
+    radial-gradient(circle at 18% 28%, rgba(255, 255, 255, 0.55), transparent 18%),
+    radial-gradient(circle at 70% 20%, rgba(255, 192, 203, 0.32), transparent 24%),
+    radial-gradient(circle at 84% 72%, rgba(255, 165, 180, 0.26), transparent 26%),
+    radial-gradient(circle at 35% 82%, rgba(255, 230, 235, 0.38), transparent 22%);
+
+  opacity: 0.9;
+  pointer-events: none;
+  animation: softGlowPulse 7s ease-in-out infinite alternate;
+}
+
+/* ===============================
+   Extra shimmer layer
+   Adds subtle shiny diagonal movement across the page.
+   =============================== */
+
+.landing-page::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 1;
+
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.22) 48%,
+    rgba(255, 255, 255, 0.38) 50%,
+    rgba(255, 255, 255, 0.18) 52%,
+    transparent 64%,
+    transparent 100%
+  );
+
+  opacity: 0.45;
+  pointer-events: none;
+  transform: translateX(-45%);
+  animation: pageShimmer 9s ease-in-out infinite;
+}
+
+/* ===============================
+   Asset glow and soft floating movement
+   Makes decorative assets feel less static.
+   =============================== */
+
+.asset-brushes,
+.asset-cutex,
+.asset-smudge,
+.asset-powder-top-left,
+.asset-powder-top-right {
+  filter: drop-shadow(0 0 18px rgba(255, 182, 193, 0.45));
+}
+
+.asset-brushes {
+  animation: gentleFloatTop 6s ease-in-out infinite alternate;
+}
+
+.asset-cutex {
+  animation: gentleFloatBottom 7s ease-in-out infinite alternate;
+}
+
+.asset-smudge {
+  animation: softRibbonFloat 8s ease-in-out infinite alternate;
+}
+
+.asset-hearts {
+  animation: heartFloat 4.8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 14px rgba(255, 151, 163, 0.4));
+}
+
+.asset-stars {
+  animation: sparklePulse 3.8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 180, 0.45));
+}
+
+/* ===============================
+   Collage card glow
+   Adds soft polish/shiny photo-card energy.
+   =============================== */
+
+.asset-collage-card {
+  filter:
+    drop-shadow(0 16px 24px rgba(148, 83, 78, 0.18))
+    drop-shadow(0 0 16px rgba(255, 230, 235, 0.55));
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.asset-collage-card-one {
+  animation: collageFloatOne 6s ease-in-out infinite alternate;
+}
+
+.asset-collage-card-two {
+  animation: collageFloatTwo 6.8s ease-in-out infinite alternate;
+}
+
+.asset-collage-card-three {
+  animation: collageFloatThree 7.2s ease-in-out infinite alternate;
+}
+
+/* ===============================
+   Signup card glow and glass effect
+   Adds a soft luxury salon-card finish.
+   =============================== */
+
+.auth-card {
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(3px);
+  box-shadow:
+    0 18px 45px rgba(180, 96, 90, 0.08),
+    0 0 32px rgba(255, 202, 210, 0.42),
+    inset 0 0 24px rgba(255, 255, 255, 0.36);
+  animation: authCardGlow 5.8s ease-in-out infinite alternate;
+}
+
+/* ===============================
+   Form field glow
+   Adds soft focus and polished input styling.
+   =============================== */
+
+.form-field {
+  box-shadow:
+    0 0 0 rgba(255, 190, 198, 0),
+    inset 0 0 12px rgba(255, 255, 255, 0.32);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.form-field:focus-within {
+  border-color: rgba(238, 155, 148, 0.85);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 0 18px rgba(238, 155, 148, 0.35),
+    inset 0 0 16px rgba(255, 255, 255, 0.45);
+}
+
+/* ===============================
+   Button glow
+   Adds a soft premium hover effect.
+   =============================== */
+
+.signup-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.signup-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+
+  background: linear-gradient(
+    115deg,
+    transparent,
+    rgba(255, 255, 255, 0.38),
+    transparent
+  );
+
+  transform: skewX(-18deg);
+  animation: buttonShine 4.5s ease-in-out infinite;
+}
+
+/* ===============================
+   Text glow accents
+   Adds subtle beauty-brand softness to headings and links.
+   =============================== */
+
+.signup-heading h1 span {
+  text-shadow: 0 0 18px rgba(239, 148, 140, 0.35);
+}
+
+.auth-tab.active {
+  text-shadow: 0 0 12px rgba(238, 155, 148, 0.26);
+}
+
+.auth-switch a {
+  text-shadow: 0 0 10px rgba(238, 147, 139, 0.35);
+}
+
+/* ===============================
+   Animation keyframes
+   All movement is gentle so the page stays elegant.
+   =============================== */
+
+@keyframes softGlowPulse {
+  0% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes pageShimmer {
+  0% {
+    transform: translateX(-55%) rotate(0deg);
+    opacity: 0;
+  }
+
+  38% {
+    opacity: 0.28;
+  }
+
+  65% {
+    opacity: 0.45;
+  }
+
+  100% {
+    transform: translateX(55%) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+@keyframes gentleFloatTop {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(10px) rotate(-1.5deg);
+  }
+}
+
+@keyframes gentleFloatBottom {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(-12px) rotate(1.5deg);
+  }
+}
+
+@keyframes softRibbonFloat {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes heartFloat {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    transform: translateY(-12px) scale(1.03);
+  }
+}
+
+@keyframes sparklePulse {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0.65;
+    transform: scale(1.025);
+  }
+}
+
+@keyframes collageFloatOne {
+  0% {
+    transform: rotate(0deg) translateY(0);
+  }
+
+  100% {
+    transform: rotate(0deg) translateY(-10px);
+  }
+}
+
+@keyframes collageFloatTwo {
+  0% {
+    transform: rotate(0deg) translateY(0);
+  }
+
+  100% {
+    transform: rotate(0deg) translateY(12px);
+  }
+}
+
+@keyframes collageFloatThree {
+  0% {
+    transform: rotate(0deg) translateY(0);
+  }
+
+  100% {
+    transform: rotate(0deg) translateY(-8px);
+  }
+}
+
+@keyframes authCardGlow {
+  0% {
+    box-shadow:
+      0 18px 45px rgba(180, 96, 90, 0.08),
+      0 0 22px rgba(255, 202, 210, 0.3),
+      inset 0 0 20px rgba(255, 255, 255, 0.28);
+  }
+
+  100% {
+    box-shadow:
+      0 22px 55px rgba(180, 96, 90, 0.12),
+      0 0 42px rgba(255, 202, 210, 0.52),
+      inset 0 0 28px rgba(255, 255, 255, 0.42);
+  }
+}
+
+@keyframes buttonShine {
+  0% {
+    left: -120%;
+  }
+
+  45% {
+    left: -120%;
+  }
+
+  100% {
+    left: 130%;
+  }
+}
