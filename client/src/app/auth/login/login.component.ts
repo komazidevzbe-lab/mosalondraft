@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+
+import { AccountService } from '../../_services/account.service';
+import { LoginRequest } from '../../_models/login-request';
 
 @Component({
   selector: 'app-login',
@@ -11,14 +14,16 @@ import { RouterLink } from '@angular/router';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
+  private accountService = inject(AccountService);
+  private router = inject(Router);
+
   // ===============================
   // Login form data
-  // This object temporarily stores what the user types into the form.
-  // Later, when we build the backend, this data will be sent to the API.
+  // Users sign in with email and password.
   // ===============================
 
   loginModel = {
-    username: '',
+    email: '',
     password: '',
     rememberMe: false
   };
@@ -35,11 +40,24 @@ export class LoginComponent {
   }
 
   // ===============================
-  // Temporary frontend-only login action
-  // Later this will call the ASP.NET API.
+  // Login action
+  // Sends the email and password to the ASP.NET API.
+  // If successful, the user is taken to the homepage.
   // ===============================
 
   login(): void {
-    console.log('Login submitted:', this.loginModel);
+    const loginRequest: LoginRequest = {
+      email: this.loginModel.email.trim().toLowerCase(),
+      password: this.loginModel.password
+    };
+
+    this.accountService.login(loginRequest).subscribe({
+      next: () => {
+        this.router.navigateByUrl('/home');
+      },
+      error: error => {
+        console.error('Login failed:', error);
+      }
+    });
   }
 }

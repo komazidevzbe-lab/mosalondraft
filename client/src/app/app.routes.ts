@@ -12,6 +12,7 @@ export const routes: Routes = [
   // Landing / authentication pages - no navbar
   {
     path: '',
+    pathMatch: 'full',
     component: LoginComponent
   },
   {

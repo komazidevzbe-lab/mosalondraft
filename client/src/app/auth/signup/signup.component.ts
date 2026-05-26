@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+
+import { AccountService } from '../../_services/account.service';
+import { RegisterRequest } from '../../_models/register-request';
 
 @Component({
   selector: 'app-signup',
@@ -11,14 +14,18 @@ import { RouterLink } from '@angular/router';
   styleUrl: './signup.component.css'
 })
 export class SignupComponent {
+  private accountService = inject(AccountService);
+  private router = inject(Router);
+
   // ===============================
   // Signup form data
-  // This object temporarily stores what the user types into the form.
-  // Later, when we build the backend, this data will be sent to the API.
+  // Users sign up with first name, last name, email, phone number,
+  // password and confirm password.
   // ===============================
 
   signupModel = {
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phoneNumber: '',
     password: '',
@@ -43,11 +50,39 @@ export class SignupComponent {
   }
 
   // ===============================
-  // Temporary frontend-only signup action
-  // Later this will call the ASP.NET API.
+  // Signup action
+  // Sends the signup form data to the ASP.NET API.
+  // The frontend checks passwords first, then the backend checks again.
+  // If successful, the user is taken to the homepage.
   // ===============================
 
   signup(): void {
-    console.log('Signup submitted:', this.signupModel);
+    if (this.signupModel.password !== this.signupModel.confirmPassword) {
+      console.error('Password and confirm password do not match.');
+      return;
+    }
+
+    if (!this.signupModel.agreeToTerms) {
+      console.error('Terms and conditions must be accepted.');
+      return;
+    }
+
+    const registerRequest: RegisterRequest = {
+      firstName: this.signupModel.firstName.trim(),
+      lastName: this.signupModel.lastName.trim(),
+      email: this.signupModel.email.trim().toLowerCase(),
+      phoneNumber: this.signupModel.phoneNumber.trim(),
+      password: this.signupModel.password,
+      confirmPassword: this.signupModel.confirmPassword
+    };
+
+    this.accountService.register(registerRequest).subscribe({
+      next: () => {
+        this.router.navigateByUrl('/home');
+      },
+      error: error => {
+        console.error('Signup failed:', error);
+      }
+    });
   }
 }

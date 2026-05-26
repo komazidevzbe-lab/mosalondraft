@@ -145,15 +145,28 @@
 
       <!-- Signup form -->
       <form class="signup-form" (ngSubmit)="signup()" #signupForm="ngForm">
-        <!-- Full name input -->
+        <!-- First name input -->
         <div class="form-field">
           <span class="field-icon user-icon"></span>
 
           <input
             type="text"
-            name="fullName"
-            [(ngModel)]="signupModel.fullName"
-            placeholder="Full Name"
+            name="firstName"
+            [(ngModel)]="signupModel.firstName"
+            placeholder="First Name"
+            required
+          />
+        </div>
+
+        <!-- Last name input -->
+        <div class="form-field">
+          <span class="field-icon user-icon"></span>
+
+          <input
+            type="text"
+            name="lastName"
+            [(ngModel)]="signupModel.lastName"
+            placeholder="Last Name"
             required
           />
         </div>

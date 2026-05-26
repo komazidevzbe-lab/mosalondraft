@@ -145,15 +145,15 @@
 
       <!-- Login form -->
       <form class="login-form" (ngSubmit)="login()" #loginForm="ngForm">
-        <!-- Username input -->
+        <!-- Email input -->
         <div class="form-field">
           <span class="field-icon user-icon"></span>
 
           <input
-            type="text"
-            name="username"
-            [(ngModel)]="loginModel.username"
-            placeholder="Username"
+            type="email"
+            name="email"
+            [(ngModel)]="loginModel.email"
+            placeholder="Email Address"
             required
           />
         </div>
