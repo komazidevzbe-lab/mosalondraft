@@ -7,6 +7,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { ServicesComponent } from './pages/services/services.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
 import { ContactComponent } from './pages/contact/contact.component';
+import { BookingComponent } from './pages/booking/booking.component';
 
 export const routes: Routes = [
   // Landing / authentication pages - no navbar
@@ -27,6 +28,7 @@ export const routes: Routes = [
     children: [
       { path: 'home', component: HomeComponent },
       { path: 'services', component: ServicesComponent },
+      { path: 'booking', component: BookingComponent },
       { path: 'gallery', component: GalleryComponent },
       { path: 'contact', component: ContactComponent }
     ]

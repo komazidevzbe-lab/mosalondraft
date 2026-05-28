@@ -1,1 +1,63 @@
-<p>home works!</p>
+<section class="home-page">
+  <!-- ===============================
+       Hero section
+       Main homepage introduction.
+       =============================== -->
+
+  <section class="hero-section" aria-label="MO Nail and Makeup Artist homepage hero">
+    <div class="hero-content">
+      <h1>
+        Enhance Your <span>Beauty</span><br />
+        Elevate Your <span>Confidence</span>
+      </h1>
+
+      <p>
+        Expert nails and makeup services tailored for your unique glow.
+        Look your best, feel your best.
+      </p>
+
+      <a class="hero-button" routerLink="/services">
+        BOOK APPOINTMENT
+      </a>
+    </div>
+  </section>
+
+  <!-- ===============================
+       Browse categories
+       Service category cards.
+       =============================== -->
+
+  <section class="categories-section" aria-label="Browse salon categories">
+    <div class="section-heading">
+      <h2>EXPLORE OUR <span>SERVICES</span></h2>
+
+      <div class="heading-divider">
+        <span></span>
+        <i class="fa-solid fa-heart"></i>
+        <span></span>
+      </div>
+    </div>
+
+    <div class="category-grid">
+      <article class="category-card" *ngFor="let category of categories">
+        <div class="category-image-wrap">
+          <img
+            [src]="category.imageUrl"
+            [alt]="category.altText"
+          />
+        </div>
+
+        <div class="category-icon">
+          <img
+            [src]="category.iconUrl"
+            [alt]="category.iconAltText"
+          />
+        </div>
+
+        <div class="category-text">
+          <h3>{{ category.title }}</h3>
+        </div>
+      </article>
+    </div>
+  </section>
+</section>

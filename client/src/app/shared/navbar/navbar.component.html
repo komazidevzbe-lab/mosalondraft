@@ -1,1 +1,42 @@
-<p>navbar works!</p>
+<header class="site-navbar">
+  <!-- ===============================
+       Logo section
+       Uses the same coded MO brand style as the landing pages.
+       =============================== -->
+
+  <a class="navbar-logo" routerLink="/home" aria-label="MO Nail and Makeup Artist home">
+    <span class="logo-main">
+      <span>M</span>
+      <span>O</span>
+    </span>
+
+    <span class="logo-label">NAIL &amp; MAKEUP ARTIST</span>
+  </a>
+
+  <!-- ===============================
+       Main navigation links
+       These links are reused across all public pages.
+       =============================== -->
+
+  <nav class="navbar-links" aria-label="Main navigation">
+    <a
+      routerLink="/home"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      HOME
+    </a>
+
+    <a routerLink="/services" routerLinkActive="active">
+      SERVICES
+    </a>
+
+    <a routerLink="/gallery" routerLinkActive="active">
+      GALLERY
+    </a>
+
+    <a routerLink="/contact" routerLinkActive="active">
+      CONTACT
+    </a>
+  </nav>
+</header>

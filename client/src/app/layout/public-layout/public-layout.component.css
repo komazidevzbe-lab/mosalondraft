@@ -1,0 +1,52 @@
+/* ===============================
+   Public layout wrapper
+   This is the shared public page frame.
+   =============================== */
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.public-layout {
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* ===============================
+   Home-only background
+   The home background image is only applied on the /home route.
+   It sits behind the navbar, home page content and footer.
+   =============================== */
+
+.public-layout.home-layout-background {
+  background:
+    #fff
+    url("/assets/home/homebackground4.png")
+    center top / 100%
+    no-repeat;
+}
+
+/* ===============================
+   Services-only background
+   The services background image is only applied on the /services route.
+   It sits behind the navbar, services page content and footer.
+   =============================== */
+
+.public-layout.services-layout-background {
+  background:
+    #fff
+    url("/assets/services/servicebackground.png")
+    center top / cover
+    no-repeat;
+}
+
+/* ===============================
+   Main page content area
+   The actual routed page loads inside this area.
+   =============================== */
+
+main {
+  position: relative;
+  min-height: calc(100vh - 76px);
+}

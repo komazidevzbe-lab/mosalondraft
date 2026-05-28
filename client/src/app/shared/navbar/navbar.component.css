@@ -1,0 +1,180 @@
+/* ===============================
+   Public navbar
+   Shared navigation used across the public salon pages.
+   =============================== */
+
+.site-navbar {
+  position: relative;
+  z-index: 20;
+
+  width: 100%;
+  height: 76px;
+  padding: 0 120px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0);
+  
+  overflow: visible;
+}
+
+/* ===============================
+   Coded MO logo
+   Uses the same brand structure as the landing pages.
+   Positioned separately so it does not affect navbar link alignment.
+   =============================== */
+
+.navbar-logo {
+  position: absolute;
+  left: 70px;
+  top: 20px;
+
+  width: 360px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  color: #111;
+  text-decoration: none;
+}
+
+.logo-main {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 68px;
+  font-weight: 700;
+  line-height: 0.72;
+  letter-spacing: -7px;
+}
+
+.logo-label {
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+
+  margin: 0;
+  padding: 3px 12px;
+
+  background: rgba(255, 225, 225, 0.72);
+
+  color: #111;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 3.5px;
+  white-space: nowrap;
+}
+
+/* ===============================
+   Navigation links
+   =============================== */
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 78px;
+}
+
+.navbar-links a {
+  position: relative;
+
+  color: #111;
+  text-decoration: none;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 3px;
+
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.navbar-links a:hover,
+.navbar-links a.active {
+  color: #ee938b;
+}
+
+.navbar-links a:hover {
+  transform: translateY(-1px);
+}
+
+.navbar-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+
+  width: 34px;
+  height: 3px;
+
+  background: #ee938b;
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+
+/* ===============================
+   Responsive navbar
+   =============================== */
+
+@media (max-width: 980px) {
+  .site-navbar {
+    height: auto;
+    padding: 22px 24px;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .navbar-logo {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 320px;
+  }
+
+  .logo-main {
+    font-size: 78px;
+  }
+
+  .logo-label {
+    top: 49px;
+    font-size: 10px;
+  }
+
+  .navbar-links {
+    flex-wrap: wrap;
+    gap: 26px;
+  }
+}
+
+@media (max-width: 520px) {
+  .navbar-logo {
+    width: 280px;
+  }
+
+  .logo-main {
+    font-size: 66px;
+  }
+
+  .logo-label {
+    top: 43px;
+    font-size: 8px;
+    letter-spacing: 2.5px;
+  }
+
+  .navbar-links {
+    gap: 18px;
+  }
+
+  .navbar-links a {
+    font-size: 15px;
+  }
+}
