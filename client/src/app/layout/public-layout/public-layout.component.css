@@ -15,16 +15,12 @@
 
 /* ===============================
    Home-only background
-   The home background image is only applied on the /home route.
-   It sits behind the navbar, home page content and footer.
+   The home background image is temporarily disabled.
+   The homepage now creates the hero layout directly.
    =============================== */
 
 .public-layout.home-layout-background {
-  background:
-    #fff
-    url("/assets/home/homebackground4.png")
-    center top / 100%
-    no-repeat;
+  background: #fff;
 }
 
 /* ===============================
@@ -34,11 +30,7 @@
    =============================== */
 
 .public-layout.booking-flow-layout-background {
-  background:
-    #fff
-    url("/assets/services/servicebackground.png")
-    center top / cover
-    no-repeat;
+  background: #fff;
 }
 
 /* ===============================
@@ -48,25 +40,17 @@
    =============================== */
 
 .public-layout.gallery-layout-background {
-  background:
-    #fff
-    url("/assets/gallery/gallerybackground.png")
-    center top / cover
-    no-repeat;
+  background: #fff;
 }
 
 /* ===============================
    Contact-only background
-   The contact background image is only applied on the /contact route.
+   The contact background image is applied only on the /contact route.
    It sits behind the navbar, contact page content and footer.
    =============================== */
 
 .public-layout.contact-layout-background {
-  background:
-    #fff
-    url("/assets/contact/contactbackground.png")
-    center top / cover
-    no-repeat;
+  background: #fff;
 }
 
 /* ===============================

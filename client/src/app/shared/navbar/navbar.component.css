@@ -15,7 +15,11 @@
   align-items: center;
   justify-content: center;
 
-  background: rgba(255, 255, 255, 0);
+  background:
+    #fff
+    url("/assets/footer/footerbackground6.png")
+    center center / auto
+    no-repeat;
   
   overflow: visible;
 }
@@ -28,10 +32,11 @@
 
 .navbar-logo {
   position: absolute;
-  left: 70px;
-  top: 20px;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
 
-  width: 360px;
+  width: 300px;
 
   display: flex;
   flex-direction: column;
@@ -50,35 +55,41 @@
   gap: 0;
 
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 68px;
-  font-weight: 700;
+  font-size: 58px;
+  font-weight: 500;
   line-height: 0.72;
-  letter-spacing: -7px;
+  letter-spacing: 2px;
 }
 
 .logo-label {
   position: absolute;
   left: 50%;
-  top: 20px;
+  top: 13px;
   transform: translateX(-50%);
 
   margin: 0;
-  padding: 3px 12px;
+  padding: 2px 8px;
 
-  background: rgba(255, 225, 225, 0.72);
+  background: rgba(255, 225, 225, 0.70);
 
   color: #111;
-  font-size: 9px;
-  font-weight: 800;
+  font-size: 8px;
+  font-weight: 700;
   letter-spacing: 3.5px;
   white-space: nowrap;
 }
 
 /* ===============================
    Navigation links
+   The nav stays centred on the page, independent from the logo.
    =============================== */
 
 .navbar-links {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -92,7 +103,7 @@
   text-decoration: none;
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 3px;
 
   transition: color 0.2s ease, transform 0.2s ease;
@@ -100,7 +111,7 @@
 
 .navbar-links a:hover,
 .navbar-links a.active {
-  color: #ee938b;
+  color: #d88480;
 }
 
 .navbar-links a:hover {
@@ -137,6 +148,7 @@
     position: relative;
     left: auto;
     top: auto;
+    transform: none;
     width: 320px;
   }
 
@@ -150,6 +162,11 @@
   }
 
   .navbar-links {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+
     flex-wrap: wrap;
     gap: 26px;
   }

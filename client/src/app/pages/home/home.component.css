@@ -1,7 +1,7 @@
 /* ===============================
    Home page setup
-   The home background is applied by public-layout only on the /home route.
-   This page content sits on top of that background.
+   The home background image is temporarily disabled in public-layout.
+   The hero layout is now built directly with a controlled grid.
    =============================== */
 
 :host {
@@ -20,24 +20,40 @@
 
 /* ===============================
    Hero section
-   Left: headline and button.
+   Gallery-style controlled grid:
+   Column 1: pink text panel spanning 2 rows.
+   Column 2: large makeup slideshow image spanning 2 rows.
+   Column 3: two small stacked images.
+   Column 4: large image spanning 2 rows.
    =============================== */
 
 .hero-section {
-  position: relative;
-  min-height: 300px;
-  padding: 10px 120px 0;
+  width: 100%;
 
   display: grid;
-  grid-template-columns: 0.86fr 1.14fr;
-  align-items: start;
-  gap: 38px;
+  grid-template-columns: 1.35fr 0.63fr 0.63fr 0.63fr;
+  grid-auto-rows: 180px;
+  gap: 4px;
+
+  background: #fff;
+}
+
+.hero-text-panel {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+
+  min-width: 0;
+  min-height: 0;
+  padding: 52px 54px 48px 100px;
+
+  display: flex;
+  align-items: center;
+
+  background: #f8dddd;
 }
 
 .hero-content {
   max-width: 470px;
-  margin-left: 80px;
-  transform: translateY(120px);
 }
 
 .hero-content h1 {
@@ -51,7 +67,7 @@
 }
 
 .hero-content h1 span {
-  color: #e79a94;
+  color: #d88480;
 }
 
 .hero-content p {
@@ -89,133 +105,342 @@
   box-shadow: 0 13px 20px rgba(0, 0, 0, 0.28);
 }
 
+.hero-image-card {
+  position: relative;
+  overflow: hidden;
+
+  min-width: 0;
+  min-height: 0;
+
+  background: #fff;
+}
+
+.hero-large-card {
+  grid-row: 1 / span 2;
+}
+
+.hero-makeup-card {
+  grid-column: 2;
+}
+
+.hero-lashes-card {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.hero-pedicure-card {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.hero-nail-card {
+  grid-column: 4;
+}
+
+.hero-image-wrap {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hero-image-wrap img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* ===============================
+   Hero slideshow animation
+   The current image softly fades/swipes out.
+   The next image softly fades/swipes in.
+   The reset is silent so the same image does not fade in twice.
+   Extra scale crops out inner SVG/image white spacing.
+   =============================== */
+
+.hero-slideshow-image {
+  position: absolute;
+  inset: 0;
+
+  opacity: 1;
+  filter: brightness(1) blur(0);
+  transform: translateX(0) scale(2.2);
+
+  transition:
+    opacity 2600ms ease-in-out,
+    transform 2600ms ease-in-out,
+    filter 2600ms ease-in-out;
+}
+
+.hero-slideshow-next {
+  opacity: 0;
+  filter: brightness(1.08) blur(2px);
+  transform: translateX(34px) scale(2.23);
+}
+
+.hero-makeup-card.makeup-slide-transitioning .hero-slideshow-current {
+  opacity: 0;
+  filter: brightness(0.88) blur(2px);
+  transform: translateX(-34px) scale(2.23);
+}
+
+.hero-makeup-card.makeup-slide-transitioning .hero-slideshow-next {
+  opacity: 1;
+  filter: brightness(1) blur(0);
+  transform: translateX(0) scale(2.2);
+}
+
+.hero-makeup-card.makeup-slide-resetting .hero-slideshow-image {
+  transition: none;
+}
+
+.hero-lashes-card .hero-slideshow-image {
+  transform: translateX(0) scale(2.35);
+}
+
+.hero-lashes-card .hero-slideshow-next {
+  opacity: 0;
+  filter: brightness(1.08) blur(2px);
+  transform: translateX(34px) scale(2.38);
+}
+
+.hero-lashes-card.lashes-slide-transitioning .hero-slideshow-current {
+  opacity: 0;
+  filter: brightness(0.88) blur(2px);
+  transform: translateX(-34px) scale(2.38);
+}
+
+.hero-lashes-card.lashes-slide-transitioning .hero-slideshow-next {
+  opacity: 1;
+  filter: brightness(1) blur(0);
+  transform: translateX(0) scale(2.35);
+}
+
+.hero-lashes-card.lashes-slide-resetting .hero-slideshow-image {
+  transition: none;
+}
+
+.hero-pedicure-card .hero-slideshow-image {
+  transform: translateX(0) scale(2.35);
+}
+
+.hero-pedicure-card .hero-slideshow-next {
+  opacity: 0;
+  filter: brightness(1.08) blur(2px);
+  transform: translateX(34px) scale(2.38);
+}
+
+.hero-pedicure-card.pedicure-slide-transitioning .hero-slideshow-current {
+  opacity: 0;
+  filter: brightness(0.88) blur(2px);
+  transform: translateX(-34px) scale(2.38);
+}
+
+.hero-pedicure-card.pedicure-slide-transitioning .hero-slideshow-next {
+  opacity: 1;
+  filter: brightness(1) blur(0);
+  transform: translateX(0) scale(2.35);
+}
+
+.hero-pedicure-card.pedicure-slide-resetting .hero-slideshow-image {
+  transition: none;
+}
+
+.hero-nail-card .hero-slideshow-image {
+  transform: translateX(0) scale(2.2);
+}
+
+.hero-nail-card .hero-slideshow-next {
+  opacity: 0;
+  filter: brightness(1.08) blur(2px);
+  transform: translateX(34px) scale(2.23);
+}
+
+.hero-nail-card.manicure-slide-transitioning .hero-slideshow-current {
+  opacity: 0;
+  filter: brightness(0.88) blur(2px);
+  transform: translateX(-34px) scale(2.23);
+}
+
+.hero-nail-card.manicure-slide-transitioning .hero-slideshow-next {
+  opacity: 1;
+  filter: brightness(1) blur(0);
+  transform: translateX(0) scale(2.2);
+}
+
+.hero-nail-card.manicure-slide-resetting .hero-slideshow-image {
+  transition: none;
+}
+
+/* ===============================
+   Middle home wallpaper section
+   This wallpaper applies only to About Us and Explore Services.
+   =============================== */
+
+.home-services-wallpaper {
+  background:
+    #fff
+    url("/assets/footer/footerbackground3.png")
+    center center / cover
+    no-repeat;
+}
+
+/* ===============================
+   About preview section
+   =============================== */
+
+.about-preview-section {
+  padding: 34px 74px 18px;
+
+  text-align: center;
+  background: transparent;
+}
+
+.about-eyebrow {
+  margin: 0 0 8px;
+
+  color: #d88480;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 4px;
+}
+
+.about-preview-section h2 {
+  margin: 0 0 10px;
+
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 2px;
+}
+
+.about-preview-section h2 span {
+  color: #d88480;
+}
+
+.about-description {
+  margin: 0;
+
+  color: #666;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.about-divider {
+  margin: 18px auto 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  color: #ee9b94;
+}
+
+.about-divider span {
+  width: 62px;
+  height: 1px;
+
+  background: rgba(238, 155, 148, 0.45);
+}
+
+.about-divider i {
+  font-size: 14px;
+}
+
 /* ===============================
    Categories section
    =============================== */
 
 .categories-section {
   position: relative;
-  margin-top: 195px;
-  padding: 16px 74px 44px;
+  padding: 8px 74px 34px;
 
   background: transparent;
 }
 
 .section-heading {
-  display: flex;
-  flex-direction: column;
+  max-width: 520px;
+  margin: 0 auto 22px;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  margin-bottom: 28px;
+  gap: 14px;
+
   text-align: center;
 }
 
-.section-heading p {
-  margin: 0 0 8px;
+.section-heading > span {
+  height: 1px;
 
-  color: #d88480;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 4px;
-  display: none;
+  background: rgba(238, 155, 148, 0.45);
 }
 
 .section-heading h2 {
   margin: 0;
 
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 28px;
+  font-size: 26px;
   font-style: italic;
   font-weight: 400;
-  letter-spacing: 1.2px;
-
-  transform: translateY(-20px);
+  letter-spacing: 4px;
+  white-space: nowrap;
 }
 
 .section-heading h2 span {
   color: #d88480;
 }
 
-.section-heading small {
-  margin-top: 12px;
-
-  color: #555;
-  font-size: 13px;
-  letter-spacing: 0.4px;
-  display: none;
-}
-
-.heading-divider {
-  width: 390px;
-  margin-top: 8px;
-
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 18px;
-  display: none;
-}
-
-.heading-divider span {
-  height: 2px;
-  background: #ee9b94;
-  display: none;
-}
-
-.heading-divider i {
-  color: #ee9b94;
-  font-size: 14px;
-  line-height: 1;
-  display: none;
-}
-
-/* ===============================
-   Category cards
-   Card height stays compact.
-   Card width is controlled by .category-grid gap and section padding.
-   =============================== */
-
 .category-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+
   display: grid;
-  grid-template-columns: repeat(4, 240px);
-  justify-content: center;
-  gap: 42px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 34px;
 }
 
 .category-card {
   position: relative;
-  min-height: 200px;
+  min-height: 310px;
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
 
-  background: rgba(255, 255, 255, 0.62);
-  border: 1.8px solid rgba(238, 155, 148, 0.62);
-  border-radius: 14px;
-  box-shadow: 0 14px 24px rgba(180, 96, 90, 0.06);
+  background: #fff;
+  border: 1.4px solid rgba(238, 155, 148, 0.48);
+  border-radius: 10px;
+  box-shadow: 0 16px 28px rgba(180, 96, 90, 0.06);
 
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .category-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(238, 155, 148, 0.82);
-  box-shadow: 0 16px 26px rgba(180, 96, 90, 0.12);
+  border-color: rgba(238, 155, 148, 0.78);
+  box-shadow: 0 18px 30px rgba(180, 96, 90, 0.12);
 }
 
 .category-image-wrap {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+  position: relative;
 
   width: 100%;
-  height: 100%;
-  margin-top: 0;
+  height: 60%;
+  min-height: 165px;
   overflow: hidden;
 
-  border-radius: inherit;
+  flex: 0 0 60%;
+  border-radius: 10px 10px 0 0;
 }
 
 .category-image-wrap img {
@@ -229,25 +454,28 @@
 }
 
 .category-icon {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: calc(60% - 29px);
+  transform: translateX(-50%);
+
   width: 58px;
   height: 58px;
-  margin-top: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: rgba(255, 255, 255, 0.94);
-  border: 2px solid rgba(238, 155, 148, 0.45);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(238, 155, 148, 0.25);
   border-radius: 50%;
-  box-shadow: 0 8px 18px rgba(180, 96, 90, 0.08);
+  box-shadow: 0 10px 18px rgba(180, 96, 90, 0.08);
 }
 
 .category-icon img {
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
 
   display: block;
   object-fit: contain;
@@ -257,26 +485,206 @@
   position: relative;
   z-index: 2;
 
-  width: 100%;
-  padding: 10px 18px 14px;
+  min-height: 124px;
+  padding: 40px 22px 20px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+
+  text-align: center;
+  background: #fff;
 }
 
 .category-text h3 {
-  margin: 0;
+  margin: 0 0 16px;
 
-  color: #fff;
+  color: #111;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 21px;
-  font-style: italic;
+  font-size: 17px;
   font-weight: 400;
   line-height: 1.2;
-  text-align: center;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  letter-spacing: 1.5px;
+}
+
+.category-text h3::after {
+  display: none;
+}
+
+.category-text p {
+  min-height: 34px;
+  margin: 0 0 14px;
+
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.category-text a {
+  color: #d88480;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+.category-text a i {
+  margin-left: 7px;
+  font-size: 10px;
+}
+
+/* ===============================
+   Client reviews section
+   =============================== */
+
+.reviews-section {
+  padding: 24px 74px 34px;
+
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 38px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(248, 221, 221, 0.86),
+      rgba(255, 255, 255, 0.82)
+    );
+}
+
+.reviews-summary {
+  padding-right: 34px;
+
+  border-right: 1px solid rgba(238, 155, 148, 0.45);
+}
+
+.reviews-summary > p {
+  margin: 0 0 24px;
+
+  color: #000000;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+.review-score {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.review-score > span {
+  color: #111;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 34px;
+  font-weight: 400;
+}
+
+.review-score i {
+  color: #ee9b94;
+  font-size: 15px;
+}
+
+.reviews-summary small {
+  margin: 10px 0 18px;
+
+  display: block;
+
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.reviews-summary a {
+  width: 138px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: 1px solid rgba(238, 155, 148, 0.55);
+  border-radius: 3px;
+
+  color: #ee9b94;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-decoration: none;
+}
+
+.review-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.review-card {
+  min-height: 128px;
+  padding: 18px 20px;
+
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(238, 155, 148, 0.18);
+  border-radius: 10px;
+  box-shadow: 0 12px 26px rgba(180, 96, 90, 0.05);
+}
+
+.review-stars {
+  margin-bottom: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #ee9b94;
+}
+
+.review-stars span i {
+  font-size: 13px;
+}
+
+.review-stars > i {
+  font-size: 18px;
+}
+
+.review-card > p {
+  margin: 0 0 14px;
+
+  color: #333;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.review-client {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-client img {
+  width: 32px;
+  height: 32px;
+
+  display: block;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.review-client h3 {
+  margin: 0 0 2px;
+
+  color: #111;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.review-client small {
+  color: #666;
+  font-size: 10px;
+  font-weight: 500;
 }
 
 /* ===============================
@@ -285,27 +693,70 @@
 
 @media (max-width: 1180px) {
   .hero-section {
-    padding: 54px 42px 24px;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 270px;
   }
 
-  .hero-content {
-    margin-left: 0;
-    transform: translateY(0);
+  .hero-text-panel {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 1;
+
+    padding: 54px 42px;
   }
 
-  .categories-section {
-    margin-top: 80px;
+  .hero-makeup-card {
+    grid-column: 1;
+    grid-row: 2 / span 1;
+  }
+
+  .hero-lashes-card {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .hero-pedicure-card {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .hero-nail-card {
+    grid-column: 1 / span 2;
+    grid-row: 4 / span 1;
+  }
+
+  .hero-large-card {
+    grid-row: auto;
   }
 
   .category-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .reviews-section {
+    grid-template-columns: 1fr;
+  }
+
+  .reviews-summary {
+    padding-right: 0;
+    border-right: none;
+  }
+
+  .review-card-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 680px) {
   .hero-section {
-    padding: 42px 24px 20px;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 260px;
+  }
+
+  .hero-text-panel {
+    grid-column: 1;
+    grid-row: auto;
+
+    padding: 42px 24px;
   }
 
   .hero-content h1 {
@@ -316,13 +767,31 @@
     width: 100%;
   }
 
-  .categories-section {
-    margin-top: 40px;
-    padding: 20px 22px 36px;
+  .hero-makeup-card,
+  .hero-lashes-card,
+  .hero-pedicure-card,
+  .hero-nail-card {
+    grid-column: 1;
+    grid-row: auto;
   }
 
-  .heading-divider {
-    width: 240px;
+  .about-preview-section,
+  .categories-section,
+  .reviews-section {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .section-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading > span {
+    display: none;
+  }
+
+  .section-heading h2 {
+    white-space: normal;
   }
 
   .category-grid {

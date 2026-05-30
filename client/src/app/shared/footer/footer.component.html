@@ -2,6 +2,7 @@
   <!-- ===============================
        Brand summary
        Uses the same coded MO brand style as the landing pages.
+       Social links now sit under the brand paragraph.
        =============================== -->
 
   <section class="footer-brand">
@@ -18,6 +19,28 @@
       Premium nail and makeup services crafted to help you look polished,
       confident, and beautifully yourself.
     </p>
+
+    <div class="footer-social-links">
+      <a href="#" aria-label="TikTok">
+        <i class="fa-brands fa-tiktok"></i>
+        <span>tiktok</span>
+      </a>
+
+      <a href="#" aria-label="Instagram">
+        <i class="fa-brands fa-instagram"></i>
+        <span>instagram</span>
+      </a>
+
+      <a href="#" aria-label="Facebook">
+        <i class="fa-brands fa-facebook-f"></i>
+        <span>facebook</span>
+      </a>
+
+      <a href="#" aria-label="Twitter">
+        <i class="fa-brands fa-x-twitter"></i>
+        <span>twitter</span>
+      </a>
+    </div>
   </section>
 
   <!-- ===============================
@@ -29,22 +52,36 @@
 
     <ul>
       <li>
-        <i class="fa-solid fa-heart"></i>
-        Nail Services
+        <span>
+          <i class="fa-solid fa-heart"></i>
+          Nail Services
+        </span>
+        <i class="fa-solid fa-chevron-right"></i>
       </li>
+
       <li>
-        <i class="fa-solid fa-heart"></i>
-        MakeUp Services
+        <span>
+          <i class="fa-solid fa-heart"></i>
+          MakeUp Services
+        </span>
+        <i class="fa-solid fa-chevron-right"></i>
       </li>
+
       <li>
-        <i class="fa-solid fa-heart"></i>
-        Pedicure Services
+        <span>
+          <i class="fa-solid fa-heart"></i>
+          Pedicure Services
+        </span>
+        <i class="fa-solid fa-chevron-right"></i>
       </li>
+
       <li>
-        <i class="fa-solid fa-heart"></i>
-        Lash Extensions
+        <span>
+          <i class="fa-solid fa-heart"></i>
+          Lash Extensions
+        </span>
+        <i class="fa-solid fa-chevron-right"></i>
       </li>
-    
     </ul>
   </section>
 
@@ -75,32 +112,52 @@
   </section>
 
   <!-- ===============================
-       Social links
+       Business hours
        =============================== -->
 
-  <section class="footer-section">
-    <h3>FOLLOW US</h3>
+  <section class="footer-section footer-hours">
+    <h3>BUSINESS HOURS</h3>
 
-    <div class="footer-social-links">
-      <a href="#" aria-label="TikTok">
-        <i class="fa-brands fa-tiktok"></i>
-        <span>tiktok</span>
-      </a>
+    <p>
+      <i class="fa-regular fa-clock"></i>
+      <span>Monday - Friday</span>
+      <span>9:00 AM - 7:00 PM</span>
+    </p>
 
-      <a href="#" aria-label="Instagram">
-        <i class="fa-brands fa-instagram"></i>
-        <span>instagram</span>
-      </a>
+    <p>
+      <i class="fa-regular fa-clock"></i>
+      <span>Saturday</span>
+      <span>9:00 AM - 5:00 PM</span>
+    </p>
 
-      <a href="#" aria-label="Facebook">
-        <i class="fa-brands fa-facebook-f"></i>
-        <span>facebook</span>
-      </a>
+    <p>
+      <i class="fa-regular fa-clock"></i>
+      <span>Sunday</span>
+      <span>Closed</span>
+    </p>
+  </section>
 
-      <a href="#" aria-label="Twitter">
-        <i class="fa-brands fa-x-twitter"></i>
-        <span>twitter</span>
-      </a>
-    </div>
+  <!-- ===============================
+       Newsletter
+       =============================== -->
+
+  <section class="footer-section footer-newsletter">
+    <h3>NEWSLETTER</h3>
+
+    <p>
+      Stay updated with our latest offers, beauty tips &amp; more.
+    </p>
+
+    <form class="footer-newsletter-form">
+      <input
+        type="email"
+        placeholder="Enter your email"
+        aria-label="Enter your email"
+      />
+
+      <button type="submit" aria-label="Submit newsletter email">
+        <i class="fa-regular fa-paper-plane"></i>
+      </button>
+    </form>
   </section>
 </footer>

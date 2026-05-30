@@ -1,41 +1,147 @@
 <section class="home-page">
   <!-- ===============================
        Hero section
-       Main homepage introduction.
+       Controlled gallery-style grid:
+       pink text panel, large makeup slideshow image,
+       2 small images, large image.
        =============================== -->
 
   <section class="hero-section" aria-label="MO Nail and Makeup Artist homepage hero">
-    <div class="hero-content">
-      <h1>
-        Enhance Your <span>Beauty</span><br />
-        Elevate Your <span>Confidence</span>
-      </h1>
+    <div class="hero-text-panel">
+      <div class="hero-content">
+        <h1>
+          Enhance Your <span>Beauty</span><br />
+          Elevate Your <span>Confidence</span>
+        </h1>
 
-      <p>
-        Expert nails and makeup services tailored for your unique glow.
-        Look your best, feel your best.
-      </p>
+        <p>
+          Expert nails and makeup services tailored for your unique glow.
+          Look your best, feel your best.
+        </p>
 
-      <a class="hero-button" routerLink="/services">
-        BOOK APPOINTMENT
-      </a>
+        <a class="hero-button" routerLink="/services">
+          BOOK APPOINTMENT
+        </a>
+      </div>
+    </div>
+
+    <article
+      class="hero-image-card hero-large-card hero-makeup-card"
+      [class.makeup-slide-transitioning]="isMakeupSlideTransitioning"
+      [class.makeup-slide-resetting]="isMakeupSlideResetting"
+    >
+      <div class="hero-image-wrap">
+        <img
+          class="hero-slideshow-image hero-slideshow-current"
+          [src]="currentMakeupHeroImage"
+          alt="Current makeup beauty inspiration"
+        />
+
+        <img
+          class="hero-slideshow-image hero-slideshow-next"
+          [src]="nextMakeupHeroImage"
+          alt="Next makeup beauty inspiration"
+        />
+      </div>
+    </article>
+
+    <article
+      class="hero-image-card hero-small-card hero-lashes-card"
+      [class.lashes-slide-transitioning]="isLashesSlideTransitioning"
+      [class.lashes-slide-resetting]="isLashesSlideResetting"
+    >
+      <div class="hero-image-wrap">
+        <img
+          class="hero-slideshow-image hero-slideshow-current"
+          [src]="currentLashesHeroImage"
+          alt="Current eyelash beauty inspiration"
+        />
+
+        <img
+          class="hero-slideshow-image hero-slideshow-next"
+          [src]="nextLashesHeroImage"
+          alt="Next eyelash beauty inspiration"
+        />
+      </div>
+    </article>
+
+    <article
+      class="hero-image-card hero-small-card hero-pedicure-card"
+      [class.pedicure-slide-transitioning]="isPedicureSlideTransitioning"
+      [class.pedicure-slide-resetting]="isPedicureSlideResetting"
+    >
+      <div class="hero-image-wrap">
+        <img
+          class="hero-slideshow-image hero-slideshow-current"
+          [src]="currentPedicureHeroImage"
+          alt="Current pedicure beauty inspiration"
+        />
+
+        <img
+          class="hero-slideshow-image hero-slideshow-next"
+          [src]="nextPedicureHeroImage"
+          alt="Next pedicure beauty inspiration"
+        />
+      </div>
+    </article>
+
+    <article
+      class="hero-image-card hero-large-card hero-nail-card"
+      [class.manicure-slide-transitioning]="isManicureSlideTransitioning"
+      [class.manicure-slide-resetting]="isManicureSlideResetting"
+    >
+      <div class="hero-image-wrap">
+        <img
+          class="hero-slideshow-image hero-slideshow-current"
+          [src]="currentManicureHeroImage"
+          alt="Current manicure nail design inspiration"
+        />
+
+        <img
+          class="hero-slideshow-image hero-slideshow-next"
+          [src]="nextManicureHeroImage"
+          alt="Next manicure nail design inspiration"
+        />
+      </div>
+    </article>
+  </section>
+
+  <!-- ===============================
+       About us introduction
+       =============================== -->
+
+  <section class="about-preview-section" aria-label="About MO Beauty">
+    <p class="about-eyebrow">ABOUT US</p>
+
+    <h2>
+      Where <span>Beauty</span> Meets Confidence
+    </h2>
+
+    <p class="about-description">
+      At MO Beauty, we believe that self-care is more than a routine, it’s a form of self-love.
+      <br />
+      Our expert team is dedicated to enhancing your natural beauty with precision, passion, and care.
+    </p>
+
+    <div class="about-divider">
+      <span></span>
+      <i class="fa-regular fa-gem"></i>
+      <span></span>
     </div>
   </section>
 
   <!-- ===============================
-       Browse categories
+       Explore services
        Service category cards.
        =============================== -->
 
   <section class="categories-section" aria-label="Browse salon categories">
     <div class="section-heading">
+      <span></span>
+
       <h2>EXPLORE OUR <span>SERVICES</span></h2>
 
-      <div class="heading-divider">
-        <span></span>
-        <i class="fa-solid fa-heart"></i>
-        <span></span>
-      </div>
+      <span></span>
     </div>
 
     <div class="category-grid">
@@ -56,6 +162,74 @@
 
         <div class="category-text">
           <h3>{{ category.title }}</h3>
+
+          <p>{{ category.description }}</p>
+
+          <a routerLink="/services">
+            BOOK NOW
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===============================
+       Client reviews
+       =============================== -->
+
+  <section class="reviews-section" aria-label="Client reviews">
+    <div class="reviews-summary">
+      <p>TELL US YOUR THOUGHTS</p>
+
+      <div class="review-score">
+        <span>4.9</span>
+
+        <div>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+        </div>
+      </div>
+
+      <small>Based on 324+ reviews</small>
+
+      <a routerLink="/contact">
+        LEAVE A REVIEW
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="review-card-grid">
+      <article class="review-card" *ngFor="let review of clientReviews">
+        <div class="review-stars">
+          <span>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+          </span>
+
+          <i class="fa-solid fa-quote-right"></i>
+        </div>
+
+        <p>
+          {{ review.reviewText }}
+        </p>
+
+        <div class="review-client">
+          <img
+            [src]="review.imageUrl"
+            [alt]="review.altText"
+          />
+
+          <div>
+            <h3>{{ review.clientName }}</h3>
+            <small>{{ review.location }}</small>
+          </div>
         </div>
       </article>
     </div>
