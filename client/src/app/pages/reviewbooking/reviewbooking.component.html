@@ -1,0 +1,279 @@
+<section class="review-page">
+  <!-- ===============================
+       Main booking flow progress
+       Shows the user is on the review step.
+       =============================== -->
+
+  <nav class="booking-flow-progress" aria-label="Booking flow progress">
+    <div class="booking-flow-step completed">
+      <span>
+        <i class="fa-solid fa-check"></i>
+      </span>
+
+      <div>
+        <h3>Services Selected</h3>
+        <p>You chose your services</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line active"></div>
+
+    <div class="booking-flow-step completed">
+      <span>
+        <i class="fa-solid fa-check"></i>
+      </span>
+
+      <div>
+        <h3>Book Session</h3>
+        <p>Date and time selected</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line active"></div>
+
+    <div class="booking-flow-step active">
+      <span>3</span>
+
+      <div>
+        <h3>Review Booking</h3>
+        <p>Check your details</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line"></div>
+
+    <div class="booking-flow-step">
+      <span>4</span>
+
+      <div>
+        <h3>Pay Deposit</h3>
+        <p>Secure your booking</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line"></div>
+
+    <div class="booking-flow-step">
+      <span>5</span>
+
+      <div>
+        <h3>Confirmation</h3>
+        <p>View your receipt</p>
+      </div>
+    </div>
+  </nav>
+
+  <div class="review-shell">
+    <!-- ===============================
+         Row 1: Services done progress + review header and selected services
+         This keeps the first side step aligned with the top review section.
+         =============================== -->
+
+    <aside
+      class="review-progress-step"
+      aria-label="Services done review progress step"
+    >
+      <div class="side-step completed">
+        <span>
+          <i class="fa-solid fa-check"></i>
+        </span>
+
+        <div>
+          <h3>SERVICES DONE</h3>
+          <p>You selected {{ services.length }} services</p>
+        </div>
+      </div>
+    </aside>
+
+    <section class="review-section">
+      <header class="review-header">
+        <div>
+          <p>YOU’RE ALMOST DONE</p>
+          <h1>Review Your Booking</h1>
+          <span>Please check your appointment details before paying your deposit.</span>
+        </div>
+
+        <a routerLink="/booking">
+          <i class="fa-solid fa-arrow-left"></i>
+          Edit Booking
+        </a>
+      </header>
+
+      <section class="review-summary-grid">
+        <article class="review-main-card">
+          <h2>SELECTED SERVICES</h2>
+
+          <div class="review-service-list">
+            <article
+              class="review-service"
+              *ngFor="let service of services"
+            >
+              <img
+                [src]="service.imageUrl"
+                [alt]="service.altText"
+              />
+
+              <div>
+                <h3>{{ service.title }}</h3>
+                <p>{{ service.selectedType }}</p>
+
+                <span>
+                  <i class="fa-regular fa-clock"></i>
+                  {{ service.duration }}
+                </span>
+              </div>
+
+              <strong>R{{ service.price }}</strong>
+            </article>
+          </div>
+        </article>
+
+        <aside class="review-total-card">
+          <h2>BOOKING TOTAL</h2>
+
+          <div class="total-row">
+            <span>Booking Mode</span>
+            <strong>{{ bookingMode }}</strong>
+          </div>
+
+          <div class="total-row">
+            <span>Total Duration</span>
+            <strong>{{ formattedDuration }}</strong>
+          </div>
+
+          <div class="total-row">
+            <span>Total Amount</span>
+            <strong>R{{ totalPrice }}</strong>
+          </div>
+
+          <div class="total-row deposit-row">
+            <span>Deposit Required</span>
+            <strong>R{{ depositAmount }}</strong>
+          </div>
+
+          <div class="total-row">
+            <span>Balance Remaining</span>
+            <strong>R{{ balanceRemaining }}</strong>
+          </div>
+        </aside>
+      </section>
+    </section>
+
+    <!-- ===============================
+         Row 2: Booking done progress + appointment details
+         This keeps the booking done step aligned with the appointment details.
+         =============================== -->
+
+    <aside
+      class="review-progress-step"
+      aria-label="Booking done review progress step"
+    >
+      <div class="side-step completed">
+        <span>
+          <i class="fa-solid fa-check"></i>
+        </span>
+
+        <div>
+          <h3>BOOKING DONE</h3>
+          <p>You selected your date and time</p>
+        </div>
+      </div>
+    </aside>
+
+    <section class="review-section">
+      <section class="details-review-grid">
+        <article class="review-detail-card">
+          <h2>APPOINTMENT DETAILS</h2>
+
+          <div class="appointment-list">
+            <div
+              class="appointment-row"
+              *ngFor="let service of services"
+            >
+              <span>{{ service.title }}</span>
+
+              <p>
+                {{ service.date }} at {{ service.time }}
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="review-detail-card">
+          <h2>CLIENT DETAILS</h2>
+
+          <div class="client-review-list">
+            <p>
+              <span>Full Name</span>
+              <strong>{{ client.fullName }}</strong>
+            </p>
+
+            <p>
+              <span>Phone Number</span>
+              <strong>{{ client.phoneNumber }}</strong>
+            </p>
+
+            <p>
+              <span>Email Address</span>
+              <strong>{{ client.emailAddress }}</strong>
+            </p>
+
+            <p>
+              <span>Preferred Contact</span>
+              <strong>{{ client.preferredContactMethod }}</strong>
+            </p>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <!-- ===============================
+         Row 3: Final review progress + special requests
+         This keeps the final review step aligned with the final review details.
+         =============================== -->
+
+    <aside
+      class="review-progress-step review-progress-step-last"
+      aria-label="Final review progress step"
+    >
+      <div class="side-step active">
+        <span>3</span>
+
+        <div>
+          <h3>FINAL REVIEW</h3>
+          <p>Confirm your booking details</p>
+        </div>
+      </div>
+    </aside>
+
+    <section class="review-section">
+      <section class="special-request-review">
+        <h2>SPECIAL REQUESTS</h2>
+        <p>{{ client.specialRequests }}</p>
+      </section>
+    </section>
+
+    <!-- ===============================
+         Row 4: Empty left space + proceed to payment action
+         =============================== -->
+
+    <div class="review-progress-empty" aria-hidden="true"></div>
+
+    <section class="review-section">
+      <footer class="review-action-bar">
+        <p>
+          <i class="fa-solid fa-circle-info"></i>
+          Your booking will be secured after the deposit payment is completed.
+        </p>
+
+        <a
+          class="confirm-booking-button"
+          routerLink="/pay-deposit"
+        >
+          PROCEED TO DEPOSIT PAYMENT
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </footer>
+    </section>
+  </div>
+</section>

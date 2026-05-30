@@ -1,11 +1,74 @@
 <section class="services-page">
+  <!-- ===============================
+       Main booking flow progress
+       Shows the user's position in the full booking journey.
+       =============================== -->
+
+  <nav class="booking-flow-progress" aria-label="Booking flow progress">
+    <div class="booking-flow-step active">
+      <span>1</span>
+
+      <div>
+        <h3>Services Selected</h3>
+        <p>Choose your services</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line"></div>
+
+    <div class="booking-flow-step">
+      <span>2</span>
+
+      <div>
+        <h3>Book Session</h3>
+        <p>Choose date and time</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line"></div>
+
+    <div class="booking-flow-step">
+      <span>3</span>
+
+      <div>
+        <h3>Review Booking</h3>
+        <p>Check your details</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line"></div>
+
+    <div class="booking-flow-step">
+      <span>4</span>
+
+      <div>
+        <h3>Pay Deposit</h3>
+        <p>Secure your booking</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line"></div>
+
+    <div class="booking-flow-step">
+      <span>5</span>
+
+      <div>
+        <h3>Confirmation</h3>
+        <p>View your receipt</p>
+      </div>
+    </div>
+  </nav>
+
   <div class="services-shell">
     <!-- ===============================
-         Left progress guide
-         Each step unlocks as the user completes the previous step.
+         Row 1: Choose services progress + service cards
+         This row keeps step 1 aligned with the service card section.
          =============================== -->
 
-    <aside class="services-progress" aria-label="Booking progress">
+    <aside
+      class="services-progress-step"
+      aria-label="Choose services progress step"
+    >
       <div class="progress-step active">
         <span>1</span>
 
@@ -14,10 +77,76 @@
           <p>Select the services you would like to enjoy.</p>
         </div>
       </div>
+    </aside>
 
-      <div class="progress-line" *ngIf="hasSelectedServices"></div>
+    <section class="services-section">
+      <div class="service-card-grid">
+        <article
+          class="service-card"
+          *ngFor="let service of services"
+          [class.selected]="service.selected"
+        >
+          <button
+            class="select-indicator"
+            type="button"
+            *ngIf="service.selected"
+            (click)="toggleService(service)"
+            [attr.aria-label]="'Remove ' + service.title"
+          >
+            <i class="fa-solid fa-check"></i>
+          </button>
 
-      <div class="progress-step active" *ngIf="hasSelectedServices">
+          <div class="service-image-wrap">
+            <img
+              [src]="service.imageUrl"
+              [alt]="service.altText"
+            />
+          </div>
+
+          <div class="service-card-body">
+            <h2>{{ service.title }}</h2>
+            <p>{{ service.description }}</p>
+
+            <div class="service-meta">
+              <span>
+                <i class="fa-regular fa-clock"></i>
+                {{ service.duration }}
+              </span>
+
+              <span>
+                From R{{ service.price }}
+              </span>
+            </div>
+
+            <button
+              class="service-toggle-button"
+              type="button"
+              (click)="toggleService(service)"
+            >
+              <i
+                class="fa-solid"
+                [class.fa-check]="service.selected"
+                [class.fa-plus]="!service.selected"
+              ></i>
+
+              {{ service.selected ? 'Added' : 'Add' }}
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===============================
+         Row 2: Service details progress + service detail cards
+         This row keeps step 2 aligned with the selected service details.
+         =============================== -->
+
+    <aside
+      class="services-progress-step"
+      aria-label="Service details progress step"
+      *ngIf="hasSelectedServices"
+    >
+      <div class="progress-step active">
         <span>2</span>
 
         <div>
@@ -25,10 +154,89 @@
           <p>Customise your selected services below.</p>
         </div>
       </div>
+    </aside>
 
-      <div class="progress-line" *ngIf="areServiceDetailsComplete"></div>
+    <section class="services-section" *ngIf="hasSelectedServices">
+      <div class="details-grid">
+        <article class="detail-card" *ngFor="let service of selectedServices">
+          <div class="detail-card-header">
+            <img
+              [src]="service.imageUrl"
+              [alt]="service.altText"
+            />
 
-      <div class="progress-step active" *ngIf="areServiceDetailsComplete">
+            <h3>{{ service.title }}</h3>
+
+            <button
+              type="button"
+              class="remove-service-button"
+              (click)="toggleService(service)"
+              [attr.aria-label]="'Remove ' + service.title"
+            >
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </div>
+
+          <div class="detail-card-body">
+            <div class="form-group">
+              <label>Service Type</label>
+
+              <select [(ngModel)]="getServiceDetail(service.id).selectedType">
+                <option value="">Choose type</option>
+                <option
+                  *ngFor="let type of service.serviceTypes"
+                  [value]="type"
+                >
+                  {{ type }}
+                </option>
+              </select>
+            </div>
+
+            <label class="upload-box">
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onInspoImageSelected($event, service.id)"
+              />
+
+              <ng-container *ngIf="!getServiceDetail(service.id).inspoPreviewUrl">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                <strong>Upload Inspo Pic</strong>
+                <span>Optional</span>
+              </ng-container>
+
+              <img
+                *ngIf="getServiceDetail(service.id).inspoPreviewUrl"
+                [src]="getServiceDetail(service.id).inspoPreviewUrl"
+                alt="Uploaded inspiration preview"
+              />
+            </label>
+
+            <div class="form-group full-width">
+              <label>Notes</label>
+
+              <textarea
+                rows="2"
+                [(ngModel)]="getServiceDetail(service.id).inspoNote"
+                placeholder="e.g. I prefer soft colours, glossy finish, natural look..."
+              ></textarea>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===============================
+         Row 3: Booking preference progress + preference cards
+         This row keeps step 3 aligned with the booking preference section.
+         =============================== -->
+
+    <aside
+      class="services-progress-step"
+      aria-label="Booking preference progress step"
+      *ngIf="areServiceDetailsComplete"
+    >
+      <div class="progress-step active">
         <span>3</span>
 
         <div>
@@ -36,10 +244,61 @@
           <p>Book in one session or separate visits.</p>
         </div>
       </div>
+    </aside>
 
-      <div class="progress-line progress-line-summary" *ngIf="hasBookingPreference"></div>
+    <section class="services-section" *ngIf="areServiceDetailsComplete">
+      <div class="booking-preference-grid">
+        <button
+          type="button"
+          class="preference-card"
+          [class.selected]="bookingPreference === 'combined'"
+          (click)="chooseBookingPreference('combined')"
+        >
+          <div class="preference-icon">
+            <i class="fa-regular fa-calendar-check"></i>
+          </div>
 
-      <div class="progress-step active" *ngIf="hasBookingPreference">
+          <div>
+            <h3>Combined Session</h3>
+            <p>Enjoy all selected services in one extended session.</p>
+            <span>Recommended</span>
+          </div>
+
+          <i class="fa-solid fa-check preference-check"></i>
+        </button>
+
+        <button
+          type="button"
+          class="preference-card"
+          [class.selected]="bookingPreference === 'separate'"
+          (click)="chooseBookingPreference('separate')"
+        >
+          <div class="preference-icon">
+            <i class="fa-regular fa-calendar-days"></i>
+          </div>
+
+          <div>
+            <h3>Separate Sessions</h3>
+            <p>Book each service on different dates or times.</p>
+            <span>Flexible</span>
+          </div>
+
+          <i class="fa-solid fa-check preference-check"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===============================
+         Row 4: Review summary progress + summary card
+         This row keeps step 4 aligned with the summary section.
+         =============================== -->
+
+    <aside
+      class="services-progress-step services-progress-step-last"
+      aria-label="Review summary progress step"
+      *ngIf="hasBookingPreference"
+    >
+      <div class="progress-step active">
         <span>4</span>
 
         <div>
@@ -49,244 +308,54 @@
       </div>
     </aside>
 
-    <!-- ===============================
-         Main services content
-         =============================== -->
-
-    <main class="services-content">
-      <!-- ===============================
-           Step 1: Choose services
-           =============================== -->
-
-      <section class="services-section">
-        <div class="service-card-grid">
+    <section class="services-section" *ngIf="hasBookingPreference">
+      <div class="summary-card">
+        <div class="summary-services">
           <article
-            class="service-card"
-            *ngFor="let service of services"
-            [class.selected]="service.selected"
+            class="summary-service"
+            *ngFor="let service of selectedServices"
           >
-            <button
-              class="select-indicator"
-              type="button"
-              *ngIf="service.selected"
-              (click)="toggleService(service)"
-              [attr.aria-label]="'Remove ' + service.title"
-            >
-              <i class="fa-solid fa-check"></i>
-            </button>
+            <img
+              [src]="service.imageUrl"
+              [alt]="service.altText"
+            />
 
-            <div class="service-image-wrap">
-              <img
-                [src]="service.imageUrl"
-                [alt]="service.altText"
-              />
-            </div>
+            <div>
+              <h4>{{ service.title }}</h4>
+              <p>{{ getServiceDetail(service.id).selectedType }}</p>
 
-            <div class="service-card-body">
-              <h2>{{ service.title }}</h2>
-              <p>{{ service.description }}</p>
+              <span>
+                <i class="fa-regular fa-clock"></i>
+                {{ service.duration }}
+              </span>
 
-              <div class="service-meta">
-                <span>
-                  <i class="fa-regular fa-clock"></i>
-                  {{ service.duration }}
-                </span>
-
-                <span>
-                  From R{{ service.price }}
-                </span>
-              </div>
-
-              <button
-                class="service-toggle-button"
-                type="button"
-                (click)="toggleService(service)"
-              >
-                <i
-                  class="fa-solid"
-                  [class.fa-check]="service.selected"
-                  [class.fa-plus]="!service.selected"
-                ></i>
-
-                {{ service.selected ? 'Added' : 'Add' }}
-              </button>
+              <strong>R{{ service.price }}</strong>
             </div>
           </article>
         </div>
-      </section>
 
-      <!-- ===============================
-           Step 2: Service details
-           Only appears after service selection.
-           =============================== -->
+        <div class="summary-total">
+          <p>Estimated Services</p>
+          <strong>{{ totalSelectedServices }}</strong>
 
-      <section class="services-section" *ngIf="hasSelectedServices">
-        <div class="details-grid">
-          <article class="detail-card" *ngFor="let service of selectedServices">
-            <div class="detail-card-header">
-              <img
-                [src]="service.imageUrl"
-                [alt]="service.altText"
-              />
+          <p>Booking Preference</p>
+          <strong>
+            {{ bookingPreference === 'combined' ? 'Combined Session' : 'Separate Sessions' }}
+          </strong>
 
-              <h3>{{ service.title }}</h3>
-
-              <button
-                type="button"
-                class="remove-service-button"
-                (click)="toggleService(service)"
-                [attr.aria-label]="'Remove ' + service.title"
-              >
-                <i class="fa-regular fa-trash-can"></i>
-              </button>
-            </div>
-
-            <div class="detail-card-body">
-              <div class="form-group">
-                <label>Service Type</label>
-
-                <select [(ngModel)]="getServiceDetail(service.id).selectedType">
-                  <option value="">Choose type</option>
-                  <option
-                    *ngFor="let type of service.serviceTypes"
-                    [value]="type"
-                  >
-                    {{ type }}
-                  </option>
-                </select>
-              </div>
-
-              <label class="upload-box">
-                <input
-                  type="file"
-                  accept="image/*"
-                  (change)="onInspoImageSelected($event, service.id)"
-                />
-
-                <ng-container *ngIf="!getServiceDetail(service.id).inspoPreviewUrl">
-                  <i class="fa-solid fa-arrow-up-from-bracket"></i>
-                  <strong>Upload Inspo Pic</strong>
-                  <span>Optional</span>
-                </ng-container>
-
-                <img
-                  *ngIf="getServiceDetail(service.id).inspoPreviewUrl"
-                  [src]="getServiceDetail(service.id).inspoPreviewUrl"
-                  alt="Uploaded inspiration preview"
-                />
-              </label>
-
-              <div class="form-group full-width">
-                <label>Notes</label>
-
-                <textarea
-                  rows="2"
-                  [(ngModel)]="getServiceDetail(service.id).inspoNote"
-                  placeholder="e.g. I prefer soft colours, glossy finish, natural look..."
-                ></textarea>
-              </div>
-            </div>
-          </article>
+          <p>Estimated Total</p>
+          <strong>R{{ totalEstimatedPrice }}</strong>
         </div>
-      </section>
 
-      <!-- ===============================
-           Step 3: Booking preference
-           Only appears after service details are completed.
-           =============================== -->
-
-      <section class="services-section" *ngIf="areServiceDetailsComplete">
-        <div class="booking-preference-grid">
-          <button
-            type="button"
-            class="preference-card"
-            [class.selected]="bookingPreference === 'combined'"
-            (click)="chooseBookingPreference('combined')"
-          >
-            <div class="preference-icon">
-              <i class="fa-regular fa-calendar-check"></i>
-            </div>
-
-            <div>
-              <h3>Combined Session</h3>
-              <p>Enjoy all selected services in one extended session.</p>
-              <span>Recommended</span>
-            </div>
-
-            <i class="fa-solid fa-check preference-check"></i>
-          </button>
-
-          <button
-            type="button"
-            class="preference-card"
-            [class.selected]="bookingPreference === 'separate'"
-            (click)="chooseBookingPreference('separate')"
-          >
-            <div class="preference-icon">
-              <i class="fa-regular fa-calendar-days"></i>
-            </div>
-
-            <div>
-              <h3>Separate Sessions</h3>
-              <p>Book each service on different dates or times.</p>
-              <span>Flexible</span>
-            </div>
-
-            <i class="fa-solid fa-check preference-check"></i>
-          </button>
-        </div>
-      </section>
-
-      <!-- ===============================
-           Step 4: Summary
-           Only appears after booking preference is chosen.
-           =============================== -->
-
-      <section class="services-section" *ngIf="hasBookingPreference">
-        <div class="summary-card">
-          <div class="summary-services">
-            <article
-              class="summary-service"
-              *ngFor="let service of selectedServices"
-            >
-              <img
-                [src]="service.imageUrl"
-                [alt]="service.altText"
-              />
-
-              <div>
-                <h4>{{ service.title }}</h4>
-                <p>{{ getServiceDetail(service.id).selectedType }}</p>
-
-                <span>
-                  <i class="fa-regular fa-clock"></i>
-                  {{ service.duration }}
-                </span>
-
-                <strong>R{{ service.price }}</strong>
-              </div>
-            </article>
-          </div>
-
-          <div class="summary-total">
-            <p>Estimated Services</p>
-            <strong>{{ totalSelectedServices }}</strong>
-
-            <p>Booking Preference</p>
-            <strong>
-              {{ bookingPreference === 'combined' ? 'Combined Session' : 'Separate Sessions' }}
-            </strong>
-
-            <p>Estimated Total</p>
-            <strong>R{{ totalEstimatedPrice }}</strong>
-          </div>
-
-          <a class="continue-button" routerLink="/booking">
-            CONTINUE TO BOOKING
-            <i class="fa-solid fa-arrow-right"></i>
-          </a>
-        </div>
-      </section>
-    </main>
+        <a
+          class="continue-button"
+          routerLink="/booking"
+          [queryParams]="{ mode: bookingPreference }"
+        >
+          CONTINUE TO BOOKING
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </section>
   </div>
 </section>

@@ -1,0 +1,160 @@
+<section class="confirmation-page">
+  <!-- ===============================
+       Main booking flow progress
+       Shows the user is on the final confirmation step.
+       =============================== -->
+
+  <nav class="booking-flow-progress" aria-label="Booking flow progress">
+    <div class="booking-flow-step completed">
+      <span>
+        <i class="fa-solid fa-check"></i>
+      </span>
+
+      <div>
+        <h3>Services Selected</h3>
+        <p>You chose your services</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line active"></div>
+
+    <div class="booking-flow-step completed">
+      <span>
+        <i class="fa-solid fa-check"></i>
+      </span>
+
+      <div>
+        <h3>Book Session</h3>
+        <p>Date and time selected</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line active"></div>
+
+    <div class="booking-flow-step completed">
+      <span>
+        <i class="fa-solid fa-check"></i>
+      </span>
+
+      <div>
+        <h3>Review Booking</h3>
+        <p>Details checked</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line active"></div>
+
+    <div class="booking-flow-step completed">
+      <span>
+        <i class="fa-solid fa-check"></i>
+      </span>
+
+      <div>
+        <h3>Pay Deposit</h3>
+        <p>Deposit paid</p>
+      </div>
+    </div>
+
+    <div class="booking-flow-line active"></div>
+
+    <div class="booking-flow-step active">
+      <span>5</span>
+
+      <div>
+        <h3>Confirmation</h3>
+        <p>View your receipt</p>
+      </div>
+    </div>
+  </nav>
+
+  <div class="confirmation-shell">
+    <header class="confirmation-header">
+      <div class="success-icon">
+        <i class="fa-solid fa-check"></i>
+      </div>
+
+      <p>BOOKING CONFIRMED</p>
+      <h1>Deposit Paid Successfully</h1>
+      <span>Your appointment has been secured. Please keep this confirmation for your records.</span>
+    </header>
+
+    <section class="confirmation-grid">
+      <article class="confirmation-card">
+        <h2>BOOKING RECEIPT</h2>
+
+        <div class="confirmation-row">
+          <span>Booking Reference</span>
+          <strong>{{ bookingReference }}</strong>
+        </div>
+
+        <div class="confirmation-row">
+          <span>Total Booking Amount</span>
+          <strong>R{{ totalAmount }}</strong>
+        </div>
+
+        <div class="confirmation-row deposit-row">
+          <span>Deposit Paid</span>
+          <strong>R{{ depositPaid }}</strong>
+        </div>
+
+        <div class="confirmation-row">
+          <span>Balance Remaining</span>
+          <strong>R{{ balanceRemaining }}</strong>
+        </div>
+
+        <p class="balance-note">
+          The remaining balance is due at your appointment.
+        </p>
+      </article>
+
+      <article class="confirmation-card">
+        <h2>CLIENT DETAILS</h2>
+
+        <div class="confirmation-row">
+          <span>Full Name</span>
+          <strong>{{ client.fullName }}</strong>
+        </div>
+
+        <div class="confirmation-row">
+          <span>Phone Number</span>
+          <strong>{{ client.phoneNumber }}</strong>
+        </div>
+
+        <div class="confirmation-row">
+          <span>Email Address</span>
+          <strong>{{ client.emailAddress }}</strong>
+        </div>
+      </article>
+    </section>
+
+    <section class="confirmed-services-card">
+      <h2>SERVICES BOOKED</h2>
+
+      <div class="confirmed-service-list">
+        <article
+          class="confirmed-service"
+          *ngFor="let service of services"
+        >
+          <div>
+            <h3>{{ service.title }}</h3>
+            <p>{{ service.selectedType }}</p>
+          </div>
+
+          <strong>{{ service.date }} at {{ service.time }}</strong>
+        </article>
+      </div>
+    </section>
+
+    <footer class="confirmation-action-bar">
+      <p>
+        <i class="fa-solid fa-circle-info"></i>
+        Your booking request and deposit payment have been recorded.
+      </p>
+
+      <a routerLink="/home">
+        BACK TO HOME
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </footer>
+  </div>
+</section>

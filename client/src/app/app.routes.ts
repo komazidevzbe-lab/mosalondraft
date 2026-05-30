@@ -8,6 +8,9 @@ import { ServicesComponent } from './pages/services/services.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { BookingComponent } from './pages/booking/booking.component';
+import { ReviewbookingComponent } from './pages/reviewbooking/reviewbooking.component';
+import { PaydepositComponent } from './pages/paydeposit/paydeposit.component';
+import { ConfirmationComponent } from './pages/confirmation/confirmation.component';
 
 export const routes: Routes = [
   // Landing / authentication pages - no navbar
@@ -21,7 +24,7 @@ export const routes: Routes = [
     component: SignupComponent
   },
 
-  // Main website pages - navbar/footer layout, for later
+  // Main website pages - navbar/footer layout
   {
     path: '',
     component: PublicLayoutComponent,
@@ -29,6 +32,9 @@ export const routes: Routes = [
       { path: 'home', component: HomeComponent },
       { path: 'services', component: ServicesComponent },
       { path: 'booking', component: BookingComponent },
+      { path: 'review-booking', component: ReviewbookingComponent },
+      { path: 'pay-deposit', component: PaydepositComponent },
+      { path: 'confirmation', component: ConfirmationComponent },
       { path: 'gallery', component: GalleryComponent },
       { path: 'contact', component: ContactComponent }
     ]

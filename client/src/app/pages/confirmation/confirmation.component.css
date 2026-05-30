@@ -1,0 +1,356 @@
+/* ===============================
+   Confirmation page setup
+   =============================== */
+
+:host {
+  display: block;
+}
+
+.confirmation-page {
+  min-height: 100vh;
+  padding: 22px 120px 40px;
+
+  background: transparent;
+  color: #111;
+}
+
+/* ===============================
+   Main booking flow progress
+   =============================== */
+
+.booking-flow-progress {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto 24px;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto 1fr auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.booking-flow-step {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.booking-flow-step span {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1.5px solid rgba(238, 147, 139, 0.45);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.76);
+
+  color: #111;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.booking-flow-step.active span,
+.booking-flow-step.completed span {
+  border-color: #ee938b;
+  background: #ee938b;
+
+  color: #fff;
+}
+
+.booking-flow-step h3 {
+  margin: 0 0 3px;
+
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.booking-flow-step p {
+  margin: 0;
+
+  color: #444;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.booking-flow-line {
+  height: 1.5px;
+  background: linear-gradient(to right, rgba(238, 147, 139, 0.25), rgba(238, 147, 139, 0.08));
+}
+
+.booking-flow-line.active {
+  background: linear-gradient(to right, #ee938b, rgba(238, 147, 139, 0.2));
+}
+
+/* ===============================
+   Confirmation content
+   =============================== */
+
+.confirmation-shell {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 34px;
+
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(238, 155, 148, 0.2);
+  border-radius: 12px;
+}
+
+.confirmation-header {
+  margin-bottom: 28px;
+
+  text-align: center;
+}
+
+.success-icon {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ee938b;
+  border-radius: 50%;
+
+  color: #fff;
+  font-size: 25px;
+}
+
+.confirmation-header p {
+  margin: 0 0 8px;
+
+  color: #ee938b;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.confirmation-header h1 {
+  margin: 0 0 10px;
+
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 36px;
+  font-weight: 500;
+}
+
+.confirmation-header span {
+  color: #333;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.confirmation-grid {
+  margin-bottom: 18px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.confirmation-card,
+.confirmed-services-card,
+.confirmation-action-bar {
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(238, 155, 148, 0.28);
+  border-radius: 10px;
+}
+
+.confirmation-card,
+.confirmed-services-card {
+  padding: 22px;
+}
+
+.confirmation-card h2,
+.confirmed-services-card h2 {
+  margin: 0 0 18px;
+
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.confirmation-row {
+  padding: 13px 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  border-bottom: 1px solid rgba(238, 155, 148, 0.18);
+}
+
+.confirmation-row:last-child {
+  border-bottom: none;
+}
+
+.confirmation-row span {
+  color: #333;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.confirmation-row strong {
+  color: #111;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.deposit-row {
+  padding: 13px 12px;
+
+  background: rgba(255, 229, 229, 0.5);
+  border-bottom: none;
+  border-radius: 7px;
+}
+
+.deposit-row strong {
+  color: #ee938b;
+}
+
+.balance-note {
+  margin: 14px 0 0;
+
+  color: #333;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.confirmed-services-card {
+  margin-bottom: 18px;
+}
+
+.confirmed-service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.confirmed-service {
+  padding-bottom: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid rgba(238, 155, 148, 0.18);
+}
+
+.confirmed-service:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.confirmed-service h3 {
+  margin: 0 0 5px;
+
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.confirmed-service p {
+  margin: 0;
+
+  color: #333;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.confirmed-service strong {
+  color: #ee938b;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.confirmation-action-bar {
+  padding: 14px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.confirmation-action-bar p {
+  margin: 0;
+
+  color: #333;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.confirmation-action-bar i {
+  color: #ee938b;
+}
+
+.confirmation-action-bar a {
+  width: 180px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  background: #000;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.23);
+
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+/* ===============================
+   Responsive confirmation page
+   =============================== */
+
+@media (max-width: 1180px) {
+  .confirmation-page {
+    padding: 34px 34px 40px;
+  }
+
+  .booking-flow-progress,
+  .confirmation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-flow-line {
+    display: none;
+  }
+
+  .confirmation-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 680px) {
+  .confirmation-page {
+    padding: 24px 18px 34px;
+  }
+
+  .confirmation-shell {
+    padding: 22px 18px;
+  }
+
+  .confirmed-service,
+  .confirmation-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .confirmation-action-bar a {
+    width: 100%;
+  }
+}

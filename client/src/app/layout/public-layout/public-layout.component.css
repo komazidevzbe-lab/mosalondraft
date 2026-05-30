@@ -28,15 +28,43 @@
 }
 
 /* ===============================
-   Services-only background
-   The services background image is only applied on the /services route.
-   It sits behind the navbar, services page content and footer.
+   Booking-flow background
+   The services background image is applied on the booking flow pages.
+   It sits behind the navbar, routed page content and footer.
    =============================== */
 
-.public-layout.services-layout-background {
+.public-layout.booking-flow-layout-background {
   background:
     #fff
     url("/assets/services/servicebackground.png")
+    center top / cover
+    no-repeat;
+}
+
+/* ===============================
+   Gallery-only background
+   The gallery background image is only applied on the /gallery route.
+   It sits behind the navbar, gallery page content and footer.
+   =============================== */
+
+.public-layout.gallery-layout-background {
+  background:
+    #fff
+    url("/assets/gallery/gallerybackground.png")
+    center top / cover
+    no-repeat;
+}
+
+/* ===============================
+   Contact-only background
+   The contact background image is only applied on the /contact route.
+   It sits behind the navbar, contact page content and footer.
+   =============================== */
+
+.public-layout.contact-layout-background {
+  background:
+    #fff
+    url("/assets/contact/contactbackground.png")
     center top / cover
     no-repeat;
 }

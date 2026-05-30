@@ -1,1 +1,248 @@
-<p>contact works!</p>
+<section class="contact-page">
+  <!-- ===============================
+       Contact hero heading
+       =============================== -->
+
+  <header class="contact-header">
+    <h1>Beauty begins with connection.</h1>
+
+    <p>
+      We’d love to hear from you! Reach out for appointments,
+      <br />
+      questions, or collaboration opportunities.
+    </p>
+  </header>
+
+  <!-- ===============================
+       Contact information cards
+       =============================== -->
+
+  <section class="contact-card-grid" aria-label="Contact options">
+    <article
+      class="contact-info-card"
+      *ngFor="let card of contactCards"
+    >
+      <div class="contact-info-icon">
+        <i [class]="card.iconClass"></i>
+      </div>
+
+      <div>
+        <h2>{{ card.title }}</h2>
+        <p>{{ card.description }}</p>
+        <strong>{{ card.value }}</strong>
+      </div>
+    </article>
+  </section>
+
+  <!-- ===============================
+       Contact form and map section
+       =============================== -->
+
+  <section class="contact-main-grid">
+    <article class="message-card">
+      <header class="card-heading">
+        <div class="heading-icon">
+          <i class="fa-regular fa-envelope"></i>
+        </div>
+
+        <div>
+          <div class="section-title-line">
+            <h2>Send Us A Message</h2>
+            <span></span>
+          </div>
+
+          <p>Fill out the form below and we’ll get back to you as soon as possible.</p>
+        </div>
+      </header>
+
+      <form class="contact-form" (ngSubmit)="submitContactForm()">
+        <div class="form-row">
+          <label>
+            <i class="fa-regular fa-user"></i>
+
+            <input
+              type="text"
+              name="fullName"
+              [(ngModel)]="contactForm.fullName"
+              placeholder="Full Name"
+            />
+          </label>
+
+          <label>
+            <i class="fa-regular fa-envelope"></i>
+
+            <input
+              type="email"
+              name="emailAddress"
+              [(ngModel)]="contactForm.emailAddress"
+              placeholder="Email Address"
+            />
+          </label>
+        </div>
+
+        <label>
+          <i class="fa-solid fa-phone"></i>
+
+          <input
+            type="tel"
+            name="phoneNumber"
+            [(ngModel)]="contactForm.phoneNumber"
+            placeholder="Phone Number"
+          />
+        </label>
+
+        <label>
+          <i class="fa-regular fa-heart"></i>
+
+          <select
+            name="interest"
+            [(ngModel)]="contactForm.interest"
+          >
+            <option value="">I’m interested in...</option>
+            <option
+              *ngFor="let option of interestOptions"
+              [value]="option"
+            >
+              {{ option }}
+            </option>
+          </select>
+        </label>
+
+        <label class="message-field">
+          <i class="fa-regular fa-comment-dots"></i>
+
+          <textarea
+            name="message"
+            rows="5"
+            [(ngModel)]="contactForm.message"
+            placeholder="Your Message"
+          ></textarea>
+        </label>
+
+        <button type="submit" class="send-message-button">
+          Send Message
+          <i class="fa-regular fa-paper-plane"></i>
+        </button>
+      </form>
+    </article>
+
+    <section class="location-column">
+      <article class="map-card">
+        <iframe
+          class="map-frame"
+          title="MO Nail and Makeup Artist location map"
+          src="https://www.google.com/maps?q=The%20Big%20Hole%2C%20S%20Circular%20Road%2C%20Kimberley%2C%208300&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+
+        <a
+          class="directions-button"
+          href="https://www.google.com/maps/dir/?api=1&destination=The%20Big%20Hole%2C%20S%20Circular%20Road%2C%20Kimberley%2C%208300"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Get Directions
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+      </article>
+
+      <article class="comfort-card">
+        <div class="comfort-item">
+          <div class="comfort-icon">
+            <i class="fa-solid fa-shield"></i>
+          </div>
+
+          <div>
+            <h3>Your Safety & Comfort</h3>
+            <p>Your safety is our priority. Our salon is secure, clean, and welcoming for all clients.</p>
+          </div>
+        </div>
+
+        <div class="comfort-divider"></div>
+
+        <div class="comfort-item">
+          <div class="comfort-icon">
+            <i class="fa-solid fa-car"></i>
+          </div>
+
+          <div>
+            <h3>Parking Available</h3>
+            <p>Free and secure parking is available on-site for your convenience.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </section>
+
+  <!-- ===============================
+       Opening hours and feedback
+       =============================== -->
+
+  <section class="contact-bottom-grid">
+    <article class="opening-hours-card">
+      <header class="card-heading">
+        <div class="heading-icon">
+          <i class="fa-regular fa-calendar"></i>
+        </div>
+
+        <div>
+          <div class="section-title-line">
+            <h2>Opening Hours</h2>
+            <span></span>
+          </div>
+        </div>
+      </header>
+
+      <div class="hours-grid">
+        <p
+          *ngFor="let hour of openingHours"
+          [class.closed]="hour.isClosed"
+        >
+          <span>{{ hour.day }}</span>
+          <strong>{{ hour.time }}</strong>
+        </p>
+      </div>
+    </article>
+
+    <article class="feedback-card">
+      <header class="feedback-heading">
+        <div class="section-title-line">
+          <h2>How Was Your Experience?</h2>
+          <span></span>
+        </div>
+
+        <p>We’d love your feedback. Your support helps us grow.</p>
+      </header>
+
+      <div class="feedback-stars" aria-label="Review rating">
+        <button
+          type="button"
+          *ngFor="let star of ratingStars"
+          [class.active]="star <= selectedFeedbackRating"
+          (click)="selectFeedbackRating(star)"
+          [attr.aria-label]="'Rate ' + star + ' out of 5'"
+        >
+          <i
+            class="fa-star"
+            [class.fa-solid]="star <= selectedFeedbackRating"
+            [class.fa-regular]="star > selectedFeedbackRating"
+          ></i>
+        </button>
+      </div>
+
+      <form class="feedback-form" (ngSubmit)="submitFeedback()">
+        <input
+          type="text"
+          name="feedbackMessage"
+          [(ngModel)]="feedbackMessage"
+          placeholder="Share your thoughts with us..."
+        />
+
+        <button type="submit">
+          Submit Review
+        </button>
+      </form>
+    </article>
+  </section>
+</section>

@@ -1,0 +1,405 @@
+/* ===============================
+   Gallery page setup
+   Background image is handled by public-layout on the gallery route.
+   =============================== */
+
+:host {
+  display: block;
+}
+
+.gallery-page {
+  min-height: 100vh;
+  padding: 34px 150px 24px;
+
+  background: transparent;
+  color: #111;
+}
+
+/* ===============================
+   Gallery heading
+   =============================== */
+
+.gallery-header {
+  max-width: 760px;
+  margin: 0 auto 22px;
+
+  text-align: center;
+}
+
+.gallery-header h1 {
+  margin: 0;
+
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.8px;
+}
+
+.gallery-divider {
+  margin: 12px auto 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  color: #ef5d6f;
+}
+
+.gallery-divider span {
+  width: 78px;
+  height: 1.5px;
+
+  background: rgba(239, 93, 111, 0.45);
+}
+
+.gallery-divider i {
+  font-size: 18px;
+}
+
+.gallery-header p {
+  margin: 0;
+
+  color: #555;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ===============================
+   Gallery filters
+   =============================== */
+
+.gallery-filters {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto 22px;
+
+  display: grid;
+  grid-template-columns: repeat(6, minmax(165px, 1fr));
+  gap: 14px;
+}
+
+.gallery-filters button {
+  height: 44px;
+  padding: 0 20px;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1.5px solid rgba(238, 147, 139, 0.5);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+
+  color: #111;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.gallery-filters button i {
+  flex: 0 0 auto;
+
+  color: #ef5d6f;
+  font-size: 18px;
+}
+
+.gallery-filters button img {
+  flex: 0 0 auto;
+
+  width: 60px;
+  height: 60px;
+
+  display: block;
+  object-fit: contain;
+  transform: scale(1);
+}
+
+.gallery-filters button:hover {
+  transform: translateY(-2px);
+  border-color: #ef5d6f;
+}
+
+.gallery-filters button.active {
+  border-color: #ef5d6f;
+  background: #ef4f62;
+
+  color: #fff;
+}
+
+.gallery-filters button.active i {
+  color: #fff;
+}
+
+.gallery-filters button.active img {
+  filter: brightness(0) invert(1);
+}
+
+/* ===============================
+   Gallery image layout
+   The grid follows the controlled alternating masonry pattern.
+   =============================== */
+
+.gallery-grid {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: 170px;
+  gap: 18px;
+}
+
+.gallery-card {
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(238, 147, 139, 0.32);
+  border-radius: 8px;
+  box-shadow: 0 12px 24px rgba(180, 96, 90, 0.06);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 28px rgba(180, 96, 90, 0.12);
+}
+
+.gallery-image-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+
+  border-radius: inherit;
+}
+
+.gallery-card-tall .gallery-image-wrap {
+  min-height: 100%;
+}
+
+.gallery-image-wrap img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+  object-fit: cover;
+  object-position: center center;
+  transform: scale(2.2);
+}
+
+.gallery-card-content {
+  position: relative;
+  z-index: 2;
+
+  min-height: 54px;
+  padding: 10px 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.58),
+    rgba(0, 0, 0, 0.22),
+    rgba(0, 0, 0, 0)
+  );
+}
+
+.gallery-card-content h2 {
+  margin: 0 0 4px;
+
+  color: #fff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  font-weight: 800;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.gallery-card-content p {
+  margin: 0;
+
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.favorite-button {
+  flex: 0 0 auto;
+
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  background: transparent;
+
+  color: #fff;
+  font-size: 18px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+
+  cursor: pointer;
+}
+
+.favorite-button.active {
+  color: #ef4f62;
+}
+
+/* ===============================
+   Empty favorites state
+   =============================== */
+
+.empty-gallery-message {
+  width: 100%;
+  max-width: 520px;
+  margin: 56px auto;
+
+  padding: 36px 28px;
+
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(238, 147, 139, 0.35);
+  border-radius: 12px;
+
+  text-align: center;
+}
+
+.empty-gallery-message i {
+  color: #ef4f62;
+  font-size: 34px;
+}
+
+.empty-gallery-message h2 {
+  margin: 14px 0 8px;
+
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 24px;
+}
+
+.empty-gallery-message p {
+  margin: 0;
+
+  color: #555;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ===============================
+   Load more button
+   =============================== */
+
+.load-more-wrap {
+  margin: 18px auto 0;
+
+  display: flex;
+  justify-content: center;
+}
+
+.load-more-button {
+  width: 190px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  border: 1.7px solid #ef5d6f;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+
+  color: #ef4f62;
+  font-size: 14px;
+  font-weight: 800;
+
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.load-more-button:hover {
+  transform: translateY(-2px);
+  background: #ef4f62;
+
+  color: #fff;
+}
+
+/* ===============================
+   Responsive gallery page
+   =============================== */
+
+@media (max-width: 1180px) {
+  .gallery-page {
+    padding: 34px 36px 34px;
+  }
+
+  .gallery-filters {
+    grid-template-columns: repeat(3, minmax(165px, 1fr));
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .gallery-page {
+    padding: 28px 18px 34px;
+  }
+
+  .gallery-header h1 {
+    font-size: 30px;
+  }
+
+  .gallery-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+
+  .gallery-card,
+  .gallery-card-tall {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-height: 230px;
+  }
+
+  .gallery-image-wrap,
+  .gallery-card-tall .gallery-image-wrap {
+    height: 100%;
+    min-height: 100%;
+  }
+
+  .load-more-button {
+    width: 100%;
+  }
+}

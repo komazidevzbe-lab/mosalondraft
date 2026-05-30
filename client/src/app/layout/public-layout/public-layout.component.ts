@@ -28,11 +28,34 @@ export class PublicLayoutComponent {
   }
 
   // ===============================
-  // Services page background control
-  // The services background is only applied when the current route is /services.
+  // Booking flow background control
+  // The booking flow pages use the services background.
   // ===============================
 
-  get isServicesPage(): boolean {
-    return this.router.url.startsWith('/services');
+  get isBookingFlowPage(): boolean {
+    return (
+      this.router.url.startsWith('/booking') ||
+      this.router.url.startsWith('/review-booking') ||
+      this.router.url.startsWith('/pay-deposit') ||
+      this.router.url.startsWith('/confirmation')
+    );
+  }
+
+  // ===============================
+  // Gallery page background control
+  // The gallery background is applied only on the /gallery route.
+  // ===============================
+
+  get isGalleryPage(): boolean {
+    return this.router.url.startsWith('/gallery');
+  }
+
+  // ===============================
+  // Contact page background control
+  // The contact background is applied only on the /contact route.
+  // ===============================
+
+  get isContactPage(): boolean {
+    return this.router.url.startsWith('/contact');
   }
 }
