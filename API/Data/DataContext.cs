@@ -19,6 +19,8 @@ public class DataContext : IdentityDbContext<
     {
     }
 
+    public DbSet<PasswordResetCode> PasswordResetCodes { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -49,6 +51,33 @@ public class DataContext : IdentityDbContext<
                 .WithOne(userRole => userRole.Role)
                 .HasForeignKey(userRole => userRole.RoleId)
                 .IsRequired();
+        });
+
+        // ===============================
+        // Password reset code relationship
+        // Stores temporary reset codes for forgot-password flow.
+        // ===============================
+
+        builder.Entity<PasswordResetCode>(entity =>
+        {
+            entity.HasKey(resetCode => resetCode.Id);
+
+            entity.Property(resetCode => resetCode.CodeHash)
+                .IsRequired();
+
+            entity.Property(resetCode => resetCode.IdentityResetToken)
+                .IsRequired();
+
+            entity.Property(resetCode => resetCode.CreatedAt)
+                .IsRequired();
+
+            entity.Property(resetCode => resetCode.ExpiresAt)
+                .IsRequired();
+
+            entity.HasOne(resetCode => resetCode.User)
+                .WithMany()
+                .HasForeignKey(resetCode => resetCode.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

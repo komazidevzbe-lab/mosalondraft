@@ -9,10 +9,10 @@ public class LoginDto
     // Users sign in with email and password.
     // ===============================
 
-    [Required]
-    [EmailAddress]
+    [Required(ErrorMessage = "Email address is required.")]
+    [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
     public string Email { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "Password is required.")]
     public string Password { get; set; } = string.Empty;
 }

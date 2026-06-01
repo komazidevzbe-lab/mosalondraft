@@ -21,7 +21,9 @@
 
 .contact-header {
   max-width: 760px;
-  margin-bottom: 24px;
+  margin: 0 auto 24px;
+
+  text-align: center;
 }
 
 .contact-header h1 {

@@ -1,7 +1,6 @@
 using API.Data;
-using API.Entities;
 using API.Extensions;
-using Microsoft.AspNetCore.Identity;
+using API.Middleware;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +21,8 @@ var app = builder.Build();
 // HTTP request pipeline
 // Middleware order matters.
 // ===============================
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

@@ -3,6 +3,8 @@ import { Router, RouterOutlet } from '@angular/router';
 
 import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { FooterComponent } from '../../shared/footer/footer.component';
+import { SignoutComponent } from '../../auth/signout/signout.component';
+import { SignoutModalService } from '../../_services/signout-modal.service';
 
 @Component({
   selector: 'app-public-layout',
@@ -10,13 +12,16 @@ import { FooterComponent } from '../../shared/footer/footer.component';
   imports: [
     RouterOutlet,
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+    SignoutComponent
   ],
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.css'
 })
 export class PublicLayoutComponent {
   private router = inject(Router);
+
+  readonly signoutModalService = inject(SignoutModalService);
 
   // ===============================
   // Home page background control

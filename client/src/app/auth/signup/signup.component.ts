@@ -14,8 +14,8 @@ import { RegisterRequest } from '../../_models/register-request';
   styleUrl: './signup.component.css'
 })
 export class SignupComponent {
-  private accountService = inject(AccountService);
-  private router = inject(Router);
+  private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
 
   // ===============================
   // Signup form data
@@ -32,6 +32,9 @@ export class SignupComponent {
     confirmPassword: '',
     agreeToTerms: false
   };
+
+  errorMessage = '';
+  isSubmitting = false;
 
   // ===============================
   // Password visibility state
@@ -57,13 +60,15 @@ export class SignupComponent {
   // ===============================
 
   signup(): void {
+    this.errorMessage = '';
+
     if (this.signupModel.password !== this.signupModel.confirmPassword) {
-      console.error('Password and confirm password do not match.');
+      this.errorMessage = 'Password and confirm password do not match.';
       return;
     }
 
     if (!this.signupModel.agreeToTerms) {
-      console.error('Terms and conditions must be accepted.');
+      this.errorMessage = 'Terms and conditions must be accepted.';
       return;
     }
 
@@ -76,12 +81,31 @@ export class SignupComponent {
       confirmPassword: this.signupModel.confirmPassword
     };
 
+    if (
+      !registerRequest.firstName ||
+      !registerRequest.lastName ||
+      !registerRequest.email ||
+      !registerRequest.phoneNumber ||
+      !registerRequest.password ||
+      !registerRequest.confirmPassword
+    ) {
+      this.errorMessage = 'Please complete all required fields.';
+      return;
+    }
+
+    this.isSubmitting = true;
+
     this.accountService.register(registerRequest).subscribe({
       next: () => {
+        this.isSubmitting = false;
         this.router.navigateByUrl('/home');
       },
       error: error => {
-        console.error('Signup failed:', error);
+        this.isSubmitting = false;
+        this.errorMessage = this.accountService.getErrorMessage(
+          error,
+          'Signup failed. Please check your details and try again.'
+        );
       }
     });
   }

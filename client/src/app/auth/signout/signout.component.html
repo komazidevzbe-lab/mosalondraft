@@ -1,0 +1,40 @@
+<div class="signout-modal-backdrop">
+  <section class="signout-modal" role="dialog" aria-modal="true" aria-labelledby="signout-modal-title">
+    <button
+      type="button"
+      class="signout-close-button"
+      aria-label="Close sign out confirmation"
+      (click)="cancelSignout()"
+    >
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <div class="signout-icon">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </div>
+
+    <h2 id="signout-modal-title">Sign Out?</h2>
+
+    <p>
+      Are you sure you want to sign out?
+    </p>
+
+    <div class="signout-actions">
+      <button
+        type="button"
+        class="cancel-button"
+        (click)="cancelSignout()"
+      >
+        No, Stay Here
+      </button>
+
+      <button
+        type="button"
+        class="confirm-button"
+        (click)="confirmSignout()"
+      >
+        Yes, Sign Out
+      </button>
+    </div>
+  </section>
+</div>

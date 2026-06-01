@@ -10,24 +10,35 @@ namespace API.Controllers;
 
 public class AccountController(
     UserManager<AppUser> userManager,
-    ITokenService tokenService
+    RoleManager<AppRole> roleManager,
+    ITokenService tokenService,
+    IPasswordResetService passwordResetService
 ) : BaseApiController
 {
     // ===============================
     // Register
-    // Creates a new salon user account.
+    // Creates a new salon client account.
     // ===============================
 
     [HttpPost("register")]
     public async Task<ActionResult<UserDto>> Register(RegisterUserDto registerDto)
     {
         var email = registerDto.Email.Trim().ToLowerInvariant();
+        var phoneNumber = registerDto.PhoneNumber.Trim();
 
         if (await EmailExists(email))
         {
             return BadRequest(new
             {
                 email = "This email address is already registered."
+            });
+        }
+
+        if (await PhoneNumberExists(phoneNumber))
+        {
+            return BadRequest(new
+            {
+                phoneNumber = "This phone number is already registered."
             });
         }
 
@@ -45,7 +56,7 @@ public class AccountController(
             LastName = registerDto.LastName.Trim(),
             UserName = email,
             Email = email,
-            PhoneNumber = registerDto.PhoneNumber.Trim(),
+            PhoneNumber = phoneNumber,
             JoinDate = DateOnly.FromDateTime(DateTime.UtcNow)
         };
 
@@ -55,6 +66,9 @@ public class AccountController(
         {
             return BadRequest(result.Errors);
         }
+
+        await EnsureRoleExists("Client");
+        await userManager.AddToRoleAsync(user, "Client");
 
         return await CreateUserDto(user);
     }
@@ -92,6 +106,104 @@ public class AccountController(
         }
 
         return await CreateUserDto(user);
+    }
+
+    // ===============================
+    // Forgot password
+    // Creates a 6-digit reset code.
+    // Later this code can be sent by email or SMS.
+    // For development, the code is returned in the response.
+    // ===============================
+
+    [HttpPost("forgot-password")]
+    public async Task<ActionResult<AuthMessageDto>> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+    {
+        var user = await FindUserByEmailOrPhone(forgotPasswordDto.EmailOrPhone);
+
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                emailOrPhone = "No account was found with this email address or phone number."
+            });
+        }
+
+        var response = await passwordResetService.CreateResetCode(user);
+
+        return Ok(response);
+    }
+
+    // ===============================
+    // Verify reset code
+    // Checks whether the reset code exists, is unused, and has not expired.
+    // ===============================
+
+    [HttpPost("verify-reset-code")]
+    public async Task<ActionResult<AuthMessageDto>> VerifyResetCode(VerifyResetCodeDto verifyResetCodeDto)
+    {
+        var user = await FindUserByEmailOrPhone(verifyResetCodeDto.EmailOrPhone);
+
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                emailOrPhone = "No account was found with this email address or phone number."
+            });
+        }
+
+        var codeIsValid = await passwordResetService.VerifyResetCode(
+            user,
+            verifyResetCodeDto.VerificationCode);
+
+        if (!codeIsValid)
+        {
+            return BadRequest(new
+            {
+                verificationCode = "The reset code is invalid or has expired."
+            });
+        }
+
+        return Ok(new AuthMessageDto
+        {
+            Message = "Verification successful. You can now reset your password."
+        });
+    }
+
+    // ===============================
+    // Reset password
+    // Resets the user's password after a valid code is provided.
+    // ===============================
+
+    [HttpPost("reset-password")]
+    public async Task<ActionResult<AuthMessageDto>> ResetPassword(ResetPasswordDto resetPasswordDto)
+    {
+        var user = await FindUserByEmailOrPhone(resetPasswordDto.EmailOrPhone);
+
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                emailOrPhone = "No account was found with this email address or phone number."
+            });
+        }
+
+        var passwordResetSuccessful = await passwordResetService.ResetPassword(
+            user,
+            resetPasswordDto.VerificationCode,
+            resetPasswordDto.NewPassword);
+
+        if (!passwordResetSuccessful)
+        {
+            return BadRequest(new
+            {
+                verificationCode = "The reset code is invalid, expired, already used, or the password could not be reset."
+            });
+        }
+
+        return Ok(new AuthMessageDto
+        {
+            Message = "Password reset successfully. You can now sign in with your new password."
+        });
     }
 
     // ===============================
@@ -143,12 +255,13 @@ public class AccountController(
     // JWT logout happens on the Angular side by clearing the stored token.
     // ===============================
 
+    [Authorize]
     [HttpPost("logout")]
     public ActionResult Logout()
     {
-        return Ok(new
+        return Ok(new AuthMessageDto
         {
-            message = "Logged out. Please clear the token on the client."
+            Message = "Logged out successfully. Please clear the token on the client."
         });
     }
 
@@ -161,6 +274,36 @@ public class AccountController(
     {
         return await userManager.Users
             .AnyAsync(user => user.NormalizedEmail == email.ToUpperInvariant());
+    }
+
+    private async Task<bool> PhoneNumberExists(string phoneNumber)
+    {
+        return await userManager.Users
+            .AnyAsync(user => user.PhoneNumber == phoneNumber);
+    }
+
+    private async Task<AppUser?> FindUserByEmailOrPhone(string emailOrPhone)
+    {
+        var value = emailOrPhone.Trim().ToLowerInvariant();
+        var phoneValue = emailOrPhone.Trim().Replace(" ", string.Empty);
+
+        return await userManager.Users
+            .SingleOrDefaultAsync(user =>
+                user.NormalizedEmail == value.ToUpperInvariant() ||
+                user.PhoneNumber == phoneValue);
+    }
+
+    private async Task EnsureRoleExists(string roleName)
+    {
+        if (await roleManager.RoleExistsAsync(roleName))
+        {
+            return;
+        }
+
+        await roleManager.CreateAsync(new AppRole
+        {
+            Name = roleName
+        });
     }
 
     private async Task<UserDto> CreateUserDto(AppUser user)

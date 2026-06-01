@@ -611,7 +611,7 @@
 
 /* ===============================
    Form options
-   Remember me and forgot password row.
+   Forgot password row.
    =============================== */
 
 .form-options {
@@ -619,22 +619,10 @@
 
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
 
   color: #222;
   font-size: 15px;
-}
-
-.remember-option {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.remember-option input {
-  width: 12px;
-  height: 12px;
-  accent-color: #ee9b94;
 }
 
 .forgot-link {

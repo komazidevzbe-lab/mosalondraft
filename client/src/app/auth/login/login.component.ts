@@ -14,8 +14,8 @@ import { LoginRequest } from '../../_models/login-request';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
-  private accountService = inject(AccountService);
-  private router = inject(Router);
+  private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
 
   // ===============================
   // Login form data
@@ -24,9 +24,11 @@ export class LoginComponent {
 
   loginModel = {
     email: '',
-    password: '',
-    rememberMe: false
+    password: ''
   };
+
+  errorMessage = '';
+  isSubmitting = false;
 
   // ===============================
   // Password visibility state
@@ -46,17 +48,31 @@ export class LoginComponent {
   // ===============================
 
   login(): void {
+    this.errorMessage = '';
+
     const loginRequest: LoginRequest = {
       email: this.loginModel.email.trim().toLowerCase(),
       password: this.loginModel.password
     };
 
+    if (!loginRequest.email || !loginRequest.password) {
+      this.errorMessage = 'Please enter your email address and password.';
+      return;
+    }
+
+    this.isSubmitting = true;
+
     this.accountService.login(loginRequest).subscribe({
       next: () => {
+        this.isSubmitting = false;
         this.router.navigateByUrl('/home');
       },
       error: error => {
-        console.error('Login failed:', error);
+        this.isSubmitting = false;
+        this.errorMessage = this.accountService.getErrorMessage(
+          error,
+          'Login failed. Please check your details and try again.'
+        );
       }
     });
   }

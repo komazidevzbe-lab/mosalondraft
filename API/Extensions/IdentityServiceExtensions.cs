@@ -16,15 +16,16 @@ public static class IdentityServiceExtensions
         // ===============================
         // Identity setup
         // Handles secure password hashing, user storage, and role support.
+        // Password rules match the Angular signup and reset-password forms.
         // ===============================
 
         services.AddIdentityCore<AppUser>(options =>
         {
-            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireNonAlphanumeric = true;
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
             options.Password.RequireUppercase = true;
-            options.Password.RequiredLength = 6;
+            options.Password.RequiredLength = 8;
 
             options.User.RequireUniqueEmail = true;
         })

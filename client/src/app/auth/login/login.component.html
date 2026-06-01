@@ -65,12 +65,6 @@
        =============================== -->
 
   <div class="landing-left">
-    <!-- ===============================
-         Coded brand feature
-         This replaces the previous MO logo image asset.
-         Move the whole brand block using .brand-feature in CSS.
-         =============================== -->
-
     <section class="brand-feature" aria-label="MO Nail and Makeup Artist brand message">
       <div class="brand-logo-code">
         <span class="brand-crown">♛</span>
@@ -143,6 +137,10 @@
         <p>Login to your account</p>
       </div>
 
+      <p class="auth-message error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </p>
+
       <!-- Login form -->
       <form class="login-form" (ngSubmit)="login()" #loginForm="ngForm">
         <!-- Email input -->
@@ -185,23 +183,14 @@
           </button>
         </div>
 
-        <!-- Remember me and forgot password -->
+        <!-- Forgot password -->
         <div class="form-options">
-          <label class="remember-option">
-            <input
-              type="checkbox"
-              name="rememberMe"
-              [(ngModel)]="loginModel.rememberMe"
-            />
-            <span>Remember me</span>
-          </label>
-
-          <a href="#" class="forgot-link">Forget Password?</a>
+          <a routerLink="/forgot-password" class="forgot-link">Forget Password?</a>
         </div>
 
         <!-- Login button -->
-        <button class="login-button" type="submit">
-          LOGIN
+        <button class="login-button" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'LOGGING IN...' : 'LOGIN' }}
         </button>
 
         <!-- Social sign in divider -->
