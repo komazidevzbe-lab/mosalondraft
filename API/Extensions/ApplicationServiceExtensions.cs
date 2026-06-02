@@ -52,6 +52,7 @@ public static class ApplicationServiceExtensions
 
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IPasswordResetService, PasswordResetService>();
+        services.AddScoped<IHomeService, HomeService>();
 
         // ===============================
         // Cloudinary settings

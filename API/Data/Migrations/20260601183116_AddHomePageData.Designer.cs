@@ -4,6 +4,7 @@ using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260601183116_AddHomePageData")]
+    partial class AddHomePageData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -247,104 +250,6 @@ namespace API.Data.Migrations
                             Location = "Bloemfontein, CBD",
                             Rating = 5,
                             ReviewText = "My brows and lashes have never looked this good. I feel so confident every single day."
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AltText = "Client review profile",
-                            ClientName = "Thando K.",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 4,
-                            ImageUrl = "assets/gallery/makeup/15.svg",
-                            IsApproved = true,
-                            IsFeatured = true,
-                            Location = "Kimberley, NC",
-                            Rating = 5,
-                            ReviewText = "The makeup finish was soft, clean, and exactly what I wanted for my event."
-                        },
-                        new
-                        {
-                            Id = 5,
-                            AltText = "Client review profile",
-                            ClientName = "Anele D.",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 5,
-                            ImageUrl = "assets/gallery/makeup/18.svg",
-                            IsApproved = true,
-                            IsFeatured = true,
-                            Location = "Durban, KZN",
-                            Rating = 5,
-                            ReviewText = "My manicure lasted beautifully and the whole appointment felt calm and professional."
-                        },
-                        new
-                        {
-                            Id = 6,
-                            AltText = "Client review profile",
-                            ClientName = "Mpho S.",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 6,
-                            ImageUrl = "assets/gallery/makeup/20.svg",
-                            IsApproved = true,
-                            IsFeatured = true,
-                            Location = "Pretoria, GP",
-                            Rating = 5,
-                            ReviewText = "The lash set was neat, comfortable, and gave me the exact natural glam I asked for."
-                        },
-                        new
-                        {
-                            Id = 7,
-                            AltText = "Client review profile",
-                            ClientName = "Zanele B.",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 7,
-                            ImageUrl = "assets/gallery/makeup/5.svg",
-                            IsApproved = true,
-                            IsFeatured = true,
-                            Location = "Gqeberha, EC",
-                            Rating = 5,
-                            ReviewText = "Beautiful service from start to finish. I left feeling pampered and confident."
-                        },
-                        new
-                        {
-                            Id = 8,
-                            AltText = "Client review profile",
-                            ClientName = "Naledi P.",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 8,
-                            ImageUrl = "assets/gallery/makeup/9.svg",
-                            IsApproved = true,
-                            IsFeatured = true,
-                            Location = "Polokwane, LP",
-                            Rating = 5,
-                            ReviewText = "The team listened carefully and delivered a clean, elegant look that suited me perfectly."
-                        },
-                        new
-                        {
-                            Id = 9,
-                            AltText = "Client review profile",
-                            ClientName = "Refilwe T.",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 9,
-                            ImageUrl = "assets/gallery/makeup/11.svg",
-                            IsApproved = true,
-                            IsFeatured = true,
-                            Location = "Rustenburg, NW",
-                            Rating = 5,
-                            ReviewText = "I loved the attention to detail. My nails looked polished, feminine, and flawless."
-                        },
-                        new
-                        {
-                            Id = 10,
-                            AltText = "Client review profile",
-                            ClientName = "Boitumelo N.",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DisplayOrder = 10,
-                            ImageUrl = "assets/gallery/makeup/14.svg",
-                            IsApproved = true,
-                            IsFeatured = true,
-                            Location = "Bloemfontein, FS",
-                            Rating = 5,
-                            ReviewText = "The pedicure was relaxing and my feet looked fresh for weeks. I would definitely return."
                         });
                 });
 

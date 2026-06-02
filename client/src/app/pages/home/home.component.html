@@ -1,237 +1,322 @@
 <section class="home-page">
-  <!-- ===============================
-       Hero section
-       Controlled gallery-style grid:
-       pink text panel, large makeup slideshow image,
-       2 small images, large image.
-       =============================== -->
+  <ng-container *ngIf="!isLoadingHomePage && homePage as home">
+    <!-- ===============================
+         Hero section
+         Controlled gallery-style grid:
+         pink text panel, large makeup slideshow image,
+         2 small images, large image.
+         =============================== -->
 
-  <section class="hero-section" aria-label="MO Nail and Makeup Artist homepage hero">
-    <div class="hero-text-panel">
-      <div class="hero-content">
-        <h1>
-          Enhance Your <span>Beauty</span><br />
-          Elevate Your <span>Confidence</span>
-        </h1>
+    <section class="hero-section" aria-label="MO Nail and Makeup Artist homepage hero">
+      <div class="hero-text-panel">
+        <div class="hero-content">
+          <h1>
+            {{ getTextBeforeHighlight(home.heroContent.titleLineOne, home.heroContent.titleLineOneHighlight) }}
+            <span *ngIf="home.heroContent.titleLineOneHighlight">
+              {{ home.heroContent.titleLineOneHighlight }}
+            </span>
+            {{ getTextAfterHighlight(home.heroContent.titleLineOne, home.heroContent.titleLineOneHighlight) }}
 
-        <p>
-          Expert nails and makeup services tailored for your unique glow.
-          Look your best, feel your best.
-        </p>
+            <br />
 
-        <a class="hero-button" routerLink="/services">
-          BOOK APPOINTMENT
-        </a>
-      </div>
-    </div>
+            <ng-container *ngIf="home.heroContent.titleLineTwo">
+              {{ getTextBeforeHighlight(home.heroContent.titleLineTwo, home.heroContent.titleLineTwoHighlight) }}
+              <span *ngIf="home.heroContent.titleLineTwoHighlight">
+                {{ home.heroContent.titleLineTwoHighlight }}
+              </span>
+              {{ getTextAfterHighlight(home.heroContent.titleLineTwo, home.heroContent.titleLineTwoHighlight) }}
+            </ng-container>
+          </h1>
 
-    <article
-      class="hero-image-card hero-large-card hero-makeup-card"
-      [class.makeup-slide-transitioning]="isMakeupSlideTransitioning"
-      [class.makeup-slide-resetting]="isMakeupSlideResetting"
-    >
-      <div class="hero-image-wrap">
-        <img
-          class="hero-slideshow-image hero-slideshow-current"
-          [src]="currentMakeupHeroImage"
-          alt="Current makeup beauty inspiration"
-        />
+          <p>
+            {{ home.heroContent.description }}
+          </p>
 
-        <img
-          class="hero-slideshow-image hero-slideshow-next"
-          [src]="nextMakeupHeroImage"
-          alt="Next makeup beauty inspiration"
-        />
-      </div>
-    </article>
-
-    <article
-      class="hero-image-card hero-small-card hero-lashes-card"
-      [class.lashes-slide-transitioning]="isLashesSlideTransitioning"
-      [class.lashes-slide-resetting]="isLashesSlideResetting"
-    >
-      <div class="hero-image-wrap">
-        <img
-          class="hero-slideshow-image hero-slideshow-current"
-          [src]="currentLashesHeroImage"
-          alt="Current eyelash beauty inspiration"
-        />
-
-        <img
-          class="hero-slideshow-image hero-slideshow-next"
-          [src]="nextLashesHeroImage"
-          alt="Next eyelash beauty inspiration"
-        />
-      </div>
-    </article>
-
-    <article
-      class="hero-image-card hero-small-card hero-pedicure-card"
-      [class.pedicure-slide-transitioning]="isPedicureSlideTransitioning"
-      [class.pedicure-slide-resetting]="isPedicureSlideResetting"
-    >
-      <div class="hero-image-wrap">
-        <img
-          class="hero-slideshow-image hero-slideshow-current"
-          [src]="currentPedicureHeroImage"
-          alt="Current pedicure beauty inspiration"
-        />
-
-        <img
-          class="hero-slideshow-image hero-slideshow-next"
-          [src]="nextPedicureHeroImage"
-          alt="Next pedicure beauty inspiration"
-        />
-      </div>
-    </article>
-
-    <article
-      class="hero-image-card hero-large-card hero-nail-card"
-      [class.manicure-slide-transitioning]="isManicureSlideTransitioning"
-      [class.manicure-slide-resetting]="isManicureSlideResetting"
-    >
-      <div class="hero-image-wrap">
-        <img
-          class="hero-slideshow-image hero-slideshow-current"
-          [src]="currentManicureHeroImage"
-          alt="Current manicure nail design inspiration"
-        />
-
-        <img
-          class="hero-slideshow-image hero-slideshow-next"
-          [src]="nextManicureHeroImage"
-          alt="Next manicure nail design inspiration"
-        />
-      </div>
-    </article>
-  </section>
-
-  <!-- ===============================
-       About us introduction
-       =============================== -->
-
-  <section class="about-preview-section" aria-label="About MO Beauty">
-    <p class="about-eyebrow">ABOUT US</p>
-
-    <h2>
-      Where <span>Beauty</span> Meets Confidence
-    </h2>
-
-    <p class="about-description">
-      At MO Beauty, we believe that self-care is more than a routine, it’s a form of self-love.
-      <br />
-      Our expert team is dedicated to enhancing your natural beauty with precision, passion, and care.
-    </p>
-
-    <div class="about-divider">
-      <span></span>
-      <i class="fa-regular fa-gem"></i>
-      <span></span>
-    </div>
-  </section>
-
-  <!-- ===============================
-       Explore services
-       Service category cards.
-       =============================== -->
-
-  <section class="categories-section" aria-label="Browse salon categories">
-    <div class="section-heading">
-      <span></span>
-
-      <h2>EXPLORE OUR <span>SERVICES</span></h2>
-
-      <span></span>
-    </div>
-
-    <div class="category-grid">
-      <article class="category-card" *ngFor="let category of categories">
-        <div class="category-image-wrap">
-          <img
-            [src]="category.imageUrl"
-            [alt]="category.altText"
-          />
-        </div>
-
-        <div class="category-icon">
-          <img
-            [src]="category.iconUrl"
-            [alt]="category.iconAltText"
-          />
-        </div>
-
-        <div class="category-text">
-          <h3>{{ category.title }}</h3>
-
-          <p>{{ category.description }}</p>
-
-          <a routerLink="/services">
-            BOOK NOW
-            <i class="fa-solid fa-arrow-right"></i>
+          <a
+            class="hero-button"
+            [routerLink]="getRouterLink(home.heroContent.buttonLink)"
+          >
+            {{ home.heroContent.buttonText || 'BOOK APPOINTMENT' }}
           </a>
         </div>
-      </article>
-    </div>
-  </section>
-
-  <!-- ===============================
-       Client reviews
-       =============================== -->
-
-  <section class="reviews-section" aria-label="Client reviews">
-    <div class="reviews-summary">
-      <p>TELL US YOUR THOUGHTS</p>
-
-      <div class="review-score">
-        <span>4.9</span>
-
-        <div>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-        </div>
       </div>
 
-      <small>Based on 324+ reviews</small>
-
-      <a routerLink="/contact">
-        LEAVE A REVIEW
-        <i class="fa-solid fa-arrow-right"></i>
-      </a>
-    </div>
-
-    <div class="review-card-grid">
-      <article class="review-card" *ngFor="let review of clientReviews">
-        <div class="review-stars">
-          <span>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-          </span>
-
-          <i class="fa-solid fa-quote-right"></i>
-        </div>
-
-        <p>
-          {{ review.reviewText }}
-        </p>
-
-        <div class="review-client">
+      <article
+        class="hero-image-card hero-large-card hero-makeup-card"
+        [class.makeup-slide-transitioning]="isMakeupSlideTransitioning"
+        [class.makeup-slide-resetting]="isMakeupSlideResetting"
+      >
+        <div
+          class="hero-image-wrap"
+          *ngIf="currentMakeupHeroImage && nextMakeupHeroImage"
+        >
           <img
-            [src]="review.imageUrl"
-            [alt]="review.altText"
+            class="hero-slideshow-image hero-slideshow-current"
+            [src]="currentMakeupHeroImage.imageUrl"
+            [alt]="currentMakeupHeroImage.altText"
           />
 
-          <div>
-            <h3>{{ review.clientName }}</h3>
-            <small>{{ review.location }}</small>
-          </div>
+          <img
+            class="hero-slideshow-image hero-slideshow-next"
+            [src]="nextMakeupHeroImage.imageUrl"
+            [alt]="nextMakeupHeroImage.altText"
+          />
         </div>
       </article>
-    </div>
+
+      <article
+        class="hero-image-card hero-small-card hero-lashes-card"
+        [class.lashes-slide-transitioning]="isLashesSlideTransitioning"
+        [class.lashes-slide-resetting]="isLashesSlideResetting"
+      >
+        <div
+          class="hero-image-wrap"
+          *ngIf="currentLashesHeroImage && nextLashesHeroImage"
+        >
+          <img
+            class="hero-slideshow-image hero-slideshow-current"
+            [src]="currentLashesHeroImage.imageUrl"
+            [alt]="currentLashesHeroImage.altText"
+          />
+
+          <img
+            class="hero-slideshow-image hero-slideshow-next"
+            [src]="nextLashesHeroImage.imageUrl"
+            [alt]="nextLashesHeroImage.altText"
+          />
+        </div>
+      </article>
+
+      <article
+        class="hero-image-card hero-small-card hero-pedicure-card"
+        [class.pedicure-slide-transitioning]="isPedicureSlideTransitioning"
+        [class.pedicure-slide-resetting]="isPedicureSlideResetting"
+      >
+        <div
+          class="hero-image-wrap"
+          *ngIf="currentPedicureHeroImage && nextPedicureHeroImage"
+        >
+          <img
+            class="hero-slideshow-image hero-slideshow-current"
+            [src]="currentPedicureHeroImage.imageUrl"
+            [alt]="currentPedicureHeroImage.altText"
+          />
+
+          <img
+            class="hero-slideshow-image hero-slideshow-next"
+            [src]="nextPedicureHeroImage.imageUrl"
+            [alt]="nextPedicureHeroImage.altText"
+          />
+        </div>
+      </article>
+
+      <article
+        class="hero-image-card hero-large-card hero-nail-card"
+        [class.manicure-slide-transitioning]="isManicureSlideTransitioning"
+        [class.manicure-slide-resetting]="isManicureSlideResetting"
+      >
+        <div
+          class="hero-image-wrap"
+          *ngIf="currentManicureHeroImage && nextManicureHeroImage"
+        >
+          <img
+            class="hero-slideshow-image hero-slideshow-current"
+            [src]="currentManicureHeroImage.imageUrl"
+            [alt]="currentManicureHeroImage.altText"
+          />
+
+          <img
+            class="hero-slideshow-image hero-slideshow-next"
+            [src]="nextManicureHeroImage.imageUrl"
+            [alt]="nextManicureHeroImage.altText"
+          />
+        </div>
+      </article>
+    </section>
+
+    <!-- ===============================
+         About us introduction
+         =============================== -->
+
+    <section class="about-preview-section" aria-label="About MO Beauty">
+      <p class="about-eyebrow">
+        {{ home.aboutContent.eyebrowText }}
+      </p>
+
+      <h2>
+        {{ getTextBeforeHighlight(home.aboutContent.titleLineOne, home.aboutContent.titleLineOneHighlight) }}
+        <span *ngIf="home.aboutContent.titleLineOneHighlight">
+          {{ home.aboutContent.titleLineOneHighlight }}
+        </span>
+
+        <ng-container
+          *ngIf="getTextAfterHighlight(home.aboutContent.titleLineOne, home.aboutContent.titleLineOneHighlight).includes('Confidence'); else normalAboutTextAfterHighlight"
+        >
+          {{ getTextBeforeHighlight(getTextAfterHighlight(home.aboutContent.titleLineOne, home.aboutContent.titleLineOneHighlight), 'Confidence') }}
+          <span>Confidence</span>
+          {{ getTextAfterHighlight(getTextAfterHighlight(home.aboutContent.titleLineOne, home.aboutContent.titleLineOneHighlight), 'Confidence') }}
+        </ng-container>
+
+        <ng-template #normalAboutTextAfterHighlight>
+          {{ getTextAfterHighlight(home.aboutContent.titleLineOne, home.aboutContent.titleLineOneHighlight) }}
+        </ng-template>
+      </h2>
+
+      <p class="about-description">
+        {{ home.aboutContent.description }}
+      </p>
+
+      <div class="about-divider">
+        <span></span>
+        <i class="fa-regular fa-gem"></i>
+        <span></span>
+      </div>
+    </section>
+
+    <!-- ===============================
+         Explore services
+         Service category cards.
+         =============================== -->
+
+    <section class="categories-section" aria-label="Browse salon categories">
+      <div class="section-heading">
+        <span></span>
+
+        <h2>EXPLORE OUR <span>SERVICES</span></h2>
+
+        <span></span>
+      </div>
+
+      <div class="category-grid">
+        <article class="category-card" *ngFor="let category of categories">
+          <div class="category-image-wrap">
+            <img
+              [src]="category.imageUrl"
+              [alt]="category.altText"
+            />
+          </div>
+
+          <div class="category-icon">
+            <img
+              [src]="category.iconUrl"
+              [alt]="category.iconAltText"
+            />
+          </div>
+
+          <div class="category-text">
+            <h3>{{ category.name }}</h3>
+
+            <p>{{ category.description }}</p>
+
+            <a routerLink="/services">
+              BOOK NOW
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===============================
+         Client reviews
+         =============================== -->
+
+    <section class="reviews-section" aria-label="Client reviews">
+      <div class="reviews-summary">
+        <p>TELL US YOUR THOUGHTS</p>
+
+        <div class="review-score">
+          <span>{{ home.averageRating | number: '1.1-1' }}</span>
+
+          <div>
+            <i
+              class="fa-solid fa-star"
+              *ngFor="let star of getReviewStars(5)"
+            ></i>
+          </div>
+        </div>
+
+        <small>Based on {{ home.reviewCount }}+ reviews</small>
+
+        <a routerLink="/contact">
+          LEAVE A REVIEW
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="review-carousel">
+        <button
+          type="button"
+          class="review-carousel-button review-carousel-button-previous"
+          aria-label="Previous reviews"
+          *ngIf="canSlideReviews"
+          (click)="previousReviews()"
+        >
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="review-card-grid">
+          <article
+            class="review-card"
+            *ngFor="let review of visibleClientReviews; trackBy: trackByReviewId"
+          >
+            <div class="review-stars">
+              <span>
+                <i
+                  class="fa-solid fa-star"
+                  *ngFor="let star of getReviewStars(review.rating)"
+                ></i>
+              </span>
+
+              <i class="fa-solid fa-quote-right"></i>
+            </div>
+
+            <p>
+              {{ review.reviewText }}
+            </p>
+
+            <div class="review-client">
+              <img
+                [src]="review.imageUrl"
+                [alt]="review.altText"
+              />
+
+              <div>
+                <h3>{{ review.clientName }}</h3>
+                <small>{{ review.location }}</small>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <button
+          type="button"
+          class="review-carousel-button review-carousel-button-next"
+          aria-label="Next reviews"
+          *ngIf="canSlideReviews"
+          (click)="nextReviews()"
+        >
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </section>
+  </ng-container>
+
+  <section
+    class="about-preview-section"
+    *ngIf="isLoadingHomePage"
+    aria-label="Loading home page"
+  >
+    <p class="about-eyebrow">LOADING</p>
+    <h2>Preparing your beauty experience...</h2>
+  </section>
+
+  <section
+    class="about-preview-section"
+    *ngIf="!isLoadingHomePage && homePageError"
+    aria-label="Home page loading error"
+  >
+    <p class="about-eyebrow">ERROR</p>
+    <h2>{{ homePageError }}</h2>
   </section>
 </section>

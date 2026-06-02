@@ -354,6 +354,7 @@
 
 .about-divider i {
   font-size: 14px;
+  animation: diamondTwinkle 2.4s ease-in-out infinite;
 }
 
 /* ===============================
@@ -389,10 +390,11 @@
   margin: 0;
 
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 26px;
-  font-style: italic;
+  font-size: 28px;
+  font-style: normal;
   font-weight: 400;
-  letter-spacing: 4px;
+  line-height: 1.35;
+  letter-spacing: 0.8px;
   white-space: nowrap;
 }
 
@@ -615,10 +617,51 @@
   text-decoration: none;
 }
 
+.review-carousel {
+  position: relative;
+
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .review-card-grid {
+  flex: 1;
+
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+}
+
+.review-carousel-button {
+  flex: 0 0 34px;
+
+  width: 34px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(238, 155, 148, 0.55);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.82);
+
+  color: #ee9b94;
+  font-size: 13px;
+
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.review-carousel-button:hover {
+  transform: translateY(-2px);
+  background: #ee9b94;
+  box-shadow: 0 10px 18px rgba(180, 96, 90, 0.13);
+
+  color: #fff;
 }
 
 .review-card {
@@ -629,6 +672,8 @@
   border: 1px solid rgba(238, 155, 148, 0.18);
   border-radius: 10px;
   box-shadow: 0 12px 26px rgba(180, 96, 90, 0.05);
+
+  animation: reviewCardSlideIn 0.28s ease both;
 }
 
 .review-stars {
@@ -685,6 +730,41 @@
   color: #666;
   font-size: 10px;
   font-weight: 500;
+}
+
+@keyframes reviewCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes diamondTwinkle {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1) rotate(0deg);
+    text-shadow: 0 0 0 rgba(238, 155, 148, 0);
+  }
+
+  45% {
+    opacity: 1;
+    transform: scale(1.22) rotate(-6deg);
+    text-shadow:
+      0 0 8px rgba(238, 155, 148, 0.65),
+      0 0 16px rgba(238, 155, 148, 0.35);
+  }
+
+  65% {
+    opacity: 0.9;
+    transform: scale(1.05) rotate(6deg);
+    text-shadow: 0 0 10px rgba(238, 155, 148, 0.42);
+  }
 }
 
 /* ===============================
@@ -744,6 +824,10 @@
   .review-card-grid {
     grid-template-columns: 1fr;
   }
+
+  .review-carousel {
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 680px) {
@@ -797,5 +881,15 @@
   .category-grid {
     grid-template-columns: 1fr;
     gap: 22px;
+  }
+
+  .review-carousel {
+    gap: 8px;
+  }
+
+  .review-carousel-button {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
   }
 }

@@ -18,9 +18,11 @@
        =============================== -->
 
   <section class="contact-card-grid" aria-label="Contact options">
-    <article
+    <button
+      type="button"
       class="contact-info-card"
       *ngFor="let card of contactCards"
+      (click)="handleContactCardAction(card)"
     >
       <div class="contact-info-icon">
         <i [class]="card.iconClass"></i>
@@ -30,8 +32,15 @@
         <h2>{{ card.title }}</h2>
         <p>{{ card.description }}</p>
         <strong>{{ card.value }}</strong>
+
+        <small
+          class="copy-success-message"
+          *ngIf="card.actionType === 'copyAddress' && copiedAddressMessage"
+        >
+          {{ copiedAddressMessage }}
+        </small>
       </div>
-    </article>
+    </button>
   </section>
 
   <!-- ===============================
@@ -40,90 +49,175 @@
 
   <section class="contact-main-grid">
     <article class="message-card">
-      <header class="card-heading">
-        <div class="heading-icon">
-          <i class="fa-regular fa-envelope"></i>
-        </div>
-
-        <div>
-          <div class="section-title-line">
-            <h2>Send Us A Message</h2>
-            <span></span>
+      <ng-container *ngIf="!isContactMessageSent; else messageSentTemplate">
+        <header class="card-heading">
+          <div class="heading-icon">
+            <i class="fa-regular fa-envelope"></i>
           </div>
 
-          <p>Fill out the form below and we’ll get back to you as soon as possible.</p>
-        </div>
-      </header>
+          <div>
+            <div class="section-title-line">
+              <h2>Send Us A Message</h2>
+              <span></span>
+            </div>
 
-      <form class="contact-form" (ngSubmit)="submitContactForm()">
-        <div class="form-row">
-          <label>
-            <i class="fa-regular fa-user"></i>
+            <p>Fill out the form below and we’ll get back to you as soon as possible.</p>
+          </div>
+        </header>
 
-            <input
-              type="text"
-              name="fullName"
-              [(ngModel)]="contactForm.fullName"
-              placeholder="Full Name"
-            />
-          </label>
+        <form class="contact-form" (ngSubmit)="submitContactForm()" novalidate>
+          <div class="form-row">
+            <div class="field-group">
+              <label>
+                <i class="fa-regular fa-user"></i>
 
-          <label>
-            <i class="fa-regular fa-envelope"></i>
+                <input
+                  type="text"
+                  name="fullName"
+                  [(ngModel)]="contactForm.fullName"
+                  placeholder="Full Name"
+                />
+              </label>
 
-            <input
-              type="email"
-              name="emailAddress"
-              [(ngModel)]="contactForm.emailAddress"
-              placeholder="Email Address"
-            />
-          </label>
-        </div>
+              <small class="field-error" *ngIf="contactFormErrors.fullName">
+                {{ contactFormErrors.fullName }}
+              </small>
+            </div>
 
-        <label>
-          <i class="fa-solid fa-phone"></i>
+            <div class="field-group">
+              <label>
+                <i class="fa-regular fa-envelope"></i>
 
-          <input
-            type="tel"
-            name="phoneNumber"
-            [(ngModel)]="contactForm.phoneNumber"
-            placeholder="Phone Number"
-          />
-        </label>
+                <input
+                  type="email"
+                  name="emailAddress"
+                  [(ngModel)]="contactForm.emailAddress"
+                  placeholder="Email Address"
+                />
+              </label>
 
-        <label>
-          <i class="fa-regular fa-heart"></i>
+              <small class="field-error" *ngIf="contactFormErrors.emailAddress">
+                {{ contactFormErrors.emailAddress }}
+              </small>
+            </div>
+          </div>
 
-          <select
-            name="interest"
-            [(ngModel)]="contactForm.interest"
-          >
-            <option value="">I’m interested in...</option>
-            <option
-              *ngFor="let option of interestOptions"
-              [value]="option"
+          <div class="field-group">
+            <label>
+              <i class="fa-solid fa-phone"></i>
+
+              <input
+                type="tel"
+                name="phoneNumber"
+                [(ngModel)]="contactForm.phoneNumber"
+                placeholder="Phone Number"
+              />
+            </label>
+
+            <small class="field-error" *ngIf="contactFormErrors.phoneNumber">
+              {{ contactFormErrors.phoneNumber }}
+            </small>
+          </div>
+
+          <div class="field-group">
+            <label>
+              <i class="fa-regular fa-heart"></i>
+
+              <select
+                name="interest"
+                [(ngModel)]="contactForm.interest"
+              >
+                <option value="">I’m interested in...</option>
+                <option
+                  *ngFor="let option of interestOptions"
+                  [value]="option"
+                >
+                  {{ option }}
+                </option>
+              </select>
+            </label>
+
+            <small class="field-error" *ngIf="contactFormErrors.interest">
+              {{ contactFormErrors.interest }}
+            </small>
+          </div>
+
+          <div class="field-group">
+            <label class="message-field">
+              <i class="fa-regular fa-comment-dots"></i>
+
+              <textarea
+                name="message"
+                rows="5"
+                [(ngModel)]="contactForm.message"
+                placeholder="Your Message"
+              ></textarea>
+            </label>
+
+            <small class="field-error" *ngIf="contactFormErrors.message">
+              {{ contactFormErrors.message }}
+            </small>
+          </div>
+
+          <button type="submit" class="send-message-button">
+            Send Message
+            <i class="fa-regular fa-paper-plane"></i>
+          </button>
+        </form>
+      </ng-container>
+
+      <ng-template #messageSentTemplate>
+        <section class="message-success-state">
+          <div class="message-success-icon">
+            <i class="fa-solid fa-check"></i>
+          </div>
+
+          <h2>Your message has been sent successfully.</h2>
+
+          <p>
+            Thank you for reaching out. Your message will be handled by the admin team once backend message handling is connected.
+          </p>
+
+          <div class="sent-message-list" aria-label="Sent message history">
+            <article
+              class="sent-message-card"
+              *ngFor="let sentMessage of sentContactMessages"
             >
-              {{ option }}
-            </option>
-          </select>
-        </label>
+              <div class="sent-message-header">
+                <div>
+                  <h3>{{ sentMessage.interest }}</h3>
+                  <small>{{ sentMessage.submittedAt | date: 'short' }}</small>
+                </div>
 
-        <label class="message-field">
-          <i class="fa-regular fa-comment-dots"></i>
+                <span>{{ sentMessage.fullName }}</span>
+              </div>
 
-          <textarea
-            name="message"
-            rows="5"
-            [(ngModel)]="contactForm.message"
-            placeholder="Your Message"
-          ></textarea>
-        </label>
+              <p>{{ sentMessage.message }}</p>
 
-        <button type="submit" class="send-message-button">
-          Send Message
-          <i class="fa-regular fa-paper-plane"></i>
-        </button>
-      </form>
+              <div class="message-status-flow" aria-label="Message status">
+                <span *ngFor="let status of sentMessage.statuses">
+                  <i
+                    class="fa-solid"
+                    [class.fa-check]="status === 'Sent'"
+                    [class.fa-eye]="status === 'Seen'"
+                    [class.fa-clock]="status === 'Response pending'"
+                  ></i>
+                  {{ status }}
+                </span>
+              </div>
+            </article>
+          </div>
+
+          <button
+            type="button"
+            class="send-another-message-button"
+            (click)="sendAnotherMessage()"
+          >
+            Send Another Message
+            <i class="fa-regular fa-paper-plane"></i>
+          </button>
+        </section>
+      </ng-template>
     </article>
 
     <section class="location-column">
@@ -245,4 +339,4 @@
       </form>
     </article>
   </section>
-</section>
+</section> 
