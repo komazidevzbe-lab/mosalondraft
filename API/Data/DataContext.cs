@@ -30,14 +30,11 @@ public class DataContext : IdentityDbContext<
 
     public DbSet<ClientReview> ClientReviews { get; set; }
 
+    public DbSet<ContactMessage> ContactMessages { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
-        // ===============================
-        // AppUser and AppUserRole relationship
-        // This connects users to their assigned roles.
-        // ===============================
 
         builder.Entity<AppUser>(entity =>
         {
@@ -48,11 +45,6 @@ public class DataContext : IdentityDbContext<
                 .IsRequired();
         });
 
-        // ===============================
-        // AppRole and AppUserRole relationship
-        // This connects roles to their assigned users.
-        // ===============================
-
         builder.Entity<AppRole>(entity =>
         {
             entity
@@ -61,11 +53,6 @@ public class DataContext : IdentityDbContext<
                 .HasForeignKey(userRole => userRole.RoleId)
                 .IsRequired();
         });
-
-        // ===============================
-        // Password reset code relationship
-        // Stores temporary reset codes for forgot-password flow.
-        // ===============================
 
         builder.Entity<PasswordResetCode>(entity =>
         {
@@ -88,11 +75,6 @@ public class DataContext : IdentityDbContext<
                 .HasForeignKey(resetCode => resetCode.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
-
-        // ===============================
-        // Home page content
-        // Stores editable text sections used by the Home page.
-        // ===============================
 
         builder.Entity<HomePageContent>(entity =>
         {
@@ -140,11 +122,6 @@ public class DataContext : IdentityDbContext<
             entity.HasData(HomeSeedData.HomePageContents);
         });
 
-        // ===============================
-        // Home hero images
-        // Stores image paths for the Home page hero slideshow.
-        // ===============================
-
         builder.Entity<HomeHeroImage>(entity =>
         {
             entity.HasKey(image => image.Id);
@@ -181,11 +158,6 @@ public class DataContext : IdentityDbContext<
 
             entity.HasData(HomeSeedData.HomeHeroImages);
         });
-
-        // ===============================
-        // Salon services
-        // Stores services used on the Home page and later the Services page.
-        // ===============================
 
         builder.Entity<SalonService>(entity =>
         {
@@ -246,11 +218,6 @@ public class DataContext : IdentityDbContext<
             entity.HasData(HomeSeedData.SalonServices);
         });
 
-        // ===============================
-        // Client reviews
-        // Stores client reviews shown on the Home page.
-        // ===============================
-
         builder.Entity<ClientReview>(entity =>
         {
             entity.HasKey(review => review.Id);
@@ -290,6 +257,13 @@ public class DataContext : IdentityDbContext<
             entity.Property(review => review.CreatedAt)
                 .IsRequired();
 
+            entity.HasOne(review => review.User)
+                .WithMany()
+                .HasForeignKey(review => review.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(review => review.UserId);
+
             entity.HasIndex(review => review.IsApproved);
 
             entity.HasIndex(review => new
@@ -299,6 +273,55 @@ public class DataContext : IdentityDbContext<
             });
 
             entity.HasData(HomeSeedData.ClientReviews);
+        });
+
+        builder.Entity<ContactMessage>(entity =>
+        {
+            entity.HasKey(message => message.Id);
+
+            entity.Property(message => message.FullName)
+                .HasMaxLength(120)
+                .IsRequired();
+
+            entity.Property(message => message.EmailAddress)
+                .HasMaxLength(160)
+                .IsRequired();
+
+            entity.Property(message => message.PhoneNumber)
+                .HasMaxLength(30)
+                .IsRequired();
+
+            entity.Property(message => message.Interest)
+                .HasMaxLength(80)
+                .IsRequired();
+
+            entity.Property(message => message.Message)
+                .HasMaxLength(1000)
+                .IsRequired();
+
+            entity.Property(message => message.MessageStatus)
+                .HasMaxLength(40)
+                .IsRequired();
+
+            entity.Property(message => message.AdminResponse)
+                .HasMaxLength(1000);
+
+            entity.Property(message => message.SubmittedAt)
+                .IsRequired();
+
+            entity.Property(message => message.CreatedAt)
+                .IsRequired();
+
+            entity.HasOne(message => message.User)
+                .WithMany()
+                .HasForeignKey(message => message.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(message => message.UserId);
+
+            entity.HasIndex(message => message.MessageStatus);
+
+            entity.HasIndex(message => message.SubmittedAt);
         });
     }
 }

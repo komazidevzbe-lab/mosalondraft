@@ -66,6 +66,10 @@
         </header>
 
         <form class="contact-form" (ngSubmit)="submitContactForm()" novalidate>
+          <small class="field-error" *ngIf="contactFormErrors.api">
+            {{ contactFormErrors.api }}
+          </small>
+
           <div class="form-row">
             <div class="field-group">
               <label>
@@ -159,8 +163,12 @@
             </small>
           </div>
 
-          <button type="submit" class="send-message-button">
-            Send Message
+          <button
+            type="submit"
+            class="send-message-button"
+            [disabled]="isSubmittingContactMessage"
+          >
+            {{ isSubmittingContactMessage ? 'Sending...' : 'Send Message' }}
             <i class="fa-regular fa-paper-plane"></i>
           </button>
         </form>
@@ -175,7 +183,7 @@
           <h2>Your message has been sent successfully.</h2>
 
           <p>
-            Thank you for reaching out. Your message will be handled by the admin team once backend message handling is connected.
+            Thank you for reaching out. Your message has been saved and will be handled by the admin team.
           </p>
 
           <div class="sent-message-list" aria-label="Sent message history">
@@ -307,36 +315,95 @@
         </div>
 
         <p>We’d love your feedback. Your support helps us grow.</p>
+
+        <small class="review-client-name" *ngIf="loggedInClientName">
+          Reviewing as {{ loggedInClientName }}
+        </small>
       </header>
 
-      <div class="feedback-stars" aria-label="Review rating">
-        <button
-          type="button"
-          *ngFor="let star of ratingStars"
-          [class.active]="star <= selectedFeedbackRating"
-          (click)="selectFeedbackRating(star)"
-          [attr.aria-label]="'Rate ' + star + ' out of 5'"
-        >
-          <i
-            class="fa-star"
-            [class.fa-solid]="star <= selectedFeedbackRating"
-            [class.fa-regular]="star > selectedFeedbackRating"
-          ></i>
-        </button>
-      </div>
+      <form class="feedback-form" (ngSubmit)="submitFeedback()" novalidate>
+        <small class="field-error" *ngIf="feedbackFormErrors.api">
+          {{ feedbackFormErrors.api }}
+        </small>
 
-      <form class="feedback-form" (ngSubmit)="submitFeedback()">
-        <input
-          type="text"
-          name="feedbackMessage"
-          [(ngModel)]="feedbackMessage"
-          placeholder="Share your thoughts with us..."
+        <div class="feedback-stars" aria-label="Review rating">
+          <button
+            type="button"
+            *ngFor="let star of ratingStars"
+            [class.active]="star <= selectedFeedbackRating"
+            (click)="selectFeedbackRating(star)"
+            [attr.aria-label]="'Rate ' + star + ' out of 5'"
+          >
+            <i
+              class="fa-star"
+              [class.fa-solid]="star <= selectedFeedbackRating"
+              [class.fa-regular]="star > selectedFeedbackRating"
+            ></i>
+          </button>
+        </div>
+
+        <small class="field-error" *ngIf="feedbackFormErrors.rating">
+          {{ feedbackFormErrors.rating }}
+        </small>
+
+        <div class="feedback-fields">
+          <input
+            type="text"
+            name="location"
+            [(ngModel)]="feedbackForm.location"
+            placeholder="Your location, e.g. Kimberley, NC"
+          />
+
+          <textarea
+            name="reviewText"
+            rows="3"
+            [(ngModel)]="feedbackForm.reviewText"
+            placeholder="Share your thoughts with us..."
+          ></textarea>
+        </div>
+
+        <small class="field-error" *ngIf="feedbackFormErrors.location">
+          {{ feedbackFormErrors.location }}
+        </small>
+
+        <small class="field-error" *ngIf="feedbackFormErrors.reviewText">
+          {{ feedbackFormErrors.reviewText }}
+        </small>
+
+        <label class="review-image-upload">
+          <i class="fa-regular fa-image"></i>
+          <span>Optional review image</span>
+
+          <input
+            type="file"
+            name="reviewImage"
+            accept="image/jpeg,image/jpg,image/png,image/webp"
+            (change)="onReviewImageSelected($event)"
+          />
+        </label>
+
+        <small class="field-error" *ngIf="feedbackFormErrors.image">
+          {{ feedbackFormErrors.image }}
+        </small>
+
+        <img
+          class="review-image-preview"
+          *ngIf="selectedReviewImagePreviewUrl"
+          [src]="selectedReviewImagePreviewUrl"
+          alt="Selected review preview"
         />
 
-        <button type="submit">
-          Submit Review
+        <button
+          type="submit"
+          [disabled]="isSubmittingFeedback"
+        >
+          {{ isSubmittingFeedback ? 'Submitting...' : 'Submit Review' }}
         </button>
+
+        <small class="feedback-success-message" *ngIf="isFeedbackSubmitted">
+          Thank you! Your review has been submitted and is waiting for approval.
+        </small>
       </form>
     </article>
   </section>
-</section> 
+</section>

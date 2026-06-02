@@ -60,7 +60,8 @@ public class HomeService(DataContext context) : IHomeService
                 Rating = review.Rating,
                 ImageUrl = review.ImageUrl,
                 AltText = review.AltText,
-                DisplayOrder = review.DisplayOrder
+                DisplayOrder = review.DisplayOrder,
+                CreatedAt = review.CreatedAt
             })
             .ToListAsync();
 

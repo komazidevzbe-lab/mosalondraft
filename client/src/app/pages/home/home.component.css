@@ -732,6 +732,21 @@
   font-weight: 500;
 }
 
+/* ===============================
+   Review date
+   Shows when the client review was created.
+   =============================== */
+
+.review-date {
+  margin-left: auto;
+  align-self: flex-end;
+
+  color: #777;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 @keyframes reviewCardSlideIn {
   from {
     opacity: 0;

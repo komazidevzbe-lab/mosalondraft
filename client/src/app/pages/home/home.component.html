@@ -285,6 +285,10 @@
                 <h3>{{ review.clientName }}</h3>
                 <small>{{ review.location }}</small>
               </div>
+
+              <small class="review-date">
+                {{ review.createdAt | date: 'dd/MM/yyyy' }}
+              </small>
             </div>
           </article>
         </div>

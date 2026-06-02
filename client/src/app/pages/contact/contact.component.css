@@ -323,6 +323,11 @@
   box-shadow: 0 10px 18px rgba(239, 79, 98, 0.22);
 }
 
+.send-message-button:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
 .message-success-state {
   min-height: 315px;
 
@@ -724,8 +729,27 @@
   font-weight: 600;
 }
 
+.review-client-name {
+  margin-top: 8px;
+
+  display: block;
+
+  color: #ef4f62;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.feedback-form {
+  width: 100%;
+  max-width: 620px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .feedback-stars {
-  margin-bottom: 22px;
+  margin-bottom: 12px;
 
   display: flex;
   justify-content: center;
@@ -754,21 +778,18 @@
   color: #ef4f62;
 }
 
-.feedback-form {
-  width: 100%;
-  max-width: 620px;
-
+.feedback-fields {
   display: grid;
-  grid-template-columns: 1fr 210px;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
-.feedback-form input {
-  height: 46px;
-  padding: 0 22px;
+.feedback-fields input,
+.feedback-fields textarea {
+  width: 100%;
 
   border: 1px solid rgba(238, 147, 139, 0.45);
-  border-right: none;
-  border-radius: 8px 0 0 8px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.72);
 
   color: #111;
@@ -777,11 +798,56 @@
   font-weight: 600;
 }
 
-.feedback-form button {
+.feedback-fields input {
+  height: 44px;
+  padding: 0 18px;
+}
+
+.feedback-fields textarea {
+  min-height: 82px;
+  padding: 14px 18px;
+  resize: none;
+}
+
+.review-image-upload {
+  min-height: 42px;
+  padding: 0 16px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1px dashed rgba(239, 79, 98, 0.42);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+
+  color: #ef4f62;
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.review-image-upload input {
+  display: none;
+}
+
+.review-image-preview {
+  width: 46px;
+  height: 46px;
+
+  display: block;
+  object-fit: cover;
+  border: 2px solid rgba(239, 79, 98, 0.22);
+  border-radius: 50%;
+}
+
+.feedback-form button[type="submit"] {
   height: 46px;
 
   border: none;
-  border-radius: 0 8px 8px 0;
+  border-radius: 8px;
   background: #ef4f62;
 
   color: #fff;
@@ -792,8 +858,20 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.feedback-form button:hover {
+.feedback-form button[type="submit"]:hover {
   box-shadow: 0 10px 18px rgba(239, 79, 98, 0.22);
+}
+
+.feedback-form button[type="submit"]:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+.feedback-success-message {
+  color: #ef4f62;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
 }
 
 /* ===============================
@@ -866,19 +944,5 @@
 
   .sent-message-header span {
     text-align: left;
-  }
-
-  .feedback-form {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .feedback-form input,
-  .feedback-form button {
-    border-radius: 8px;
-  }
-
-  .feedback-form input {
-    border-right: 1px solid rgba(238, 147, 139, 0.45);
   }
 }

@@ -28,6 +28,7 @@ export interface HomeHeroImages {
 }
 
 export interface HomeHeroImage {
+  id: number;
   category: string;
   imageUrl: string;
   altText: string;
@@ -57,4 +58,5 @@ export interface HomeClientReview {
   imageUrl: string;
   altText: string;
   displayOrder: number;
+  createdAt: string;
 }

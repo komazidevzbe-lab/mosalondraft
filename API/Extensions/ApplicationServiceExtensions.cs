@@ -46,6 +46,13 @@ public static class ApplicationServiceExtensions
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         // ===============================
+        // HTTP context accessor
+        // Allows services to read current request/user context when needed.
+        // ===============================
+
+        services.AddHttpContextAccessor();
+
+        // ===============================
         // Core application services
         // These keep controllers thin and move business logic into services.
         // ===============================
@@ -53,6 +60,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IPasswordResetService, PasswordResetService>();
         services.AddScoped<IHomeService, HomeService>();
+        services.AddScoped<IContactService, ContactService>();
 
         // ===============================
         // Cloudinary settings

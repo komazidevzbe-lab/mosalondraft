@@ -4,6 +4,10 @@ public class ClientReview
 {
     public int Id { get; set; }
 
+    public int? UserId { get; set; }
+
+    public AppUser? User { get; set; }
+
     public required string ClientName { get; set; }
 
     public required string Location { get; set; }

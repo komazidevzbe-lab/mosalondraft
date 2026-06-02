@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
+import { ContactMessage } from '../../_models/contact';
+import { ContactService } from '../../_services/contact.service';
 
 type ContactActionType = 'call' | 'email' | 'whatsapp' | 'copyAddress';
 
@@ -18,19 +21,21 @@ interface OpeningHour {
   isClosed?: boolean;
 }
 
-interface FeedbackReview {
-  clientName: string;
-  reviewText: string;
-  imageUrl: string;
-  rating: number;
-}
-
 interface ContactFormErrors {
   fullName?: string;
   emailAddress?: string;
   phoneNumber?: string;
   interest?: string;
   message?: string;
+  api?: string;
+}
+
+interface FeedbackFormErrors {
+  location?: string;
+  reviewText?: string;
+  rating?: string;
+  image?: string;
+  api?: string;
 }
 
 interface StoredUser {
@@ -45,17 +50,6 @@ interface StoredUser {
   phone?: string;
 }
 
-interface SentContactMessage {
-  id: number;
-  fullName: string;
-  emailAddress: string;
-  phoneNumber: string;
-  interest: string;
-  message: string;
-  submittedAt: Date;
-  statuses: string[];
-}
-
 @Component({
   selector: 'app-contact',
   standalone: true,
@@ -64,9 +58,11 @@ interface SentContactMessage {
   styleUrl: './contact.component.css'
 })
 export class ContactComponent implements OnInit {
+  private readonly contactService = inject(ContactService);
+
   // ===============================
   // Contact information settings
-  // These values are reused by the contact cards and action links.
+  // Reused by the contact cards and action links.
   // ===============================
 
   private readonly salonPhoneNumber = '+27123456789';
@@ -75,9 +71,18 @@ export class ContactComponent implements OnInit {
   private readonly salonAddress = 'The Big Hole, S Circular Road, Kimberley, 8300';
   private readonly whatsappDefaultMessage = 'Hi MO Nail and Makeup Artist, I would like to make an enquiry.';
 
+  private readonly allowedReviewImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  private readonly maxReviewImageSizeInBytes = 3 * 1024 * 1024;
+
+  // ===============================
+  // Logged-in client details
+  // The review form uses the signed-in user's name instead of asking again.
+  // ===============================
+
+  loggedInClientName = '';
+
   // ===============================
   // Contact information cards
-  // These cards appear at the top of the contact page.
   // ===============================
 
   contactCards: ContactInfoCard[] = [
@@ -114,8 +119,8 @@ export class ContactComponent implements OnInit {
   copiedAddressMessage = '';
 
   // ===============================
-  // Contact form
-  // Frontend-only for now. Backend/email sending can be connected later.
+  // Contact message form
+  // Sends messages to the backend ContactMessages table.
   // ===============================
 
   contactForm = {
@@ -127,8 +132,9 @@ export class ContactComponent implements OnInit {
   };
 
   contactFormErrors: ContactFormErrors = {};
+  isSubmittingContactMessage = false;
   isContactMessageSent = false;
-  sentContactMessages: SentContactMessage[] = [];
+  sentContactMessages: ContactMessage[] = [];
 
   interestOptions = [
     'Manicure',
@@ -154,25 +160,27 @@ export class ContactComponent implements OnInit {
   ];
 
   // ===============================
-  // Feedback section
+  // Feedback review form
+  // Saves into the same ClientReviews table used by the Home page.
   // ===============================
-
-  feedbackReviews: FeedbackReview[] = [
-    {
-      clientName: 'Lerato M.',
-      reviewText: 'The best experience every time! The team is so professional and the results are always flawless.',
-      imageUrl: 'assets/contact/reviewer.png',
-      rating: 5
-    }
-  ];
 
   ratingStars = [1, 2, 3, 4, 5];
 
+  feedbackForm = {
+    location: '',
+    reviewText: ''
+  };
+
   selectedFeedbackRating = 0;
-  feedbackMessage = '';
+  selectedReviewImageFile?: File;
+  selectedReviewImagePreviewUrl = '';
+
+  feedbackFormErrors: FeedbackFormErrors = {};
+  isSubmittingFeedback = false;
+  isFeedbackSubmitted = false;
 
   ngOnInit(): void {
-    this.prefillContactFormFromStoredUser();
+    this.prefillFormsFromStoredUser();
   }
 
   // ===============================
@@ -215,7 +223,7 @@ export class ContactComponent implements OnInit {
   }
 
   // ===============================
-  // Contact form validation and submit
+  // Contact message submit
   // ===============================
 
   submitContactForm(): void {
@@ -225,22 +233,30 @@ export class ContactComponent implements OnInit {
       return;
     }
 
-    this.sentContactMessages = [
-      ...this.sentContactMessages,
-      {
-        id: Date.now(),
-        fullName: this.contactForm.fullName.trim(),
-        emailAddress: this.contactForm.emailAddress.trim(),
-        phoneNumber: this.contactForm.phoneNumber.trim(),
-        interest: this.contactForm.interest.trim(),
-        message: this.contactForm.message.trim(),
-        submittedAt: new Date(),
-        statuses: ['Sent', 'Seen', 'Response pending']
-      }
-    ];
+    this.isSubmittingContactMessage = true;
 
-    this.isContactMessageSent = true;
-    this.resetContactMessageForm();
+    this.contactService.submitContactMessage({
+      fullName: this.contactForm.fullName.trim(),
+      emailAddress: this.contactForm.emailAddress.trim(),
+      phoneNumber: this.contactForm.phoneNumber.trim(),
+      interest: this.contactForm.interest.trim(),
+      message: this.contactForm.message.trim()
+    }).subscribe({
+      next: message => {
+        this.sentContactMessages = [message, ...this.sentContactMessages];
+        this.isContactMessageSent = true;
+        this.isSubmittingContactMessage = false;
+        this.resetContactMessageForm();
+      },
+      error: error => {
+        this.contactFormErrors.api = this.getApiErrorMessage(
+          error,
+          'Your message could not be submitted. Please try again.'
+        );
+
+        this.isSubmittingContactMessage = false;
+      }
+    });
   }
 
   sendAnotherMessage(): void {
@@ -273,21 +289,11 @@ export class ContactComponent implements OnInit {
 
     if (!this.contactForm.message.trim()) {
       errors.message = 'Please enter your message.';
+    } else if (this.contactForm.message.trim().length > 1000) {
+      errors.message = 'Message cannot be longer than 1000 characters.';
     }
 
     return errors;
-  }
-
-  private isValidEmail(emailAddress: string): boolean {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    return emailPattern.test(emailAddress.trim());
-  }
-
-  private isValidSouthAfricanPhoneNumber(phoneNumber: string): boolean {
-    const cleanedPhoneNumber = phoneNumber.replace(/\s/g, '');
-    const phonePattern = /^(\+27|0)[6-8][0-9]{8}$/;
-
-    return phonePattern.test(cleanedPhoneNumber);
   }
 
   private resetContactMessageForm(): void {
@@ -307,11 +313,136 @@ export class ContactComponent implements OnInit {
   }
 
   // ===============================
-  // Logged-in user autofill support
-  // This is frontend-ready for now and can be improved once backend user profile data is connected.
+  // Feedback review submit
   // ===============================
 
-  private prefillContactFormFromStoredUser(): void {
+  selectFeedbackRating(rating: number): void {
+    this.selectedFeedbackRating = rating;
+    this.feedbackFormErrors.rating = undefined;
+  }
+
+  onReviewImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    this.feedbackFormErrors.image = undefined;
+    this.selectedReviewImageFile = undefined;
+    this.selectedReviewImagePreviewUrl = '';
+
+    if (!file) {
+      return;
+    }
+
+    const fileIsAllowed = this.allowedReviewImageTypes.includes(file.type);
+    const fileIsTooLarge = file.size > this.maxReviewImageSizeInBytes;
+
+    if (!fileIsAllowed) {
+      this.feedbackFormErrors.image = 'Please upload a JPG, PNG, or WEBP image.';
+      input.value = '';
+      return;
+    }
+
+    if (fileIsTooLarge) {
+      this.feedbackFormErrors.image = 'Please upload an image smaller than 3MB.';
+      input.value = '';
+      return;
+    }
+
+    this.selectedReviewImageFile = file;
+    this.loadReviewImagePreview(file);
+  }
+
+  submitFeedback(): void {
+    this.feedbackFormErrors = this.validateFeedbackForm();
+
+    if (Object.keys(this.feedbackFormErrors).length > 0) {
+      return;
+    }
+
+    const formData = this.buildReviewFormData();
+
+    this.isSubmittingFeedback = true;
+
+    this.contactService.submitReview(formData).subscribe({
+      next: () => {
+        this.isFeedbackSubmitted = true;
+        this.isSubmittingFeedback = false;
+        this.resetFeedbackForm();
+      },
+      error: error => {
+        this.feedbackFormErrors.api = this.getApiErrorMessage(
+          error,
+          'Your review could not be submitted. Please try again.'
+        );
+
+        this.isSubmittingFeedback = false;
+      }
+    });
+  }
+
+  private validateFeedbackForm(): FeedbackFormErrors {
+    const errors: FeedbackFormErrors = {};
+
+    if (!this.feedbackForm.location.trim()) {
+      errors.location = 'Please enter your location.';
+    }
+
+    if (!this.feedbackForm.reviewText.trim()) {
+      errors.reviewText = 'Please enter your review.';
+    } else if (this.feedbackForm.reviewText.trim().length > 1000) {
+      errors.reviewText = 'Review cannot be longer than 1000 characters.';
+    }
+
+    if (this.selectedFeedbackRating < 1 || this.selectedFeedbackRating > 5) {
+      errors.rating = 'Please select a rating from 1 to 5.';
+    }
+
+    return errors;
+  }
+
+  private buildReviewFormData(): FormData {
+    const formData = new FormData();
+
+    formData.append('clientName', this.loggedInClientName);
+    formData.append('location', this.feedbackForm.location.trim());
+    formData.append('reviewText', this.feedbackForm.reviewText.trim());
+    formData.append('rating', this.selectedFeedbackRating.toString());
+
+    if (this.selectedReviewImageFile) {
+      formData.append('image', this.selectedReviewImageFile);
+    }
+
+    return formData;
+  }
+
+  private resetFeedbackForm(): void {
+    this.feedbackForm = {
+      ...this.feedbackForm,
+      reviewText: ''
+    };
+
+    this.selectedFeedbackRating = 0;
+    this.selectedReviewImageFile = undefined;
+    this.selectedReviewImagePreviewUrl = '';
+    this.feedbackFormErrors = {};
+  }
+
+  private loadReviewImagePreview(file: File): void {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      this.selectedReviewImagePreviewUrl = reader.result as string;
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  // ===============================
+  // Stored user support
+  // Uses the logged-in user's saved details to avoid recollecting them.
+  // ===============================
+
+  private prefillFormsFromStoredUser(): void {
     const storedUser = this.getStoredUser();
 
     if (!storedUser) {
@@ -321,6 +452,8 @@ export class ContactComponent implements OnInit {
     const fullName = this.getStoredUserFullName(storedUser);
     const emailAddress = storedUser.emailAddress ?? storedUser.email ?? '';
     const phoneNumber = storedUser.phoneNumber ?? storedUser.phone ?? '';
+
+    this.loggedInClientName = fullName;
 
     this.contactForm = {
       ...this.contactForm,
@@ -362,15 +495,31 @@ export class ContactComponent implements OnInit {
   }
 
   // ===============================
-  // Feedback form
-  // Frontend-only for now. Backend/review integration can be connected later.
+  // Shared validation helpers
   // ===============================
 
-  selectFeedbackRating(rating: number): void {
-    this.selectedFeedbackRating = rating;
+  private isValidEmail(emailAddress: string): boolean {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    return emailPattern.test(emailAddress.trim());
   }
 
-  submitFeedback(): void {
-    // Backend/review integration can be connected here later.
+  private isValidSouthAfricanPhoneNumber(phoneNumber: string): boolean {
+    const cleanedPhoneNumber = phoneNumber.replace(/\s/g, '');
+    const phonePattern = /^(\+27|0)[6-8][0-9]{8}$/;
+
+    return phonePattern.test(cleanedPhoneNumber);
+  }
+
+  private getApiErrorMessage(error: any, fallbackMessage: string): string {
+    if (error?.error?.message) {
+      return error.error.message;
+    }
+
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+
+    return fallbackMessage;
   }
 }

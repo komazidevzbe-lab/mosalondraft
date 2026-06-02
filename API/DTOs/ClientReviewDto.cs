@@ -1,6 +1,6 @@
 namespace API.DTOs;
 
-public class HomeReviewDto
+public class ClientReviewDto
 {
     public int Id { get; set; }
 
@@ -15,6 +15,10 @@ public class HomeReviewDto
     public string ImageUrl { get; set; } = string.Empty;
 
     public string AltText { get; set; } = string.Empty;
+
+    public bool IsApproved { get; set; }
+
+    public bool IsFeatured { get; set; }
 
     public int DisplayOrder { get; set; }
 
