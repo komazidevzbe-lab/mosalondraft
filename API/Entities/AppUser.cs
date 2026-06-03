@@ -21,4 +21,11 @@ public class AppUser : IdentityUser<int>
     // ===============================
 
     public ICollection<AppUserRole> UserRoles { get; set; } = new List<AppUserRole>();
+
+    // ===============================
+    // Gallery favorites relationship
+    // This stores the gallery images saved by the logged-in user.
+    // ===============================
+
+    public ICollection<GalleryImageFavorite> GalleryImageFavorites { get; set; } = new List<GalleryImageFavorite>();
 }

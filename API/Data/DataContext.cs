@@ -32,6 +32,10 @@ public class DataContext : IdentityDbContext<
 
     public DbSet<ContactMessage> ContactMessages { get; set; }
 
+    public DbSet<GalleryImage> GalleryImages { get; set; }
+
+    public DbSet<GalleryImageFavorite> GalleryImageFavorites { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -43,6 +47,12 @@ public class DataContext : IdentityDbContext<
                 .WithOne(userRole => userRole.User)
                 .HasForeignKey(userRole => userRole.UserId)
                 .IsRequired();
+
+            entity
+                .HasMany(user => user.GalleryImageFavorites)
+                .WithOne(favorite => favorite.User)
+                .HasForeignKey(favorite => favorite.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<AppRole>(entity =>
@@ -322,6 +332,75 @@ public class DataContext : IdentityDbContext<
             entity.HasIndex(message => message.MessageStatus);
 
             entity.HasIndex(message => message.SubmittedAt);
+        });
+
+        builder.Entity<GalleryImage>(entity =>
+        {
+            entity.HasKey(image => image.Id);
+
+            entity.Property(image => image.Title)
+                .HasMaxLength(120)
+                .IsRequired();
+
+            entity.Property(image => image.Description)
+                .HasMaxLength(160)
+                .IsRequired();
+
+            entity.Property(image => image.Category)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(image => image.ImageUrl)
+                .HasMaxLength(500)
+                .IsRequired();
+
+            entity.Property(image => image.AltText)
+                .HasMaxLength(250)
+                .IsRequired();
+
+            entity.Property(image => image.DisplayOrder)
+                .IsRequired();
+
+            entity.Property(image => image.IsActive)
+                .IsRequired();
+
+            entity.Property(image => image.CreatedAt)
+                .IsRequired();
+
+            entity.HasIndex(image => image.ImageUrl)
+                .IsUnique();
+
+            entity.HasIndex(image => new
+            {
+                image.Category,
+                image.DisplayOrder
+            });
+
+            entity.HasMany(image => image.Favorites)
+                .WithOne(favorite => favorite.GalleryImage)
+                .HasForeignKey(favorite => favorite.GalleryImageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasData(GallerySeedData.GalleryImages);
+        });
+
+        builder.Entity<GalleryImageFavorite>(entity =>
+        {
+            entity.HasKey(favorite => favorite.Id);
+
+            entity.Property(favorite => favorite.CreatedAt)
+                .IsRequired();
+
+            entity.HasIndex(favorite => new
+            {
+                favorite.UserId,
+                favorite.GalleryImageId
+            })
+            .IsUnique();
+
+            entity.HasIndex(favorite => favorite.UserId);
+
+            entity.HasIndex(favorite => favorite.GalleryImageId);
         });
     }
 }

@@ -69,56 +69,64 @@
 
 /* ===============================
    Gallery filters
+   Smaller, softer, rounded category tabs.
    =============================== */
 
 .gallery-filters {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1060px;
   margin: 0 auto 22px;
 
   display: grid;
-  grid-template-columns: repeat(6, minmax(165px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(6, minmax(130px, 1fr));
+  gap: 12px;
 }
 
 .gallery-filters button {
-  height: 44px;
-  padding: 0 20px;
+  height: 34px;
+  padding: 0 10px;
   overflow: hidden;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 
-  border: 1.5px solid rgba(238, 147, 139, 0.5);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.78);
+  border: 1.2px solid rgba(238, 147, 139, 0.5);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
 
   color: #111;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: 13px;
+  font-weight: 540;
+  line-height: 1;
   text-align: center;
   white-space: nowrap;
 
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .gallery-filters button i {
   flex: 0 0 auto;
 
   color: #ef5d6f;
-  font-size: 18px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.gallery-filters button:first-child i {
+  font-size: 14px;
+  opacity: 0.9;
+  transform: scale(0.92);
 }
 
 .gallery-filters button img {
   flex: 0 0 auto;
 
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
 
   display: block;
   object-fit: contain;
@@ -126,13 +134,14 @@
 }
 
 .gallery-filters button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: #ef5d6f;
+  box-shadow: 0 8px 16px rgba(239, 79, 98, 0.08);
 }
 
 .gallery-filters button.active {
-  border-color: #ef5d6f;
-  background: #ef4f62;
+  border-color:  #ef5d6f;
+  background:#d88480;
 
   color: #fff;
 }
@@ -360,7 +369,8 @@
   }
 
   .gallery-filters {
-    grid-template-columns: repeat(3, minmax(165px, 1fr));
+    max-width: 760px;
+    grid-template-columns: repeat(3, minmax(130px, 1fr));
   }
 
   .gallery-grid {
@@ -378,7 +388,13 @@
   }
 
   .gallery-filters {
+    max-width: 100%;
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .gallery-filters button {
+    height: 38px;
   }
 
   .gallery-grid {

@@ -4,6 +4,7 @@ using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260603221446_AddGalleryImages")]
+    partial class AddGalleryImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1486,35 +1489,6 @@ namespace API.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("API.Entities.GalleryImageFavorite", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("GalleryImageId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GalleryImageId");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId", "GalleryImageId")
-                        .IsUnique();
-
-                    b.ToTable("GalleryImageFavorites");
-                });
-
             modelBuilder.Entity("API.Entities.HomeHeroImage", b =>
                 {
                     b.Property<int>("Id")
@@ -2959,25 +2933,6 @@ namespace API.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("API.Entities.GalleryImageFavorite", b =>
-                {
-                    b.HasOne("API.Entities.GalleryImage", "GalleryImage")
-                        .WithMany("Favorites")
-                        .HasForeignKey("GalleryImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Entities.AppUser", "User")
-                        .WithMany("GalleryImageFavorites")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GalleryImage");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("API.Entities.PasswordResetCode", b =>
                 {
                     b.HasOne("API.Entities.AppUser", "User")
@@ -3032,14 +2987,7 @@ namespace API.Data.Migrations
 
             modelBuilder.Entity("API.Entities.AppUser", b =>
                 {
-                    b.Navigation("GalleryImageFavorites");
-
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("API.Entities.GalleryImage", b =>
-                {
-                    b.Navigation("Favorites");
                 });
 #pragma warning restore 612, 618
         }

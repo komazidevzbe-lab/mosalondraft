@@ -184,7 +184,7 @@ export class AccountService {
     return fallbackMessage;
   }
 
-  private getAuthHeaders(): HttpHeaders {
+  getAuthHeaders(): HttpHeaders {
     const token = this.currentUser()?.token;
 
     if (!token) {

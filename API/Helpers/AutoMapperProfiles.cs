@@ -37,5 +37,14 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber ?? string.Empty))
             .ForMember(dest => dest.Token, opt => opt.Ignore())
             .ForMember(dest => dest.Roles, opt => opt.Ignore());
+
+        // ===============================
+        // GalleryImage → GalleryImageDto
+        // Returns database-driven gallery cards to Angular.
+        // IsFavorite is set manually in GalleryService per logged-in user.
+        // ===============================
+
+        CreateMap<GalleryImage, GalleryImageDto>()
+            .ForMember(dest => dest.IsFavorite, opt => opt.Ignore());
     }
 }
