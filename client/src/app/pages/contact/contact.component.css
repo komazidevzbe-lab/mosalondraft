@@ -188,10 +188,20 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+  align-items: start;
 }
 
 .message-card {
+  height: 430px;
+  min-height: 430px;
+  max-height: 430px;
   padding: 22px 30px 18px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
 }
 
 .card-heading {
@@ -200,6 +210,12 @@
   display: flex;
   align-items: flex-start;
   gap: 18px;
+}
+
+.message-card-heading {
+  position: relative;
+  flex-shrink: 0;
+  padding-right: 66px;
 }
 
 .heading-icon {
@@ -225,10 +241,68 @@
   font-weight: 600;
 }
 
+.message-notification-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 48px;
+  height: 48px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(239, 79, 98, 0.26);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+
+  color: #ef4f62;
+  font-size: 17px;
+
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.message-notification-button:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  box-shadow: 0 10px 18px rgba(239, 79, 98, 0.12);
+}
+
+.message-notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #ef4f62;
+
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
 .contact-form {
+  flex: 1;
+  min-height: 0;
+
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .form-row {
@@ -285,6 +359,11 @@
   padding: 0 18px 0 48px;
 }
 
+.contact-form input[readonly] {
+  color: #111;
+  cursor: default;
+}
+
 .contact-form textarea {
   height: 100px;
   padding: 15px 18px 15px 48px;
@@ -300,6 +379,7 @@
 
 .send-message-button {
   height: 39px;
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
@@ -328,56 +408,40 @@
   cursor: not-allowed;
 }
 
-.message-success-state {
-  min-height: 315px;
+/* ===============================
+   Message history
+   =============================== */
+
+.message-history-state {
+  flex: 1;
+  min-height: 0;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
 
-  text-align: center;
+  overflow: hidden;
 }
 
-.message-success-icon {
-  width: 62px;
-  height: 62px;
-  margin-bottom: 16px;
+.message-history-loading,
+.message-history-empty {
+  padding: 28px 18px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #ef4f62;
-  border-radius: 50%;
-
-  color: #fff;
-  font-size: 24px;
-}
-
-.message-success-state h2 {
-  max-width: 420px;
-  margin: 0 0 10px;
-
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.message-success-state > p {
-  max-width: 460px;
-  margin: 0 0 20px;
+  border: 1px solid rgba(239, 79, 98, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.64);
 
   color: #555;
   font-size: 13px;
-  font-weight: 600;
-  line-height: 1.5;
+  font-weight: 700;
+  text-align: center;
 }
 
 .sent-message-list {
   width: 100%;
-  max-height: 220px;
-  margin-bottom: 18px;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  margin-bottom: 0;
   padding-right: 6px;
 
   display: flex;
@@ -385,10 +449,18 @@
   gap: 10px;
 
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sent-message-card {
-  padding: 13px 14px;
+  position: relative;
+  flex-shrink: 0;
+  padding: 12px 16px;
+
+  display: grid;
+  grid-template-columns: 52px 1px 1fr;
+  gap: 14px;
+  align-items: center;
 
   background: rgba(255, 255, 255, 0.76);
   border: 1px solid rgba(239, 79, 98, 0.18);
@@ -397,8 +469,34 @@
   text-align: left;
 }
 
+.sent-message-preview-icon {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(239, 79, 98, 0.10);
+  border-radius: 50%;
+
+  color: #ef4f62;
+  font-size: 18px;
+}
+
+.sent-message-divider {
+  width: 1px;
+  height: 56px;
+
+  background: rgba(238, 147, 139, 0.32);
+}
+
+.sent-message-content {
+  min-width: 0;
+}
+
 .sent-message-header {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 
   display: flex;
   justify-content: space-between;
@@ -406,21 +504,17 @@
 }
 
 .sent-message-header h3 {
-  margin: 0 0 3px;
+  margin: 0;
 
   color: #111;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
 }
 
-.sent-message-header small {
-  color: #777;
-  font-size: 10px;
-  font-weight: 700;
-}
-
 .sent-message-header span {
+  flex: 0 0 auto;
+
   color: #ef4f62;
   font-size: 11px;
   font-weight: 800;
@@ -428,12 +522,19 @@
 }
 
 .sent-message-card p {
-  margin: 0 0 10px;
+  margin: 0 0 9px;
 
   color: #444;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.35;
+}
+
+.message-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .message-status-flow {
@@ -443,8 +544,8 @@
 }
 
 .message-status-flow span {
-  min-height: 28px;
-  padding: 0 12px;
+  min-height: 26px;
+  padding: 0 11px;
 
   display: inline-flex;
   align-items: center;
@@ -460,31 +561,62 @@
   font-weight: 800;
 }
 
-.send-another-message-button {
-  height: 36px;
-  padding: 0 18px;
+.message-response-toggle {
+  width: 28px;
+  height: 28px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
 
-  border: none;
-  border-radius: 999px;
-  background: #ef4f62;
-  box-shadow: 0 10px 18px rgba(239, 79, 98, 0.18);
+  border: 1px solid rgba(239, 79, 98, 0.24);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.78);
 
-  color: #fff;
-  font-size: 12px;
-  font-weight: 800;
+  color: #ef4f62;
+  font-size: 11px;
 
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.send-another-message-button:hover {
+.message-response-toggle:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgba(239, 79, 98, 0.24);
+  background: #fff;
+  box-shadow: 0 8px 14px rgba(239, 79, 98, 0.12);
+}
+
+.admin-response-card {
+  margin-top: 10px;
+  padding: 10px 12px;
+
+  border: 1px solid rgba(239, 79, 98, 0.18);
+  border-radius: 10px;
+  background: rgba(239, 79, 98, 0.06);
+}
+
+.admin-response-card strong {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #ef4f62;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.admin-response-card p {
+  margin: 0 0 6px;
+
+  color: #444;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.admin-response-card small {
+  color: #777;
+  font-size: 10px;
+  font-weight: 700;
 }
 
 /* ===============================
@@ -499,7 +631,7 @@
 
 .map-card {
   position: relative;
-  min-height: 270px;
+  min-height: 271px;
   overflow: hidden;
 }
 
@@ -610,92 +742,92 @@
 
 .opening-hours-card,
 .feedback-card {
-  padding: 18px 30px;
+  padding: 16px 30px;
+}
+
+.opening-hours-card {
+  background:
+    url('/assets/footer/footerbackground10.png') center / cover no-repeat;
 }
 
 .opening-hours-card .card-heading {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 
   align-items: center;
   gap: 16px;
 }
 
-.hours-grid {
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr;
-  column-gap: 24px;
-  row-gap: 6px;
+.hours-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.hours-grid::before {
-  content: "";
-  grid-column: 2;
-  grid-row: 1 / span 4;
-
-  width: 1px;
-  height: 100%;
-
-  background: rgba(238, 147, 139, 0.34);
-}
-
-.hours-grid p {
-  margin: 0;
+.hours-row {
+  min-height: 38px;
+  padding: 0 14px;
 
   display: grid;
-  grid-template-columns: 86px 1fr;
-  gap: 12px;
+  grid-template-columns: 34px 1fr auto;
+  gap: 14px;
+  align-items: center;
 
-  color: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0);
+}
+
+.hours-day-icon {
+  width: 26px;
+  height: 26px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: rgba(239, 79, 98, 0.08);
+
+  color: #ef4f62;
   font-size: 13px;
-  font-weight: 700;
 }
 
-.hours-grid p:nth-child(1) {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.hours-grid p:nth-child(2) {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-.hours-grid p:nth-child(3) {
-  grid-column: 1;
-  grid-row: 3;
-}
-
-.hours-grid p:nth-child(4) {
-  grid-column: 1;
-  grid-row: 4;
-}
-
-.hours-grid p:nth-child(5) {
-  grid-column: 3;
-  grid-row: 1;
-}
-
-.hours-grid p:nth-child(6) {
-  grid-column: 3;
-  grid-row: 2;
-}
-
-.hours-grid p:nth-child(7) {
-  grid-column: 3;
-  grid-row: 3;
-}
-
-.hours-grid p span {
+.hours-day {
+  color: #111;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
   font-weight: 800;
 }
 
-.hours-grid p strong {
+.hours-time {
+  min-width: 138px;
+  height: 28px;
+  padding: 0 14px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border-radius: 999px;
+  background: rgba(239, 79, 98, 0.07);
+
   color: #444;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-.hours-grid p.closed strong {
+.hours-time i {
   color: #ef4f62;
+  font-size: 13px;
+}
+
+.hours-row.closed .hours-time {
+  color: #ef4f62;
+}
+
+.hours-row.closed .hours-day-icon {
+  background: rgba(239, 79, 98, 0.12);
 }
 
 /* ===============================
@@ -703,7 +835,7 @@
    =============================== */
 
 .feedback-card {
-  min-height: 210px;
+  min-height: 180px;
 
   display: flex;
   flex-direction: column;
@@ -714,7 +846,7 @@
 }
 
 .feedback-heading {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 
   display: flex;
   flex-direction: column;
@@ -722,22 +854,13 @@
 }
 
 .feedback-heading p {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
 
   color: #555;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
-.review-client-name {
-  margin-top: 8px;
-
-  display: block;
-
-  color: #ef4f62;
-  font-size: 12px;
-  font-weight: 800;
-}
 
 .feedback-form {
   width: 100%;
@@ -745,7 +868,7 @@
 
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .feedback-stars {
@@ -763,7 +886,7 @@
   background: transparent;
 
   color: #ef4f62;
-  font-size: 26px;
+  font-size: 24px;
   line-height: 1;
 
   cursor: pointer;
@@ -778,14 +901,14 @@
   color: #ef4f62;
 }
 
-.feedback-fields {
+.feedback-compact-row {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 220px;
   gap: 10px;
 }
 
-.feedback-fields input,
-.feedback-fields textarea {
+.feedback-compact-row input,
+.feedback-form textarea {
   width: 100%;
 
   border: 1px solid rgba(238, 147, 139, 0.45);
@@ -798,14 +921,14 @@
   font-weight: 600;
 }
 
-.feedback-fields input {
-  height: 44px;
+.feedback-compact-row input {
+  height: 42px;
   padding: 0 18px;
 }
 
-.feedback-fields textarea {
-  min-height: 82px;
-  padding: 14px 18px;
+.feedback-form textarea {
+  min-height: 74px;
+  padding: 13px 18px;
   resize: none;
 }
 
@@ -844,7 +967,12 @@
 }
 
 .feedback-form button[type="submit"] {
-  height: 46px;
+  height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 
   border: none;
   border-radius: 8px;
@@ -912,30 +1040,28 @@
   .contact-main-grid,
   .contact-bottom-grid,
   .form-row,
-  .hours-grid {
+  .feedback-compact-row {
     grid-template-columns: 1fr;
   }
 
-  .hours-grid::before {
-    display: none;
-  }
-
-  .hours-grid p,
-  .hours-grid p:nth-child(1),
-  .hours-grid p:nth-child(2),
-  .hours-grid p:nth-child(3),
-  .hours-grid p:nth-child(4),
-  .hours-grid p:nth-child(5),
-  .hours-grid p:nth-child(6),
-  .hours-grid p:nth-child(7) {
-    grid-column: auto;
-    grid-row: auto;
-  }
-
-  .message-card,
-  .opening-hours-card,
-  .feedback-card {
+  .message-card {
+    height: 536px;
+    min-height: 536px;
+    max-height: 536px;
     padding: 20px 18px;
+  }
+
+  .message-card-heading {
+    padding-right: 58px;
+  }
+
+  .sent-message-card {
+    grid-template-columns: 1fr;
+  }
+
+  .sent-message-divider {
+    width: 100%;
+    height: 1px;
   }
 
   .sent-message-header {
@@ -944,5 +1070,25 @@
 
   .sent-message-header span {
     text-align: left;
+  }
+
+  .message-card-footer {
+    align-items: flex-start;
+  }
+
+  .hours-row {
+    grid-template-columns: 30px 1fr;
+    border-radius: 18px;
+    padding: 9px 12px;
+  }
+
+  .hours-time {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .opening-hours-card,
+  .feedback-card {
+    padding: 20px 18px;
   }
 }

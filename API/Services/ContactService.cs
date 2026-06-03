@@ -17,7 +17,6 @@ public class ContactService(
 {
     private const long MaxReviewImageSizeInBytes = 3 * 1024 * 1024;
     private const string DefaultReviewImageUrl = "assets/contact/reviewer.png";
-    private const string DefaultReviewLocation = "Client";
 
     private static readonly string[] AllowedInterests =
     [
@@ -37,19 +36,50 @@ public class ContactService(
         "image/webp"
     ];
 
+    private static readonly string[] AllowedMessageStatuses =
+    [
+        ContactMessageStatus.Sent,
+        ContactMessageStatus.Seen,
+        ContactMessageStatus.ResponsePending,
+        ContactMessageStatus.Responded
+    ];
+
+    // ===============================
+    // Contact messages
+    // ===============================
+
     public async Task<ContactMessageDto> CreateContactMessageAsync(
         CreateContactMessageDto createContactMessageDto,
         ClaimsPrincipal user)
     {
-        var fullName = createContactMessageDto.FullName.Trim();
-        var emailAddress = createContactMessageDto.EmailAddress.Trim().ToLowerInvariant();
-        var phoneNumber = NormalisePhoneNumber(createContactMessageDto.PhoneNumber);
+        var appUser = await GetAuthenticatedUser(user);
+
+        if (appUser == null)
+        {
+            throw new ArgumentException("You must be signed in to send a message.");
+        }
+
         var interest = createContactMessageDto.Interest.Trim();
         var message = createContactMessageDto.Message.Trim();
 
-        if (!AllowedInterests.Contains(interest))
+        ValidateInterest(interest);
+        ValidateMessage(message);
+
+        var fullName = GetUserFullName(appUser);
+
+        if (string.IsNullOrWhiteSpace(fullName))
         {
-            throw new ArgumentException("Please select a valid interest option.");
+            throw new ArgumentException("Your account profile is missing your name.");
+        }
+
+        if (string.IsNullOrWhiteSpace(appUser.Email))
+        {
+            throw new ArgumentException("Your account profile is missing your email address.");
+        }
+
+        if (string.IsNullOrWhiteSpace(appUser.PhoneNumber))
+        {
+            throw new ArgumentException("Your account profile is missing your phone number.");
         }
 
         var now = DateTime.UtcNow;
@@ -57,14 +87,15 @@ public class ContactService(
         var contactMessage = new ContactMessage
         {
             FullName = fullName,
-            EmailAddress = emailAddress,
-            PhoneNumber = phoneNumber,
+            EmailAddress = appUser.Email.Trim().ToLowerInvariant(),
+            PhoneNumber = appUser.PhoneNumber.Trim(),
             Interest = interest,
             Message = message,
-            UserId = GetAuthenticatedUserId(user),
+            UserId = appUser.Id,
             MessageStatus = ContactMessageStatus.Sent,
             SubmittedAt = now,
-            CreatedAt = now
+            CreatedAt = now,
+            UpdatedAt = null
         };
 
         context.ContactMessages.Add(contactMessage);
@@ -75,21 +106,71 @@ public class ContactService(
 
     public async Task<List<ContactMessageDto>> GetMyContactMessagesAsync(ClaimsPrincipal user)
     {
-        var userId = GetAuthenticatedUserId(user);
+        var appUser = await GetAuthenticatedUser(user);
 
-        if (userId == null)
+        if (appUser == null)
         {
-            return [];
+            throw new ArgumentException("You must be signed in to view your messages.");
         }
 
         var messages = await context.ContactMessages
             .AsNoTracking()
-            .Where(message => message.UserId == userId)
+            .Where(message => message.UserId == appUser.Id)
             .OrderByDescending(message => message.SubmittedAt)
             .ToListAsync();
 
-        return messages.Select(MapContactMessageToDto).ToList();
+        return messages
+            .Select(MapContactMessageToDto)
+            .ToList();
     }
+
+    public async Task<List<ContactMessageDto>> GetAllContactMessagesAsync()
+    {
+        var messages = await context.ContactMessages
+            .AsNoTracking()
+            .OrderByDescending(message => message.SubmittedAt)
+            .ToListAsync();
+
+        return messages
+            .Select(MapContactMessageToDto)
+            .ToList();
+    }
+
+    public async Task<ContactMessageDto?> UpdateContactMessageStatusAsync(
+        int messageId,
+        UpdateContactMessageStatusDto updateContactMessageStatusDto)
+    {
+        var status = updateContactMessageStatusDto.MessageStatus.Trim();
+
+        ValidateMessageStatus(status);
+
+        var contactMessage = await context.ContactMessages
+            .SingleOrDefaultAsync(message => message.Id == messageId);
+
+        if (contactMessage == null)
+        {
+            return null;
+        }
+
+        contactMessage.MessageStatus = status;
+        contactMessage.AdminResponse = string.IsNullOrWhiteSpace(updateContactMessageStatusDto.AdminResponse)
+            ? null
+            : updateContactMessageStatusDto.AdminResponse.Trim();
+        contactMessage.UpdatedAt = DateTime.UtcNow;
+
+        if (status == ContactMessageStatus.Responded)
+        {
+            contactMessage.RespondedAt = DateTime.UtcNow;
+        }
+
+        await context.SaveChangesAsync();
+
+        return MapContactMessageToDto(contactMessage);
+    }
+
+    // ===============================
+    // Client reviews
+    // ===============================
 
     public async Task<ClientReviewDto> CreateClientReviewAsync(
         CreateClientReviewDto createClientReviewDto,
@@ -102,23 +183,18 @@ public class ContactService(
             throw new ArgumentException("You must be signed in to submit a review.");
         }
 
-        var clientName = $"{appUser.FirstName} {appUser.LastName}".Trim();
+        var clientName = GetUserFullName(appUser);
+        var location = createClientReviewDto.Location.Trim();
+        var reviewText = createClientReviewDto.ReviewText.Trim();
 
         if (string.IsNullOrWhiteSpace(clientName))
         {
             throw new ArgumentException("Your account profile is missing your name.");
         }
 
-        var reviewText = createClientReviewDto.ReviewText.Trim();
-
-        if (string.IsNullOrWhiteSpace(reviewText))
-        {
-            throw new ArgumentException("Review text is required.");
-        }
-
-        var location = string.IsNullOrWhiteSpace(createClientReviewDto.Location)
-            ? DefaultReviewLocation
-            : createClientReviewDto.Location.Trim();
+        ValidateLocation(location);
+        ValidateReviewText(reviewText);
+        ValidateRating(createClientReviewDto.Rating);
 
         var imageUrl = await SaveReviewImage(createClientReviewDto.Image);
         var nextDisplayOrder = await GetNextReviewDisplayOrder();
@@ -136,7 +212,8 @@ public class ContactService(
             IsApproved = false,
             IsFeatured = false,
             DisplayOrder = nextDisplayOrder,
-            CreatedAt = now
+            CreatedAt = now,
+            UpdatedAt = null
         };
 
         context.ClientReviews.Add(clientReview);
@@ -145,6 +222,69 @@ public class ContactService(
         return MapClientReviewToDto(clientReview);
     }
 
+    public async Task<List<ClientReviewDto>> GetAllClientReviewsAsync()
+    {
+        var reviews = await context.ClientReviews
+            .AsNoTracking()
+            .OrderByDescending(review => review.CreatedAt)
+            .ToListAsync();
+
+        return reviews
+            .Select(MapClientReviewToDto)
+            .ToList();
+    }
+
+    public async Task<List<ClientReviewDto>> GetPendingClientReviewsAsync()
+    {
+        var reviews = await context.ClientReviews
+            .AsNoTracking()
+            .Where(review => !review.IsApproved)
+            .OrderByDescending(review => review.CreatedAt)
+            .ToListAsync();
+
+        return reviews
+            .Select(MapClientReviewToDto)
+            .ToList();
+    }
+
+    public async Task<List<ClientReviewDto>> GetApprovedClientReviewsAsync()
+    {
+        var reviews = await context.ClientReviews
+            .AsNoTracking()
+            .Where(review => review.IsApproved)
+            .OrderBy(review => review.DisplayOrder)
+            .ToListAsync();
+
+        return reviews
+            .Select(MapClientReviewToDto)
+            .ToList();
+    }
+
+    public async Task<ClientReviewDto?> UpdateClientReviewApprovalAsync(
+        int reviewId,
+        UpdateClientReviewApprovalDto updateClientReviewApprovalDto)
+    {
+        var clientReview = await context.ClientReviews
+            .SingleOrDefaultAsync(review => review.Id == reviewId);
+
+        if (clientReview == null)
+        {
+            return null;
+        }
+
+        clientReview.IsApproved = updateClientReviewApprovalDto.IsApproved;
+        clientReview.IsFeatured = updateClientReviewApprovalDto.IsFeatured;
+        clientReview.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+
+        return MapClientReviewToDto(clientReview);
+    }
+
+    // ===============================
+    // Image upload support
+    // ===============================
+
     private async Task<string> SaveReviewImage(IFormFile? image)
     {
         if (image == null || image.Length == 0)
@@ -152,15 +292,7 @@ public class ContactService(
             return DefaultReviewImageUrl;
         }
 
-        if (!AllowedImageContentTypes.Contains(image.ContentType.ToLowerInvariant()))
-        {
-            throw new ArgumentException("Invalid image file type. Please upload a JPG, PNG, or WEBP image.");
-        }
-
-        if (image.Length > MaxReviewImageSizeInBytes)
-        {
-            throw new ArgumentException("Image file is too large. Please upload an image smaller than 3MB.");
-        }
+        ValidateReviewImage(image);
 
         var webRootPath = environment.WebRootPath;
 
@@ -198,6 +330,100 @@ public class ContactService(
         return $"{request.Scheme}://{request.Host}/uploads/reviews/{fileName}";
     }
 
+    // ===============================
+    // Validation helpers
+    // ===============================
+
+    private static void ValidateInterest(string interest)
+    {
+        if (string.IsNullOrWhiteSpace(interest))
+        {
+            throw new ArgumentException("Interest is required.");
+        }
+
+        if (!AllowedInterests.Contains(interest))
+        {
+            throw new ArgumentException("Please select a valid interest option.");
+        }
+    }
+
+    private static void ValidateMessage(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            throw new ArgumentException("Message is required.");
+        }
+
+        if (message.Length > 1000)
+        {
+            throw new ArgumentException("Message cannot be longer than 1000 characters.");
+        }
+    }
+
+    private static void ValidateMessageStatus(string status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            throw new ArgumentException("Message status is required.");
+        }
+
+        if (!AllowedMessageStatuses.Contains(status))
+        {
+            throw new ArgumentException("Please select a valid message status.");
+        }
+    }
+
+    private static void ValidateLocation(string location)
+    {
+        if (string.IsNullOrWhiteSpace(location))
+        {
+            throw new ArgumentException("Location is required.");
+        }
+
+        if (location.Length > 160)
+        {
+            throw new ArgumentException("Location cannot be longer than 160 characters.");
+        }
+    }
+
+    private static void ValidateReviewText(string reviewText)
+    {
+        if (string.IsNullOrWhiteSpace(reviewText))
+        {
+            throw new ArgumentException("Review text is required.");
+        }
+
+        if (reviewText.Length > 1000)
+        {
+            throw new ArgumentException("Review text cannot be longer than 1000 characters.");
+        }
+    }
+
+    private static void ValidateRating(int rating)
+    {
+        if (rating < 1 || rating > 5)
+        {
+            throw new ArgumentException("Rating must be between 1 and 5.");
+        }
+    }
+
+    private static void ValidateReviewImage(IFormFile image)
+    {
+        if (!AllowedImageContentTypes.Contains(image.ContentType.ToLowerInvariant()))
+        {
+            throw new ArgumentException("Invalid image file type. Please upload a JPG, PNG, or WEBP image.");
+        }
+
+        if (image.Length > MaxReviewImageSizeInBytes)
+        {
+            throw new ArgumentException("Image file is too large. Please upload an image smaller than 3MB.");
+        }
+    }
+
+    // ===============================
+    // Shared helpers
+    // ===============================
+
     private async Task<int> GetNextReviewDisplayOrder()
     {
         var hasReviews = await context.ClientReviews.AnyAsync();
@@ -212,32 +438,28 @@ public class ContactService(
 
     private async Task<AppUser?> GetAuthenticatedUser(ClaimsPrincipal user)
     {
-        var userId = GetAuthenticatedUserId(user);
+        var userIdValue = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (userId == null)
+        if (!string.IsNullOrWhiteSpace(userIdValue) && int.TryParse(userIdValue, out var userId))
+        {
+            return await userManager.Users
+                .SingleOrDefaultAsync(appUser => appUser.Id == userId);
+        }
+
+        var email = user.Identity?.Name;
+
+        if (string.IsNullOrWhiteSpace(email))
         {
             return null;
         }
 
         return await userManager.Users
-            .SingleOrDefaultAsync(appUser => appUser.Id == userId.Value);
+            .SingleOrDefaultAsync(appUser => appUser.NormalizedEmail == email.ToUpperInvariant());
     }
 
-    private static int? GetAuthenticatedUserId(ClaimsPrincipal user)
+    private static string GetUserFullName(AppUser appUser)
     {
-        var userIdValue = user.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            return null;
-        }
-
-        return int.TryParse(userIdValue, out var userId) ? userId : null;
-    }
-
-    private static string NormalisePhoneNumber(string phoneNumber)
-    {
-        return phoneNumber.Trim().Replace(" ", string.Empty);
+        return $"{appUser.FirstName} {appUser.LastName}".Trim();
     }
 
     private static ContactMessageDto MapContactMessageToDto(ContactMessage contactMessage)

@@ -1,7 +1,4 @@
 export interface CreateContactMessageRequest {
-  fullName: string;
-  emailAddress: string;
-  phoneNumber: string;
   interest: string;
   message: string;
 }

@@ -3,9 +3,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ContactMessage } from '../../_models/contact';
+import { User } from '../../_models/user';
+import { AccountService } from '../../_services/account.service';
 import { ContactService } from '../../_services/contact.service';
 
 type ContactActionType = 'call' | 'email' | 'whatsapp' | 'copyAddress';
+type MessageViewMode = 'form' | 'history';
 
 interface ContactInfoCard {
   title: string;
@@ -28,6 +31,7 @@ interface ContactFormErrors {
   interest?: string;
   message?: string;
   api?: string;
+  history?: string;
 }
 
 interface FeedbackFormErrors {
@@ -38,18 +42,6 @@ interface FeedbackFormErrors {
   api?: string;
 }
 
-interface StoredUser {
-  firstName?: string;
-  lastName?: string;
-  name?: string;
-  surname?: string;
-  fullName?: string;
-  email?: string;
-  emailAddress?: string;
-  phoneNumber?: string;
-  phone?: string;
-}
-
 @Component({
   selector: 'app-contact',
   standalone: true,
@@ -58,6 +50,7 @@ interface StoredUser {
   styleUrl: './contact.component.css'
 })
 export class ContactComponent implements OnInit {
+  private readonly accountService = inject(AccountService);
   private readonly contactService = inject(ContactService);
 
   // ===============================
@@ -76,9 +69,10 @@ export class ContactComponent implements OnInit {
 
   // ===============================
   // Logged-in client details
-  // The review form uses the signed-in user's name instead of asking again.
+  // Messages and reviews use the signed-in user's account details.
   // ===============================
 
+  loggedInUser?: User;
   loggedInClientName = '';
 
   // ===============================
@@ -119,8 +113,8 @@ export class ContactComponent implements OnInit {
   copiedAddressMessage = '';
 
   // ===============================
-  // Contact message form
-  // Sends messages to the backend ContactMessages table.
+  // Contact message form and history
+  // The identity fields stay visible but are readonly.
   // ===============================
 
   contactForm = {
@@ -133,8 +127,11 @@ export class ContactComponent implements OnInit {
 
   contactFormErrors: ContactFormErrors = {};
   isSubmittingContactMessage = false;
+  isLoadingMessages = false;
   isContactMessageSent = false;
+  messageViewMode: MessageViewMode = 'form';
   sentContactMessages: ContactMessage[] = [];
+  expandedResponseMessageIds: number[] = [];
 
   interestOptions = [
     'Manicure',
@@ -144,6 +141,34 @@ export class ContactComponent implements OnInit {
     'Booking Question',
     'Collaboration'
   ];
+
+  get messageHeadingTitle(): string {
+    return this.messageViewMode === 'form' ? 'Send Us A Message' : 'Message History';
+  }
+
+  get messageHeadingDescription(): string {
+    return this.messageViewMode === 'form'
+      ? 'Fill out the form below and we’ll get back to you as soon as possible.'
+      : 'Track the messages you have sent to our team.';
+  }
+
+  get messageActionIconClass(): string {
+    return this.messageViewMode === 'form' ? 'fa-regular fa-bell' : 'fa-solid fa-plus';
+  }
+
+  get messageActionLabel(): string {
+    return this.messageViewMode === 'form' ? 'View message history' : 'Create new message';
+  }
+
+  get responseNotificationCount(): number {
+    return this.sentContactMessages.filter(message =>
+      message.messageStatus === 'Responded' || !!message.adminResponse
+    ).length;
+  }
+
+  get hasMessageNotifications(): boolean {
+    return this.responseNotificationCount > 0;
+  }
 
   // ===============================
   // Opening hours
@@ -180,7 +205,8 @@ export class ContactComponent implements OnInit {
   isFeedbackSubmitted = false;
 
   ngOnInit(): void {
-    this.prefillFormsFromStoredUser();
+    this.loadLoggedInUser();
+    this.loadMyMessages();
   }
 
   // ===============================
@@ -223,6 +249,44 @@ export class ContactComponent implements OnInit {
   }
 
   // ===============================
+  // Message view controls
+  // ===============================
+
+  handleMessageActionButtonClick(): void {
+    if (this.messageViewMode === 'form') {
+      this.showMessageHistory();
+      return;
+    }
+
+    this.showMessageForm();
+  }
+
+  showMessageForm(): void {
+    this.messageViewMode = 'form';
+    this.isContactMessageSent = false;
+    this.contactFormErrors.api = undefined;
+  }
+
+  showMessageHistory(): void {
+    this.messageViewMode = 'history';
+    this.isContactMessageSent = false;
+    this.loadMyMessages();
+  }
+
+  toggleMessageResponse(messageId: number): void {
+    if (this.isMessageResponseExpanded(messageId)) {
+      this.expandedResponseMessageIds = this.expandedResponseMessageIds.filter(id => id !== messageId);
+      return;
+    }
+
+    this.expandedResponseMessageIds = [...this.expandedResponseMessageIds, messageId];
+  }
+
+  isMessageResponseExpanded(messageId: number): boolean {
+    return this.expandedResponseMessageIds.includes(messageId);
+  }
+
+  // ===============================
   // Contact message submit
   // ===============================
 
@@ -236,15 +300,13 @@ export class ContactComponent implements OnInit {
     this.isSubmittingContactMessage = true;
 
     this.contactService.submitContactMessage({
-      fullName: this.contactForm.fullName.trim(),
-      emailAddress: this.contactForm.emailAddress.trim(),
-      phoneNumber: this.contactForm.phoneNumber.trim(),
       interest: this.contactForm.interest.trim(),
       message: this.contactForm.message.trim()
     }).subscribe({
       next: message => {
         this.sentContactMessages = [message, ...this.sentContactMessages];
         this.isContactMessageSent = true;
+        this.messageViewMode = 'history';
         this.isSubmittingContactMessage = false;
         this.resetContactMessageForm();
       },
@@ -259,28 +321,39 @@ export class ContactComponent implements OnInit {
     });
   }
 
-  sendAnotherMessage(): void {
-    this.isContactMessageSent = false;
-    this.contactFormErrors = {};
+  private loadMyMessages(): void {
+    this.isLoadingMessages = true;
+    this.contactFormErrors.history = undefined;
+
+    this.contactService.getMyMessages().subscribe({
+      next: messages => {
+        this.sentContactMessages = messages;
+        this.isLoadingMessages = false;
+      },
+      error: error => {
+        this.contactFormErrors.history = this.getApiErrorMessage(
+          error,
+          'Your message history could not be loaded.'
+        );
+
+        this.isLoadingMessages = false;
+      }
+    });
   }
 
   private validateContactForm(): ContactFormErrors {
     const errors: ContactFormErrors = {};
 
     if (!this.contactForm.fullName.trim()) {
-      errors.fullName = 'Please enter your full name.';
+      errors.fullName = 'Your account name could not be loaded.';
     }
 
     if (!this.contactForm.emailAddress.trim()) {
-      errors.emailAddress = 'Please enter your email address.';
-    } else if (!this.isValidEmail(this.contactForm.emailAddress)) {
-      errors.emailAddress = 'Please enter a valid email address.';
+      errors.emailAddress = 'Your account email could not be loaded.';
     }
 
     if (!this.contactForm.phoneNumber.trim()) {
-      errors.phoneNumber = 'Please enter your phone number.';
-    } else if (!this.isValidSouthAfricanPhoneNumber(this.contactForm.phoneNumber)) {
-      errors.phoneNumber = 'Please enter a valid South African phone number.';
+      errors.phoneNumber = 'Your account phone number could not be loaded.';
     }
 
     if (!this.contactForm.interest.trim()) {
@@ -297,14 +370,10 @@ export class ContactComponent implements OnInit {
   }
 
   private resetContactMessageForm(): void {
-    const existingUserDetails = {
+    this.contactForm = {
       fullName: this.contactForm.fullName,
       emailAddress: this.contactForm.emailAddress,
-      phoneNumber: this.contactForm.phoneNumber
-    };
-
-    this.contactForm = {
-      ...existingUserDetails,
+      phoneNumber: this.contactForm.phoneNumber,
       interest: '',
       message: ''
     };
@@ -403,7 +472,6 @@ export class ContactComponent implements OnInit {
   private buildReviewFormData(): FormData {
     const formData = new FormData();
 
-    formData.append('clientName', this.loggedInClientName);
     formData.append('location', this.feedbackForm.location.trim());
     formData.append('reviewText', this.feedbackForm.reviewText.trim());
     formData.append('rating', this.selectedFeedbackRating.toString());
@@ -417,7 +485,7 @@ export class ContactComponent implements OnInit {
 
   private resetFeedbackForm(): void {
     this.feedbackForm = {
-      ...this.feedbackForm,
+      location: this.feedbackForm.location,
       reviewText: ''
     };
 
@@ -438,77 +506,59 @@ export class ContactComponent implements OnInit {
   }
 
   // ===============================
-  // Stored user support
-  // Uses the logged-in user's saved details to avoid recollecting them.
+  // Logged-in user support
   // ===============================
 
-  private prefillFormsFromStoredUser(): void {
-    const storedUser = this.getStoredUser();
+  private loadLoggedInUser(): void {
+    const currentUser = this.accountService.currentUser() ?? this.getStoredUser();
 
-    if (!storedUser) {
+    if (!currentUser) {
       return;
     }
 
-    const fullName = this.getStoredUserFullName(storedUser);
-    const emailAddress = storedUser.emailAddress ?? storedUser.email ?? '';
-    const phoneNumber = storedUser.phoneNumber ?? storedUser.phone ?? '';
-
-    this.loggedInClientName = fullName;
+    this.loggedInUser = currentUser;
+    this.loggedInClientName = currentUser.fullName || `${currentUser.firstName} ${currentUser.lastName}`.trim();
 
     this.contactForm = {
       ...this.contactForm,
-      fullName,
-      emailAddress,
-      phoneNumber
+      fullName: this.loggedInClientName,
+      emailAddress: currentUser.email,
+      phoneNumber: currentUser.phoneNumber
     };
   }
 
-  private getStoredUser(): StoredUser | null {
-    const possibleStorageKeys = ['user', 'currentUser', 'loggedInUser'];
+  private getStoredUser(): User | null {
+    const storedUser = sessionStorage.getItem('user');
 
-    for (const key of possibleStorageKeys) {
-      const storedValue = localStorage.getItem(key);
-
-      if (!storedValue) {
-        continue;
-      }
-
-      try {
-        return JSON.parse(storedValue) as StoredUser;
-      } catch {
-        return null;
-      }
+    if (!storedUser) {
+      return null;
     }
 
-    return null;
-  }
-
-  private getStoredUserFullName(user: StoredUser): string {
-    if (user.fullName) {
-      return user.fullName;
+    try {
+      return JSON.parse(storedUser) as User;
+    } catch {
+      return null;
     }
-
-    const firstName = user.firstName ?? user.name ?? '';
-    const lastName = user.lastName ?? user.surname ?? '';
-
-    return `${firstName} ${lastName}`.trim();
   }
 
   // ===============================
-  // Shared validation helpers
+  // Shared helpers
   // ===============================
 
-  private isValidEmail(emailAddress: string): boolean {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  getStatusIconClass(status: string): string {
+    if (status === 'Seen') {
+      return 'fa-eye';
+    }
 
-    return emailPattern.test(emailAddress.trim());
-  }
+    if (status === 'Response pending') {
+      return 'fa-clock';
+    }
 
-  private isValidSouthAfricanPhoneNumber(phoneNumber: string): boolean {
-    const cleanedPhoneNumber = phoneNumber.replace(/\s/g, '');
-    const phonePattern = /^(\+27|0)[6-8][0-9]{8}$/;
+    if (status === 'Responded') {
+      return 'fa-reply';
+    }
 
-    return phonePattern.test(cleanedPhoneNumber);
+    return 'fa-check';
   }
 
   private getApiErrorMessage(error: any, fallbackMessage: string): string {
@@ -518,6 +568,15 @@ export class ContactComponent implements OnInit {
 
     if (typeof error?.error === 'string') {
       return error.error;
+    }
+
+    if (error?.error?.errors) {
+      const validationErrors = error.error.errors;
+      const firstKey = Object.keys(validationErrors)[0];
+
+      if (firstKey && Array.isArray(validationErrors[firstKey])) {
+        return validationErrors[firstKey][0];
+      }
     }
 
     return fallbackMessage;

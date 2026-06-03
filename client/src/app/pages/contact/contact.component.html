@@ -49,22 +49,38 @@
 
   <section class="contact-main-grid">
     <article class="message-card">
-      <ng-container *ngIf="!isContactMessageSent; else messageSentTemplate">
-        <header class="card-heading">
-          <div class="heading-icon">
-            <i class="fa-regular fa-envelope"></i>
+      <header class="card-heading message-card-heading">
+        <div class="heading-icon">
+          <i class="fa-regular fa-envelope"></i>
+        </div>
+
+        <div>
+          <div class="section-title-line">
+            <h2>{{ messageHeadingTitle }}</h2>
+            <span></span>
           </div>
 
-          <div>
-            <div class="section-title-line">
-              <h2>Send Us A Message</h2>
-              <span></span>
-            </div>
+          <p>{{ messageHeadingDescription }}</p>
+        </div>
 
-            <p>Fill out the form below and we’ll get back to you as soon as possible.</p>
-          </div>
-        </header>
+        <button
+          type="button"
+          class="message-notification-button"
+          (click)="handleMessageActionButtonClick()"
+          [attr.aria-label]="messageActionLabel"
+        >
+          <i [class]="messageActionIconClass"></i>
 
+          <span
+            class="message-notification-badge"
+            *ngIf="messageViewMode === 'form' && hasMessageNotifications"
+          >
+            {{ responseNotificationCount }}
+          </span>
+        </button>
+      </header>
+
+      <ng-container *ngIf="messageViewMode === 'form'; else messageHistoryTemplate">
         <form class="contact-form" (ngSubmit)="submitContactForm()" novalidate>
           <small class="field-error" *ngIf="contactFormErrors.api">
             {{ contactFormErrors.api }}
@@ -80,6 +96,7 @@
                   name="fullName"
                   [(ngModel)]="contactForm.fullName"
                   placeholder="Full Name"
+                  readonly
                 />
               </label>
 
@@ -97,6 +114,7 @@
                   name="emailAddress"
                   [(ngModel)]="contactForm.emailAddress"
                   placeholder="Email Address"
+                  readonly
                 />
               </label>
 
@@ -115,6 +133,7 @@
                 name="phoneNumber"
                 [(ngModel)]="contactForm.phoneNumber"
                 placeholder="Phone Number"
+                readonly
               />
             </label>
 
@@ -171,59 +190,97 @@
             {{ isSubmittingContactMessage ? 'Sending...' : 'Send Message' }}
             <i class="fa-regular fa-paper-plane"></i>
           </button>
+
+          <small class="feedback-success-message" *ngIf="isContactMessageSent">
+            Your message has been sent successfully.
+          </small>
         </form>
       </ng-container>
 
-      <ng-template #messageSentTemplate>
-        <section class="message-success-state">
-          <div class="message-success-icon">
-            <i class="fa-solid fa-check"></i>
-          </div>
+      <ng-template #messageHistoryTemplate>
+        <section class="message-history-state">
+          <small class="field-error" *ngIf="contactFormErrors.history">
+            {{ contactFormErrors.history }}
+          </small>
 
-          <h2>Your message has been sent successfully.</h2>
-
-          <p>
-            Thank you for reaching out. Your message has been saved and will be handled by the admin team.
+          <p class="message-history-loading" *ngIf="isLoadingMessages">
+            Loading your messages...
           </p>
 
-          <div class="sent-message-list" aria-label="Sent message history">
+          <p
+            class="message-history-empty"
+            *ngIf="!isLoadingMessages && sentContactMessages.length === 0"
+          >
+            You have not sent any messages yet.
+          </p>
+
+          <div
+            class="sent-message-list"
+            aria-label="Sent message history"
+            *ngIf="!isLoadingMessages && sentContactMessages.length > 0"
+          >
             <article
               class="sent-message-card"
+              [class.response-expanded]="isMessageResponseExpanded(sentMessage.id)"
               *ngFor="let sentMessage of sentContactMessages"
             >
-              <div class="sent-message-header">
-                <div>
-                  <h3>{{ sentMessage.interest }}</h3>
-                  <small>{{ sentMessage.submittedAt | date: 'short' }}</small>
-                </div>
-
-                <span>{{ sentMessage.fullName }}</span>
+              <div class="sent-message-preview-icon">
+                <i class="fa-regular fa-comment-dots"></i>
               </div>
 
-              <p>{{ sentMessage.message }}</p>
+              <div class="sent-message-divider"></div>
 
-              <div class="message-status-flow" aria-label="Message status">
-                <span *ngFor="let status of sentMessage.statuses">
-                  <i
-                    class="fa-solid"
-                    [class.fa-check]="status === 'Sent'"
-                    [class.fa-eye]="status === 'Seen'"
-                    [class.fa-clock]="status === 'Response pending'"
-                  ></i>
-                  {{ status }}
-                </span>
+              <div class="sent-message-content">
+                <div class="sent-message-header">
+                  <div>
+                    <h3>{{ sentMessage.interest }}</h3>
+                  </div>
+
+                  <span>{{ sentMessage.submittedAt | date: 'short' }}</span>
+                </div>
+
+                <p>{{ sentMessage.message }}</p>
+
+                <div class="message-card-footer">
+                  <div class="message-status-flow" aria-label="Message status">
+                    <span *ngFor="let status of sentMessage.statuses">
+                      <i
+                        class="fa-solid"
+                        [ngClass]="getStatusIconClass(status)"
+                      ></i>
+                      {{ status }}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="message-response-toggle"
+                    *ngIf="sentMessage.adminResponse"
+                    (click)="toggleMessageResponse(sentMessage.id)"
+                    [attr.aria-label]="isMessageResponseExpanded(sentMessage.id) ? 'Hide response' : 'Show response'"
+                  >
+                    <i
+                      class="fa-solid"
+                      [class.fa-chevron-down]="!isMessageResponseExpanded(sentMessage.id)"
+                      [class.fa-chevron-up]="isMessageResponseExpanded(sentMessage.id)"
+                    ></i>
+                  </button>
+                </div>
+
+                <section
+                  class="admin-response-card"
+                  *ngIf="sentMessage.adminResponse && isMessageResponseExpanded(sentMessage.id)"
+                >
+                  <strong>Admin response</strong>
+                  <p>{{ sentMessage.adminResponse }}</p>
+
+                  <small *ngIf="sentMessage.respondedAt">
+                    Responded on {{ sentMessage.respondedAt | date: 'dd/MM/yyyy' }}
+                  </small>
+                </section>
               </div>
             </article>
           </div>
-
-          <button
-            type="button"
-            class="send-another-message-button"
-            (click)="sendAnotherMessage()"
-          >
-            Send Another Message
-            <i class="fa-regular fa-paper-plane"></i>
-          </button>
         </section>
       </ng-template>
     </article>
@@ -296,14 +353,31 @@
         </div>
       </header>
 
-      <div class="hours-grid">
-        <p
+      <div class="hours-list">
+        <div
+          class="hours-row"
           *ngFor="let hour of openingHours"
           [class.closed]="hour.isClosed"
         >
-          <span>{{ hour.day }}</span>
-          <strong>{{ hour.time }}</strong>
-        </p>
+          <span class="hours-day-icon">
+            <i
+              class="fa-regular"
+              [class.fa-calendar-days]="!hour.isClosed"
+              [class.fa-calendar-xmark]="hour.isClosed"
+            ></i>
+          </span>
+
+          <span class="hours-day">{{ hour.day }}</span>
+
+          <strong class="hours-time">
+            <i
+              class="fa-regular"
+              [class.fa-clock]="!hour.isClosed"
+              [class.fa-lock]="hour.isClosed"
+            ></i>
+            {{ hour.time }}
+          </strong>
+        </div>
       </div>
     </article>
 
@@ -316,9 +390,7 @@
 
         <p>We’d love your feedback. Your support helps us grow.</p>
 
-        <small class="review-client-name" *ngIf="loggedInClientName">
-          Reviewing as {{ loggedInClientName }}
-        </small>
+     
       </header>
 
       <form class="feedback-form" (ngSubmit)="submitFeedback()" novalidate>
@@ -346,7 +418,7 @@
           {{ feedbackFormErrors.rating }}
         </small>
 
-        <div class="feedback-fields">
+        <div class="feedback-compact-row">
           <input
             type="text"
             name="location"
@@ -354,36 +426,36 @@
             placeholder="Your location, e.g. Kimberley, NC"
           />
 
-          <textarea
-            name="reviewText"
-            rows="3"
-            [(ngModel)]="feedbackForm.reviewText"
-            placeholder="Share your thoughts with us..."
-          ></textarea>
+          <label class="review-image-upload">
+            <i class="fa-regular fa-image"></i>
+            <span>Optional review image</span>
+
+            <input
+              type="file"
+              name="reviewImage"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              (change)="onReviewImageSelected($event)"
+            />
+          </label>
         </div>
 
         <small class="field-error" *ngIf="feedbackFormErrors.location">
           {{ feedbackFormErrors.location }}
         </small>
 
-        <small class="field-error" *ngIf="feedbackFormErrors.reviewText">
-          {{ feedbackFormErrors.reviewText }}
-        </small>
-
-        <label class="review-image-upload">
-          <i class="fa-regular fa-image"></i>
-          <span>Optional review image</span>
-
-          <input
-            type="file"
-            name="reviewImage"
-            accept="image/jpeg,image/jpg,image/png,image/webp"
-            (change)="onReviewImageSelected($event)"
-          />
-        </label>
-
         <small class="field-error" *ngIf="feedbackFormErrors.image">
           {{ feedbackFormErrors.image }}
+        </small>
+
+        <textarea
+          name="reviewText"
+          rows="3"
+          [(ngModel)]="feedbackForm.reviewText"
+          placeholder="Share your thoughts with us..."
+        ></textarea>
+
+        <small class="field-error" *ngIf="feedbackFormErrors.reviewText">
+          {{ feedbackFormErrors.reviewText }}
         </small>
 
         <img
@@ -398,6 +470,7 @@
           [disabled]="isSubmittingFeedback"
         >
           {{ isSubmittingFeedback ? 'Submitting...' : 'Submit Review' }}
+          <i class="fa-regular fa-paper-plane"></i>
         </button>
 
         <small class="feedback-success-message" *ngIf="isFeedbackSubmitted">
