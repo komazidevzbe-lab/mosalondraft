@@ -33,8 +33,8 @@
       <span>3</span>
 
       <div>
-        <h3>Review Booking</h3>
-        <p>Check your details</p>
+        <h3>Review &amp; Pay</h3>
+        <p>Check and pay deposit</p>
       </div>
     </div>
 
@@ -42,17 +42,6 @@
 
     <div class="booking-flow-step">
       <span>4</span>
-
-      <div>
-        <h3>Pay Deposit</h3>
-        <p>Secure your booking</p>
-      </div>
-    </div>
-
-    <div class="booking-flow-line"></div>
-
-    <div class="booking-flow-step">
-      <span>5</span>
 
       <div>
         <h3>Confirmation</h3>
@@ -64,7 +53,6 @@
   <div class="booking-shell">
     <!-- ===============================
          Row 1: Services done progress + booking intro
-         This row keeps the first breadcrumb aligned with the page heading.
          =============================== -->
 
     <aside
@@ -77,7 +65,7 @@
         </span>
 
         <div>
-          <h3>SERVICES DONE</h3>
+          <h3>Services Done</h3>
           <p>You selected {{ selectedServices.length }} services</p>
         </div>
       </div>
@@ -85,19 +73,44 @@
 
     <section class="booking-content-section">
       <header class="booking-header">
+        <a
+          class="back-to-services-link"
+          routerLink="/services"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          Edit Services
+        </a>
+
         <div class="booking-header-text">
           <h1>
             {{ bookingMode === 'combined' ? 'Book Your Combined Session' : 'Book Your Separate Sessions' }}
           </h1>
 
-          <p>
-            {{ bookingMode === 'combined'
-              ? 'Great choice! You’ve selected your services. Now let’s pick the perfect date and time for your combined session.'
-              : 'Great choice! You’ve selected your services. Now let’s pick the perfect date and time for each separate session.' }}
-          </p>
+          <p>{{ bookingIntroText }}</p>
         </div>
 
-        <div class="booking-mode-toggle" aria-label="Booking mode">
+        <div
+          class="empty-booking-state"
+          *ngIf="!hasSelectedServices"
+        >
+          <i class="fa-regular fa-calendar-xmark"></i>
+
+          <h3>No services selected yet</h3>
+
+          <p>
+            Please go back to the services page and choose the services you want to book.
+          </p>
+
+          <a routerLink="/services">
+            Back to Services
+          </a>
+        </div>
+
+        <div
+          class="booking-mode-toggle"
+          aria-label="Booking mode"
+          *ngIf="hasSelectedServices"
+        >
           <span>Booking Mode</span>
 
           <button
@@ -105,7 +118,15 @@
             [class.active]="bookingMode === 'combined'"
             (click)="setBookingMode('combined')"
           >
-            <i class="fa-solid fa-check"></i>
+            <i
+              class="fa-solid fa-check"
+              *ngIf="bookingMode === 'combined'; else combinedCircleTemplate"
+            ></i>
+
+            <ng-template #combinedCircleTemplate>
+              <span class="mode-circle-icon" aria-hidden="true"></span>
+            </ng-template>
+
             Combined Session
           </button>
 
@@ -114,17 +135,28 @@
             [class.active]="bookingMode === 'separate'"
             (click)="setBookingMode('separate')"
           >
-            <i class="fa-regular fa-circle"></i>
+            <i
+              class="fa-solid fa-check"
+              *ngIf="bookingMode === 'separate'; else separateCircleTemplate"
+            ></i>
+
+            <ng-template #separateCircleTemplate>
+              <span class="mode-circle-icon" aria-hidden="true"></span>
+            </ng-template>
+
             Separate Sessions
           </button>
         </div>
       </header>
 
-      <section class="selected-services-card" *ngIf="bookingMode === 'combined'">
+      <section
+        class="selected-services-card"
+        *ngIf="hasSelectedServices"
+      >
         <div class="selected-services-list">
           <article
             class="selected-service"
-            *ngFor="let service of selectedServices; let last = last"
+            *ngFor="let service of selectedServices"
           >
             <img
               [src]="service.imageUrl"
@@ -133,57 +165,54 @@
 
             <div>
               <h3>{{ service.title }}</h3>
-              <p>{{ service.selectedType }}</p>
+
+              <p>
+                <strong>Service Type:</strong>
+                {{ service.selectedType }}
+              </p>
+
+              <p *ngIf="service.selectedLength">
+                <strong>Length:</strong>
+                {{ service.selectedLength }}
+              </p>
 
               <span>
                 <i class="fa-regular fa-clock"></i>
                 {{ service.durationMinutes }} min
               </span>
             </div>
-
-            <strong *ngIf="!last">+</strong>
           </article>
         </div>
-
-        <aside class="duration-card">
-          <h3>TOTAL APPOINTMENT DURATION</h3>
-
-          <div>
-            <i class="fa-regular fa-clock"></i>
-
-            <strong>{{ formattedTotalDuration }}</strong>
-
-            <p>From start to finish</p>
-          </div>
-        </aside>
       </section>
     </section>
 
     <!-- ===============================
          Row 2: Booking progress + date/time booking section
-         This row keeps the second breadcrumb aligned with the booking cards.
          =============================== -->
 
     <aside
       class="booking-side-progress-step"
       aria-label="Date and time booking progress step"
+      *ngIf="hasSelectedServices"
     >
       <div class="side-step active">
         <span>2</span>
 
         <div>
           <h3>
-            {{ bookingMode === 'combined' ? 'COMBINED BOOKING' : 'SEPARATE BOOKING' }}
+            {{ bookingMode === 'combined' ? 'Combined Booking' : 'Separate Booking' }}
           </h3>
           <p>Choose date and time</p>
         </div>
       </div>
     </aside>
 
-    <section class="booking-content-section">
+    <section
+      class="booking-content-section"
+      *ngIf="hasSelectedServices"
+    >
       <!-- ===============================
            Combined booking layout
-           One date and one time for all selected services.
            =============================== -->
 
       <ng-container *ngIf="bookingMode === 'combined'">
@@ -192,13 +221,22 @@
             <h3>SELECT DATE</h3>
 
             <div class="calendar-header">
-              <button type="button" aria-label="Previous month">
+              <button
+                type="button"
+                aria-label="Previous month"
+                [disabled]="isPreviousMonthDisabled"
+                (click)="goToPreviousMonth()"
+              >
                 <i class="fa-solid fa-chevron-left"></i>
               </button>
 
-              <strong>June 2025</strong>
+              <strong>{{ currentMonthLabel }}</strong>
 
-              <button type="button" aria-label="Next month">
+              <button
+                type="button"
+                aria-label="Next month"
+                (click)="goToNextMonth()"
+              >
                 <i class="fa-solid fa-chevron-right"></i>
               </button>
             </div>
@@ -217,10 +255,13 @@
               <button
                 type="button"
                 *ngFor="let day of calendarDays"
-                [class.selected]="selectedCombinedDate === day"
+                [class.selected]="selectedCombinedDate === day.isoDate"
+                [class.outside-month]="!day.isCurrentMonth"
+                [class.unavailable]="day.isPast || day.isUnavailable"
+                [disabled]="day.isPast || day.isUnavailable"
                 (click)="selectCombinedDate(day)"
               >
-                {{ day }}
+                {{ day.dayNumber }}
               </button>
             </div>
           </article>
@@ -233,6 +274,8 @@
                 type="button"
                 *ngFor="let time of timeSlots"
                 [class.selected]="selectedCombinedTime === time"
+                [class.unavailable]="isCombinedTimeUnavailable(time)"
+                [disabled]="isCombinedTimeUnavailable(time)"
                 (click)="selectCombinedTime(time)"
               >
                 {{ time }}
@@ -241,7 +284,7 @@
 
             <p>
               <i class="fa-regular fa-clock"></i>
-              All times are in your local time
+              Unavailable times will appear disabled once bookings are connected.
             </p>
           </article>
 
@@ -254,6 +297,9 @@
             </div>
 
             <div class="timeline-details">
+              <p>Selected Date</p>
+              <strong>{{ formatSelectedDate(selectedCombinedDate) }}</strong>
+
               <p>Start Time</p>
               <strong>{{ selectedCombinedTime }}</strong>
 
@@ -270,7 +316,6 @@
 
       <!-- ===============================
            Separate booking layout
-           Each service gets its own date and time row.
            =============================== -->
 
       <ng-container *ngIf="bookingMode === 'separate'">
@@ -289,6 +334,10 @@
                 <h3>{{ index + 1 }}. {{ service.title }}</h3>
                 <p>{{ service.selectedType }}</p>
 
+                <small *ngIf="service.selectedLength">
+                  Length: {{ service.selectedLength }}
+                </small>
+
                 <span>
                   <i class="fa-regular fa-clock"></i>
                   {{ service.durationMinutes }} min
@@ -300,13 +349,22 @@
               <h4>Select Date</h4>
 
               <div class="mini-calendar-header">
-                <button type="button" aria-label="Previous month">
+                <button
+                  type="button"
+                  aria-label="Previous month"
+                  [disabled]="isPreviousMonthDisabled"
+                  (click)="goToPreviousMonth()"
+                >
                   <i class="fa-solid fa-chevron-left"></i>
                 </button>
 
-                <strong>June 2025</strong>
+                <strong>{{ currentMonthLabel }}</strong>
 
-                <button type="button" aria-label="Next month">
+                <button
+                  type="button"
+                  aria-label="Next month"
+                  (click)="goToNextMonth()"
+                >
                   <i class="fa-solid fa-chevron-right"></i>
                 </button>
               </div>
@@ -314,11 +372,14 @@
               <div class="mini-calendar-days">
                 <button
                   type="button"
-                  *ngFor="let day of calendarDays.slice(7, 35)"
-                  [class.selected]="service.selectedDate === day"
+                  *ngFor="let day of calendarDays"
+                  [class.selected]="service.selectedDate === day.isoDate"
+                  [class.outside-month]="!day.isCurrentMonth"
+                  [class.unavailable]="day.isPast || day.isUnavailable"
+                  [disabled]="day.isPast || day.isUnavailable"
                   (click)="selectServiceDate(service, day)"
                 >
-                  {{ day }}
+                  {{ day.dayNumber }}
                 </button>
               </div>
             </div>
@@ -331,6 +392,8 @@
                   type="button"
                   *ngFor="let time of timeSlots"
                   [class.selected]="service.selectedTime === time"
+                  [class.unavailable]="isServiceTimeUnavailable(service, time)"
+                  [disabled]="isServiceTimeUnavailable(service, time)"
                   (click)="selectServiceTime(service, time)"
                 >
                   {{ time }}
@@ -349,100 +412,94 @@
 
     <!-- ===============================
          Row 3: Client details progress + client details form
-         This row keeps the third breadcrumb aligned with the client section.
          =============================== -->
 
     <aside
       class="booking-side-progress-step booking-side-progress-step-last"
       aria-label="Client details progress step"
+      *ngIf="hasSelectedServices"
     >
       <div class="side-step active">
         <span>3</span>
 
         <div>
-          <h3>CLIENT DETAILS</h3>
-          <p>Enter your contact details</p>
+          <h3>Client Details</h3>
+          <p>Confirm contact method</p>
         </div>
       </div>
     </aside>
 
-    <section class="booking-content-section">
-      <section class="client-details-grid">
-        <article class="client-details-card">
-          <h3>CLIENT DETAILS</h3>
+    <section
+      class="booking-content-section"
+      *ngIf="hasSelectedServices"
+    >
+      <section class="client-details-card">
+        <h3>CLIENT DETAILS</h3>
 
-          <div class="client-form-grid">
-            <label>
-              Full Name
-              <input
-                type="text"
-                name="fullName"
-                [(ngModel)]="clientDetails.fullName"
-                placeholder="Enter your full name"
-              />
-            </label>
+        <div class="client-form-grid">
+          <label>
+            Full Name
+            <input
+              type="text"
+              name="fullName"
+              [(ngModel)]="clientDetails.fullName"
+              readonly
+            />
+          </label>
 
-            <label>
-              Email Address
-              <input
-                type="email"
-                name="emailAddress"
-                [(ngModel)]="clientDetails.emailAddress"
-                placeholder="Enter your email"
-              />
-            </label>
+          <label>
+            Email Address
+            <input
+              type="email"
+              name="emailAddress"
+              [(ngModel)]="clientDetails.emailAddress"
+              readonly
+            />
+          </label>
 
-            <label>
-              Phone Number
-              <input
-                type="tel"
-                name="phoneNumber"
-                [(ngModel)]="clientDetails.phoneNumber"
-                placeholder="+27 82 123 4567"
-              />
-            </label>
+          <label>
+            Phone Number
+            <input
+              type="tel"
+              name="phoneNumber"
+              [(ngModel)]="clientDetails.phoneNumber"
+              readonly
+            />
+          </label>
 
-            <label>
-              Preferred Contact Method
-              <select
-                name="preferredContactMethod"
-                [(ngModel)]="clientDetails.preferredContactMethod"
-              >
-                <option value="">Select an option</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="phone">Phone Call</option>
-                <option value="email">Email</option>
-              </select>
-            </label>
-          </div>
-        </article>
-
-        <article class="special-requests-card">
-          <h3>SPECIAL REQUESTS (OPTIONAL)</h3>
-
-          <textarea
-            name="specialRequests"
-            maxlength="300"
-            [(ngModel)]="clientDetails.specialRequests"
-            placeholder="Tell us if you have any preferences or special requests..."
-          ></textarea>
-
-          <span>{{ clientDetails.specialRequests.length }}/300</span>
-        </article>
+          <label>
+            Preferred Contact Method
+            <select
+              name="preferredContactMethod"
+              [(ngModel)]="clientDetails.preferredContactMethod"
+            >
+              <option value="">Select an option</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="phone">Phone Call</option>
+              <option value="email">Email</option>
+            </select>
+          </label>
+        </div>
       </section>
     </section>
 
     <!-- ===============================
          Row 4: Empty left cell + review action
-         The final review button remains on the right side only.
          =============================== -->
 
-    <div class="booking-side-empty" aria-hidden="true"></div>
+    <div
+      class="booking-side-empty"
+      aria-hidden="true"
+      *ngIf="hasSelectedServices"
+    ></div>
 
-    <footer class="booking-action-bar">
+    <footer
+      class="booking-action-bar"
+      *ngIf="hasSelectedServices"
+    >
       <p>
         <i class="fa-solid fa-circle-info"></i>
-        You’ll review everything on the next page before payment.
+        You’ll review everything and pay your deposit on the next page.
       </p>
 
       <a
@@ -450,7 +507,7 @@
         routerLink="/review-booking"
         [queryParams]="{ mode: bookingMode }"
       >
-        REVIEW BOOKING
+        REVIEW &amp; PAY
         <i class="fa-solid fa-arrow-right"></i>
       </a>
     </footer>

@@ -17,6 +17,7 @@
 
 /* ===============================
    Contact hero heading
+   Matches the Home page Explore Our Services heading style.
    =============================== */
 
 .contact-header {
@@ -26,21 +27,46 @@
   text-align: center;
 }
 
-.contact-header h1 {
-  margin: 0 0 12px;
+.contact-page-heading {
+  max-width: 640px;
+  margin: 0 auto 10px;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 14px;
+
+  text-align: center;
+}
+
+.contact-page-heading > span {
+  height: 1px;
+
+  background: rgba(238, 155, 148, 0.45);
+}
+
+.contact-page-heading h1 {
+  margin: 0;
 
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 40px;
-  font-weight: 700;
-  line-height: 1.1;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+}
+
+.contact-page-heading h1 span {
+  color: #d88480;
 }
 
 .contact-header p {
   margin: 0;
 
   color: #555;
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.5;
   letter-spacing: 0.4px;
 }
@@ -861,7 +887,6 @@
   font-weight: 600;
 }
 
-
 .feedback-form {
   width: 100%;
   max-width: 620px;
@@ -1032,8 +1057,16 @@
     padding: 28px 18px 34px;
   }
 
-  .contact-header h1 {
-    font-size: 32px;
+  .contact-page-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-page-heading > span {
+    display: none;
+  }
+
+  .contact-page-heading h1 {
+    white-space: normal;
   }
 
   .contact-card-grid,

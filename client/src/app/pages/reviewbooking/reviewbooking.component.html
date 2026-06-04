@@ -1,7 +1,7 @@
 <section class="review-page">
   <!-- ===============================
        Main booking flow progress
-       Shows the user is on the review step.
+       Shows the user is on the review and payment step.
        =============================== -->
 
   <nav class="booking-flow-progress" aria-label="Booking flow progress">
@@ -35,8 +35,8 @@
       <span>3</span>
 
       <div>
-        <h3>Review Booking</h3>
-        <p>Check your details</p>
+        <h3>Review &amp; Pay</h3>
+        <p>Check and pay deposit</p>
       </div>
     </div>
 
@@ -44,17 +44,6 @@
 
     <div class="booking-flow-step">
       <span>4</span>
-
-      <div>
-        <h3>Pay Deposit</h3>
-        <p>Secure your booking</p>
-      </div>
-    </div>
-
-    <div class="booking-flow-line"></div>
-
-    <div class="booking-flow-step">
-      <span>5</span>
 
       <div>
         <h3>Confirmation</h3>
@@ -66,7 +55,6 @@
   <div class="review-shell">
     <!-- ===============================
          Row 1: Services done progress + review header and selected services
-         This keeps the first side step aligned with the top review section.
          =============================== -->
 
     <aside
@@ -79,7 +67,7 @@
         </span>
 
         <div>
-          <h3>SERVICES DONE</h3>
+          <h3>Services Done</h3>
           <p>You selected {{ services.length }} services</p>
         </div>
       </div>
@@ -87,73 +75,140 @@
 
     <section class="review-section">
       <header class="review-header">
-        <div>
-          <p>YOU’RE ALMOST DONE</p>
-          <h1>Review Your Booking</h1>
-          <span>Please check your appointment details before paying your deposit.</span>
-        </div>
-
-        <a routerLink="/booking">
+        <a
+          class="edit-booking-link"
+          routerLink="/booking"
+          [queryParams]="{ mode: bookingRouteMode }"
+        >
           <i class="fa-solid fa-arrow-left"></i>
           Edit Booking
         </a>
+
+        <div class="review-header-text">
+          <h1>Review Your Booking</h1>
+          <p>Please check your appointment details before paying your deposit.</p>
+        </div>
+
+        <div
+          class="empty-review-state"
+          *ngIf="!hasReviewData"
+        >
+          <i class="fa-regular fa-calendar-xmark"></i>
+
+          <h3>No booking details found</h3>
+
+          <p>
+            Please go back to the booking page and complete your appointment details.
+          </p>
+
+          <a routerLink="/booking">
+            Back to Booking
+          </a>
+        </div>
       </header>
 
-      <section class="review-summary-grid">
-        <article class="review-main-card">
+      <section
+        class="review-ticket"
+        *ngIf="hasReviewData"
+      >
+        <div class="review-ticket-services">
           <h2>SELECTED SERVICES</h2>
 
-          <div class="review-service-list">
-            <article
-              class="review-service"
-              *ngFor="let service of services"
-            >
-              <img
-                [src]="service.imageUrl"
-                [alt]="service.altText"
-              />
+          <article
+            class="review-ticket-service-row"
+            *ngFor="let service of services"
+          >
+            <img
+              [src]="service.imageUrl"
+              [alt]="service.altText"
+            />
 
-              <div>
-                <h3>{{ service.title }}</h3>
-                <p>{{ service.selectedType }}</p>
+            <div class="review-ticket-service-main">
+              <h3>{{ service.title }}</h3>
+
+              <div class="review-ticket-service-details">
+                <span>
+                  <i class="fa-solid fa-pump-soap"></i>
+                  Service Type:
+                  <strong>{{ service.selectedType }}</strong>
+                </span>
+
+                <span *ngIf="service.selectedLength">
+                  <i class="fa-solid fa-ruler"></i>
+                  Length:
+                  <strong>{{ service.selectedLength }}</strong>
+                </span>
 
                 <span>
                   <i class="fa-regular fa-clock"></i>
-                  {{ service.duration }}
+                  Estimated Time:
+                  <strong>{{ service.duration }}</strong>
                 </span>
               </div>
+            </div>
 
-              <strong>R{{ service.price }}</strong>
-            </article>
-          </div>
-        </article>
+            <strong class="review-ticket-service-price">
+              R{{ service.price }}
+            </strong>
+          </article>
+        </div>
 
-        <aside class="review-total-card">
+        <aside class="review-ticket-total">
           <h2>BOOKING TOTAL</h2>
 
-          <div class="total-row">
-            <span>Booking Mode</span>
-            <strong>{{ bookingMode }}</strong>
+          <div class="ticket-total-row">
+            <div class="ticket-total-icon">
+              <i class="fa-regular fa-calendar"></i>
+            </div>
+
+            <div>
+              <p>Booking Mode</p>
+              <strong>{{ formattedBookingMode }}</strong>
+            </div>
           </div>
 
-          <div class="total-row">
-            <span>Total Duration</span>
-            <strong>{{ formattedDuration }}</strong>
+          <div class="ticket-total-row">
+            <div class="ticket-total-icon">
+              <i class="fa-regular fa-clock"></i>
+            </div>
+
+            <div>
+              <p>Total Duration</p>
+              <strong>{{ formattedDuration }}</strong>
+            </div>
           </div>
 
-          <div class="total-row">
-            <span>Total Amount</span>
-            <strong>R{{ totalPrice }}</strong>
+          <div class="ticket-total-row">
+            <div class="ticket-total-icon">
+              <i class="fa-regular fa-credit-card"></i>
+            </div>
+
+            <div>
+              <p>Total Amount</p>
+              <strong>R{{ totalPrice }}</strong>
+            </div>
           </div>
 
-          <div class="total-row deposit-row">
-            <span>Deposit Required</span>
-            <strong>R{{ depositAmount }}</strong>
+          <div class="ticket-total-row deposit-ticket-row">
+            <div class="ticket-total-icon">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <div>
+              <p>Deposit Required</p>
+              <strong>R{{ depositAmount }}</strong>
+            </div>
           </div>
 
-          <div class="total-row">
-            <span>Balance Remaining</span>
-            <strong>R{{ balanceRemaining }}</strong>
+          <div class="ticket-total-row">
+            <div class="ticket-total-icon">
+              <i class="fa-solid fa-wallet"></i>
+            </div>
+
+            <div>
+              <p>Balance Remaining</p>
+              <strong>R{{ balanceRemaining }}</strong>
+            </div>
           </div>
         </aside>
       </section>
@@ -161,12 +216,12 @@
 
     <!-- ===============================
          Row 2: Booking done progress + appointment details
-         This keeps the booking done step aligned with the appointment details.
          =============================== -->
 
     <aside
       class="review-progress-step"
       aria-label="Booking done review progress step"
+      *ngIf="hasReviewData"
     >
       <div class="side-step completed">
         <span>
@@ -174,27 +229,65 @@
         </span>
 
         <div>
-          <h3>BOOKING DONE</h3>
+          <h3>Booking Done</h3>
           <p>You selected your date and time</p>
         </div>
       </div>
     </aside>
 
-    <section class="review-section">
+    <section
+      class="review-section"
+      *ngIf="hasReviewData"
+    >
       <section class="details-review-grid">
         <article class="review-detail-card">
           <h2>APPOINTMENT DETAILS</h2>
 
-          <div class="appointment-list">
-            <div
-              class="appointment-row"
-              *ngFor="let service of services"
-            >
-              <span>{{ service.title }}</span>
+          <div class="appointment-mode-row">
+            <span>Booking Mode</span>
+            <strong>{{ formattedBookingMode }}</strong>
+          </div>
 
-              <p>
-                {{ service.date }} at {{ service.time }}
-              </p>
+          <div
+            class="appointment-timeline-card"
+            *ngIf="bookingMode === 'combined'"
+          >
+            <h3>SESSION TIMELINE</h3>
+
+            <div class="appointment-timeline-line">
+              <span></span>
+              <span></span>
+            </div>
+
+            <div class="appointment-timeline-details">
+              <p>Selected Date</p>
+              <strong>{{ combinedSessionDate }}</strong>
+
+              <p>Start Time</p>
+              <strong>{{ combinedSessionStartTime }}</strong>
+
+              <p>End Time</p>
+              <strong>{{ combinedSessionEndTime }}</strong>
+            </div>
+          </div>
+
+          <div
+            class="appointment-timeline-card"
+            *ngIf="bookingMode === 'separate'"
+          >
+            <h3>SESSION TIMELINE</h3>
+
+            <div class="separate-session-timeline-list">
+              <div
+                class="separate-session-timeline-row"
+                *ngFor="let service of services"
+              >
+                <span>{{ service.title }}</span>
+
+                <strong>
+                  {{ service.date }} from {{ service.time }} to {{ service.endTime }}
+                </strong>
+              </div>
             </div>
           </div>
         </article>
@@ -205,22 +298,22 @@
           <div class="client-review-list">
             <p>
               <span>Full Name</span>
-              <strong>{{ client.fullName }}</strong>
+              <strong>{{ client.fullName || 'Not available yet' }}</strong>
             </p>
 
             <p>
               <span>Phone Number</span>
-              <strong>{{ client.phoneNumber }}</strong>
+              <strong>{{ client.phoneNumber || 'Not available yet' }}</strong>
             </p>
 
             <p>
               <span>Email Address</span>
-              <strong>{{ client.emailAddress }}</strong>
+              <strong>{{ client.emailAddress || 'Not available yet' }}</strong>
             </p>
 
             <p>
               <span>Preferred Contact</span>
-              <strong>{{ client.preferredContactMethod }}</strong>
+              <strong>{{ client.preferredContactMethod || 'Not selected' }}</strong>
             </p>
           </div>
         </article>
@@ -228,52 +321,82 @@
     </section>
 
     <!-- ===============================
-         Row 3: Final review progress + special requests
-         This keeps the final review step aligned with the final review details.
+         Row 3: Payment progress + PayFast deposit payment
          =============================== -->
 
     <aside
       class="review-progress-step review-progress-step-last"
-      aria-label="Final review progress step"
+      aria-label="Deposit payment progress step"
+      *ngIf="hasReviewData"
     >
       <div class="side-step active">
         <span>3</span>
 
         <div>
-          <h3>FINAL REVIEW</h3>
-          <p>Confirm your booking details</p>
+          <h3>Pay Deposit</h3>
+          <p>Secure your booking</p>
         </div>
       </div>
     </aside>
 
-    <section class="review-section">
-      <section class="special-request-review">
-        <h2>SPECIAL REQUESTS</h2>
-        <p>{{ client.specialRequests }}</p>
+    <section
+      class="review-section"
+      *ngIf="hasReviewData"
+    >
+      <section class="review-payment-card">
+        <div class="review-payment-summary">
+          <h2>PAYMENT SUMMARY</h2>
+
+          <div class="payment-summary-row">
+            <span>Payment Type</span>
+            <strong>Booking Deposit</strong>
+          </div>
+
+          <div class="payment-summary-row deposit-summary-row">
+            <span>Deposit Amount</span>
+            <strong>R{{ depositAmount }}</strong>
+          </div>
+
+          <div class="payment-summary-row">
+            <span>Total Booking Amount</span>
+            <strong>R{{ totalPrice }}</strong>
+          </div>
+
+          <div class="payment-summary-row">
+            <span>Balance Due Later</span>
+            <strong>R{{ balanceRemaining }}</strong>
+          </div>
+
+          <div class="payment-summary-row">
+            <span>Payment Method</span>
+            <strong>{{ paymentMethod }}</strong>
+          </div>
+        </div>
+
+        <aside class="review-payfast-card">
+          <div class="payfast-icon">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+
+          <h2>PayFast Payment</h2>
+
+          <p>
+            You will pay the deposit amount only. The remaining balance will be due at your appointment.
+          </p>
+
+          <a
+            class="payfast-button"
+            routerLink="/confirmation"
+          >
+            PAY DEPOSIT WITH PAYFAST
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+
+          <span>
+            Backend PayFast integration will be connected later.
+          </span>
+        </aside>
       </section>
-    </section>
-
-    <!-- ===============================
-         Row 4: Empty left space + proceed to payment action
-         =============================== -->
-
-    <div class="review-progress-empty" aria-hidden="true"></div>
-
-    <section class="review-section">
-      <footer class="review-action-bar">
-        <p>
-          <i class="fa-solid fa-circle-info"></i>
-          Your booking will be secured after the deposit payment is completed.
-        </p>
-
-        <a
-          class="confirm-booking-button"
-          routerLink="/pay-deposit"
-        >
-          PROCEED TO DEPOSIT PAYMENT
-          <i class="fa-solid fa-arrow-right"></i>
-        </a>
-      </footer>
     </section>
   </div>
 </section>

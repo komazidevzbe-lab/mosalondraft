@@ -27,7 +27,11 @@
       HOME
     </a>
 
-    <a routerLink="/services" routerLinkActive="active">
+    <a
+      href="/services"
+      [class.active]="isServicesFlowActive"
+      (click)="startFreshServicesFlow($event)"
+    >
       SERVICES
     </a>
 

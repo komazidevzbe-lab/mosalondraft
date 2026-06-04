@@ -10,7 +10,6 @@ import { GalleryComponent } from './pages/gallery/gallery.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { BookingComponent } from './pages/booking/booking.component';
 import { ReviewbookingComponent } from './pages/reviewbooking/reviewbooking.component';
-import { PaydepositComponent } from './pages/paydeposit/paydeposit.component';
 import { ConfirmationComponent } from './pages/confirmation/confirmation.component';
 import { authGuard } from './_guards/auth.guard';
 
@@ -41,7 +40,6 @@ export const routes: Routes = [
       { path: 'services', component: ServicesComponent },
       { path: 'booking', component: BookingComponent },
       { path: 'review-booking', component: ReviewbookingComponent },
-      { path: 'pay-deposit', component: PaydepositComponent },
       { path: 'confirmation', component: ConfirmationComponent },
       { path: 'gallery', component: GalleryComponent },
       { path: 'contact', component: ContactComponent }

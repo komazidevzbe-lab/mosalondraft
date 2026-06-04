@@ -24,7 +24,7 @@
   margin: 0 auto 24px;
 
   display: grid;
-  grid-template-columns: auto 1fr auto 1fr auto 1fr auto 1fr auto;
+  grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
   align-items: center;
   gap: 14px;
 }
