@@ -5,7 +5,9 @@ import { environment } from '../../environments/environment';
 import { GalleryDatabaseCategory, GalleryImage } from '../_models/gallery-image';
 import { AccountService } from './account.service';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class GalleryService {
   private readonly http = inject(HttpClient);
   private readonly accountService = inject(AccountService);
@@ -32,7 +34,7 @@ export class GalleryService {
 
   addGalleryImageToFavorites(galleryImageId: number) {
     return this.http.post<GalleryImage>(
-      this.baseUrl + `gallery/favorites/${galleryImageId}`,
+      `${this.baseUrl}gallery/favorites/${galleryImageId}`,
       {},
       {
         headers: this.accountService.getAuthHeaders()
@@ -42,7 +44,7 @@ export class GalleryService {
 
   removeGalleryImageFromFavorites(galleryImageId: number) {
     return this.http.delete<GalleryImage>(
-      this.baseUrl + `gallery/favorites/${galleryImageId}`,
+      `${this.baseUrl}gallery/favorites/${galleryImageId}`,
       {
         headers: this.accountService.getAuthHeaders()
       }

@@ -1,4 +1,10 @@
-export type GalleryCategory = 'all' | 'manicure' | 'pedicure' | 'makeup' | 'lashes' | 'favorites';
+export type GalleryCategory =
+  | 'all'
+  | 'manicure'
+  | 'pedicure'
+  | 'makeup'
+  | 'lashes'
+  | 'favorites';
 
 export type GalleryDatabaseCategory = Exclude<GalleryCategory, 'all' | 'favorites'>;
 

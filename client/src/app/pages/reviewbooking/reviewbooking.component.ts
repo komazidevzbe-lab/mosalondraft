@@ -1,14 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import {
-  BookingStateService,
-  SavedServiceSelection
-} from '../../_services/booking-state.service';
+import { BookingReview } from '../../_models/booking';
+import { AccountService } from '../../_services/account.service';
+import { BookingService } from '../../_services/booking.service';
+import { BookingStateService } from '../../_services/booking-state.service';
+import { PaymentService } from '../../_services/payment.service';
 
 interface ReviewService {
-  id: string;
+  id: number;
+  salonServiceId: number;
   title: string;
   selectedType: string;
   selectedLength: string;
@@ -37,10 +39,13 @@ interface ReviewClient {
   styleUrl: './reviewbooking.component.css'
 })
 export class ReviewbookingComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly accountService = inject(AccountService);
   private readonly bookingStateService = inject(BookingStateService);
+  private readonly bookingService = inject(BookingService);
+  private readonly paymentService = inject(PaymentService);
 
   services: ReviewService[] = [];
-
   bookingMode: 'combined' | 'separate' = 'combined';
 
   client: ReviewClient = {
@@ -50,8 +55,22 @@ export class ReviewbookingComponent implements OnInit {
     preferredContactMethod: ''
   };
 
-  readonly depositAmount = 250;
+  bookingId: number | null = null;
+  bookingReference = '';
+  bookingStatus = '';
+  paymentStatus = '';
+
+  depositAmount = 0;
+  totalPrice = 0;
+  balanceRemaining = 0;
+  totalDurationMinutes = 0;
+
   readonly paymentMethod = 'PayFast';
+
+  isLoadingReview = false;
+  isInitiatingPayment = false;
+  reviewErrorMessage = '';
+  paymentErrorMessage = '';
 
   ngOnInit(): void {
     this.loadReviewBookingDetails();
@@ -63,18 +82,6 @@ export class ReviewbookingComponent implements OnInit {
 
   get formattedBookingMode(): string {
     return this.bookingMode === 'combined' ? 'Combined Session' : 'Separate Sessions';
-  }
-
-  get totalPrice(): number {
-    return this.services.reduce((total, service) => total + service.price, 0);
-  }
-
-  get balanceRemaining(): number {
-    return Math.max(this.totalPrice - this.depositAmount, 0);
-  }
-
-  get totalDurationMinutes(): number {
-    return this.services.reduce((total, service) => total + service.durationMinutes, 0);
   }
 
   get formattedDuration(): string {
@@ -112,79 +119,119 @@ export class ReviewbookingComponent implements OnInit {
     return this.calculateEndTime(this.services[0].time, this.totalDurationMinutes);
   }
 
-  private loadReviewBookingDetails(): void {
-    const savedState = this.bookingStateService.getState();
+  initiatePayFastPayment(): void {
+    if (!this.bookingId || this.isInitiatingPayment) {
+      return;
+    }
 
-    if (!savedState || savedState.selectedServices.length === 0) {
+    this.isInitiatingPayment = true;
+    this.paymentErrorMessage = '';
+
+    this.paymentService.initiatePayFastPayment({ bookingId: this.bookingId }).subscribe({
+      next: response => {
+        this.isInitiatingPayment = false;
+        this.submitPayFastForm(response.paymentUrl, response.formFields);
+      },
+      error: error => {
+        console.error('Failed to initiate PayFast payment:', error);
+        this.paymentErrorMessage = this.accountService.getErrorMessage(
+          error,
+          'Payment could not be started. Please try again.'
+        );
+        this.isInitiatingPayment = false;
+      }
+    });
+  }
+
+  private loadReviewBookingDetails(): void {
+    const routeBookingId = Number(this.route.snapshot.queryParamMap.get('bookingId'));
+    const savedBookingId = this.bookingStateService.getState()?.pendingBookingId;
+    const bookingId = routeBookingId || savedBookingId;
+
+    if (!bookingId) {
+      this.reviewErrorMessage = 'No booking ID was found. Please go back and create your booking again.';
       this.services = [];
       return;
     }
 
-    if (savedState.appointmentDetails) {
-      this.bookingMode = savedState.appointmentDetails.bookingMode;
-    } else if (savedState.bookingPreference === 'combined' || savedState.bookingPreference === 'separate') {
-      this.bookingMode = savedState.bookingPreference;
-    }
+    this.bookingId = bookingId;
+    this.isLoadingReview = true;
+    this.reviewErrorMessage = '';
 
-    this.services = savedState.selectedServices.map(service => {
-      return this.mapSavedServiceToReviewService(service);
+    this.bookingService.getBookingReview(bookingId).subscribe({
+      next: bookingReview => {
+        this.applyBookingReview(bookingReview);
+        this.isLoadingReview = false;
+      },
+      error: error => {
+        console.error('Failed to load booking review:', error);
+        this.reviewErrorMessage = this.accountService.getErrorMessage(
+          error,
+          'Booking review could not be loaded.'
+        );
+        this.services = [];
+        this.isLoadingReview = false;
+      }
+    });
+  }
+
+  private applyBookingReview(bookingReview: BookingReview): void {
+    this.bookingId = bookingReview.bookingId;
+    this.bookingReference = bookingReview.bookingReference;
+    this.bookingMode = bookingReview.bookingMode;
+    this.bookingStatus = bookingReview.bookingStatus;
+    this.paymentStatus = bookingReview.paymentStatus;
+
+    this.client = {
+      fullName: bookingReview.clientFullName,
+      phoneNumber: bookingReview.clientPhoneNumber,
+      emailAddress: bookingReview.clientEmailAddress,
+      preferredContactMethod: this.formatPreferredContactMethod(
+        bookingReview.preferredContactMethod
+      )
+    };
+
+    this.depositAmount = bookingReview.depositAmount;
+    this.totalPrice = bookingReview.totalAmount;
+    this.balanceRemaining = bookingReview.balanceAmount;
+    this.totalDurationMinutes = bookingReview.totalDurationMinutes;
+
+    this.services = bookingReview.items.map(item => ({
+      id: item.id,
+      salonServiceId: item.salonServiceId,
+      title: item.serviceName,
+      selectedType: item.serviceTypeName,
+      selectedLength: item.lengthName ?? '',
+      imageUrl: item.referenceImageUrl || 'assets/home/nailcardcollage.svg',
+      altText: `${item.serviceName} booking image`,
+      durationMinutes: item.durationMinutes,
+      duration: this.formatDuration(item.durationMinutes),
+      price: item.finalPrice,
+      date: this.formatSelectedDate(item.appointmentDate),
+      time: this.formatTime(item.startTime),
+      endTime: this.formatTime(item.endTime)
+    }));
+  }
+
+  private submitPayFastForm(paymentUrl: string, formFields: Record<string, string>): void {
+    const form = document.createElement('form');
+
+    form.method = 'POST';
+    form.action = paymentUrl;
+
+    Object.entries(formFields).forEach(([key, value]) => {
+      const input = document.createElement('input');
+
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value;
+
+      form.appendChild(input);
     });
 
-    if (savedState.clientDetails) {
-      this.client = {
-        fullName: savedState.clientDetails.fullName,
-        phoneNumber: savedState.clientDetails.phoneNumber,
-        emailAddress: savedState.clientDetails.emailAddress,
-        preferredContactMethod: this.formatPreferredContactMethod(
-          savedState.clientDetails.preferredContactMethod
-        )
-      };
-    }
-  }
-
-  private mapSavedServiceToReviewService(service: SavedServiceSelection): ReviewService {
-    const savedState = this.bookingStateService.getState();
-    const appointmentDetails = savedState?.appointmentDetails;
-
-    const savedServiceAppointment = appointmentDetails?.services.find(
-      savedService => savedService.serviceId === service.id
-    );
-
-    const appointmentDate = this.bookingMode === 'combined'
-      ? appointmentDetails?.selectedCombinedDate
-      : savedServiceAppointment?.selectedDate;
-
-    const appointmentTime = this.bookingMode === 'combined'
-      ? appointmentDetails?.selectedCombinedTime
-      : savedServiceAppointment?.selectedTime;
-
-    const durationMinutes = this.parseDurationMinutes(service.duration);
-    const time = appointmentTime || '';
-
-    return {
-      id: service.id,
-      title: service.title,
-      selectedType: service.selectedType,
-      selectedLength: service.selectedLength,
-      imageUrl: service.imageUrl,
-      altText: service.altText,
-      durationMinutes,
-      duration: this.formatDuration(durationMinutes),
-      price: service.price,
-      date: this.formatSelectedDate(appointmentDate || ''),
-      time,
-      endTime: time ? this.calculateEndTime(time, durationMinutes) : ''
-    };
-  }
-
-  private parseDurationMinutes(duration: string): number {
-    const durationNumber = Number(duration.replace(/\D/g, ''));
-
-    if (Number.isNaN(durationNumber) || durationNumber <= 0) {
-      return 0;
-    }
-
-    return durationNumber;
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
   }
 
   private formatDuration(durationMinutes: number): string {
@@ -209,6 +256,7 @@ export class ReviewbookingComponent implements OnInit {
 
   private calculateEndTime(startTime: string, durationMinutes: number): string {
     const [hours, minutes] = startTime.split(':').map(Number);
+
     const startDate = new Date();
 
     startDate.setHours(hours, minutes, 0, 0);
@@ -234,5 +282,13 @@ export class ReviewbookingComponent implements OnInit {
     }
 
     return '';
+  }
+
+  private formatTime(time: string): string {
+    if (!time) {
+      return '';
+    }
+
+    return time.slice(0, 5);
   }
 }

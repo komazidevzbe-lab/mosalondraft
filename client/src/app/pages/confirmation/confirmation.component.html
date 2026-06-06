@@ -55,93 +55,128 @@
   </nav>
 
   <div class="confirmation-shell">
-    <header class="confirmation-header">
-      <div class="success-icon">
-        <i class="fa-solid fa-check"></i>
-      </div>
+    <div class="confirmation-loading-state" *ngIf="isLoadingConfirmation">
+      <i class="fa-solid fa-spinner"></i>
+      <h3>Loading confirmation</h3>
+      <p>
+        {{ confirmationErrorMessage || 'Please wait while we confirm your booking.' }}
+      </p>
+    </div>
 
-      <p>BOOKING CONFIRMED</p>
-      <h1>Deposit Paid Successfully</h1>
-      <span>Your appointment has been secured. Please keep this confirmation for your records.</span>
-    </header>
+    <div
+      class="confirmation-loading-state"
+      *ngIf="!isLoadingConfirmation && confirmationErrorMessage"
+    >
+      <i class="fa-regular fa-clock"></i>
+      <h3>Payment confirmation pending</h3>
+      <p>{{ confirmationErrorMessage }}</p>
 
-    <section class="confirmation-grid">
-      <article class="confirmation-card">
-        <h2>BOOKING RECEIPT</h2>
-
-        <div class="confirmation-row">
-          <span>Booking Reference</span>
-          <strong>{{ bookingReference }}</strong>
-        </div>
-
-        <div class="confirmation-row">
-          <span>Total Booking Amount</span>
-          <strong>R{{ totalAmount }}</strong>
-        </div>
-
-        <div class="confirmation-row deposit-row">
-          <span>Deposit Paid</span>
-          <strong>R{{ depositPaid }}</strong>
-        </div>
-
-        <div class="confirmation-row">
-          <span>Balance Remaining</span>
-          <strong>R{{ balanceRemaining }}</strong>
-        </div>
-
-        <p class="balance-note">
-          The remaining balance is due at your appointment.
-        </p>
-      </article>
-
-      <article class="confirmation-card">
-        <h2>CLIENT DETAILS</h2>
-
-        <div class="confirmation-row">
-          <span>Full Name</span>
-          <strong>{{ client.fullName }}</strong>
-        </div>
-
-        <div class="confirmation-row">
-          <span>Phone Number</span>
-          <strong>{{ client.phoneNumber }}</strong>
-        </div>
-
-        <div class="confirmation-row">
-          <span>Email Address</span>
-          <strong>{{ client.emailAddress }}</strong>
-        </div>
-      </article>
-    </section>
-
-    <section class="confirmed-services-card">
-      <h2>SERVICES BOOKED</h2>
-
-      <div class="confirmed-service-list">
-        <article
-          class="confirmed-service"
-          *ngFor="let service of services"
+      <div class="confirmation-error-actions">
+        <button
+          type="button"
+          (click)="retryConfirmation()"
         >
-          <div>
-            <h3>{{ service.title }}</h3>
-            <p>{{ service.selectedType }}</p>
+          Check Again
+        </button>
+
+        <a
+          routerLink="/review-booking"
+          [queryParams]="reviewBookingQueryParams"
+        >
+          Back to Review Booking
+        </a>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!isLoadingConfirmation && !confirmationErrorMessage && hasConfirmedBooking">
+      <header class="confirmation-header">
+        <div class="success-icon">
+          <i class="fa-solid fa-check"></i>
+        </div>
+
+        <p>BOOKING CONFIRMED</p>
+        <h1>Deposit Paid Successfully</h1>
+        <span>Your appointment has been secured. Please keep this confirmation for your records.</span>
+      </header>
+
+      <section class="confirmation-grid">
+        <article class="confirmation-card">
+          <h2>BOOKING RECEIPT</h2>
+
+          <div class="confirmation-row">
+            <span>Booking Reference</span>
+            <strong>{{ bookingReference }}</strong>
           </div>
 
-          <strong>{{ service.date }} at {{ service.time }}</strong>
+          <div class="confirmation-row">
+            <span>Total Booking Amount</span>
+            <strong>R{{ totalAmount }}</strong>
+          </div>
+
+          <div class="confirmation-row deposit-row">
+            <span>Deposit Paid</span>
+            <strong>R{{ depositPaid }}</strong>
+          </div>
+
+          <div class="confirmation-row">
+            <span>Balance Remaining</span>
+            <strong>R{{ balanceRemaining }}</strong>
+          </div>
+
+          <p class="balance-note">
+            The remaining balance is due at your appointment.
+          </p>
         </article>
-      </div>
-    </section>
 
-    <footer class="confirmation-action-bar">
-      <p>
-        <i class="fa-solid fa-circle-info"></i>
-        Your booking request and deposit payment have been recorded.
-      </p>
+        <article class="confirmation-card">
+          <h2>CLIENT DETAILS</h2>
 
-      <a routerLink="/home">
-        BACK TO HOME
-        <i class="fa-solid fa-arrow-right"></i>
-      </a>
-    </footer>
+          <div class="confirmation-row">
+            <span>Full Name</span>
+            <strong>{{ client.fullName }}</strong>
+          </div>
+
+          <div class="confirmation-row">
+            <span>Phone Number</span>
+            <strong>{{ client.phoneNumber }}</strong>
+          </div>
+
+          <div class="confirmation-row">
+            <span>Email Address</span>
+            <strong>{{ client.emailAddress }}</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="confirmed-services-card">
+        <h2>SERVICES BOOKED</h2>
+
+        <div class="confirmed-service-list">
+          <article
+            class="confirmed-service"
+            *ngFor="let service of services"
+          >
+            <div>
+              <h3>{{ service.title }}</h3>
+              <p>{{ service.selectedType }}</p>
+            </div>
+
+            <strong>{{ service.date }} at {{ service.time }}</strong>
+          </article>
+        </div>
+      </section>
+
+      <footer class="confirmation-action-bar">
+        <p>
+          <i class="fa-solid fa-circle-info"></i>
+          Your booking request and deposit payment have been recorded.
+        </p>
+
+        <a routerLink="/home">
+          BACK TO HOME
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </footer>
+    </ng-container>
   </div>
 </section>

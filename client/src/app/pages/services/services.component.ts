@@ -4,21 +4,31 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { GalleryDatabaseCategory, GalleryImage } from '../../_models/gallery-image';
+import { SalonService, SalonServiceLengthOption, SalonServiceTypeOption } from '../../_models/salon-service';
 import {
   BookingPreference,
   BookingStateService,
+  SavedServiceDetail,
   ServiceLength
 } from '../../_services/booking-state.service';
+import { GalleryService } from '../../_services/gallery.service';
+import { SalonServiceService } from '../../_services/salon-service.service';
 
 interface ServiceOption {
   id: string;
+  salonServiceId: number;
   title: string;
   description: string;
   imageUrl: string;
   altText: string;
   duration: string;
+  durationMinutes: number;
   price: number;
+  basePrice: number;
   serviceTypes: string[];
+  serviceTypeOptions: SalonServiceTypeOption[];
+  lengthOptions: SalonServiceLengthOption[];
   selected: boolean;
   requiresLength?: boolean;
 }
@@ -26,9 +36,12 @@ interface ServiceOption {
 interface SelectedServiceDetail {
   serviceId: string;
   selectedType: string;
+  selectedServiceTypeId: number | null;
   selectedLength: ServiceLength | '';
+  selectedLengthOptionId: number | null;
   inspoNote: string;
   inspoPreviewUrl: string;
+  favoriteGalleryImageId: number | null;
 }
 
 interface BookingFlowStep {
@@ -46,98 +59,38 @@ interface BookingFlowStep {
 })
 export class ServicesComponent implements OnInit, DoCheck {
   private readonly bookingStateService = inject(BookingStateService);
+  private readonly galleryService = inject(GalleryService);
+  private readonly salonServiceService = inject(SalonServiceService);
   private readonly destroyRef = inject(DestroyRef);
+
   private lastSavedState = '';
 
-  services: ServiceOption[] = [
-    {
-      id: 'manicure',
-      title: 'Manicure',
-      description: 'Nail shaping, cuticle care, polish and hand finishing.',
-      imageUrl: 'assets/home/nailcardcollage.svg',
-      altText: 'Manicure nail design',
-      duration: '45 min',
-      price: 400,
-      serviceTypes: ['Gel Manicure', 'Acrylic Set', 'Classic Manicure', 'Nail Art Add-on'],
-      selected: false,
-      requiresLength: true
-    },
-    {
-      id: 'pedicure',
-      title: 'Pedicure',
-      description: 'Foot soak, nail care, exfoliation and polish finish.',
-      imageUrl: 'assets/home/pedicurecardcollage.svg',
-      altText: 'Pedicure service',
-      duration: '60 min',
-      price: 300,
-      serviceTypes: ['Classic Pedicure', 'Spa Pedicure', 'Gel Pedicure', 'French Pedicure'],
-      selected: false
-    },
-    {
-      id: 'makeup',
-      title: 'Makeup',
-      description: 'Flawless makeup for any occasion or photoshoot.',
-      imageUrl: 'assets/home/makeupcardcollage.svg',
-      altText: 'Makeup service',
-      duration: '60 min',
-      price: 450,
-      serviceTypes: ['Soft Glam', 'Full Glam', 'Natural Makeup', 'Event Makeup'],
-      selected: false
-    },
-    {
-      id: 'lashes',
-      title: 'Brows & Lashes',
-      description: 'Brow shaping, tinting and lash extensions.',
-      imageUrl: 'assets/home/lashescardcollage.svg',
-      altText: 'Brows and lashes service',
-      duration: '45 min',
-      price: 280,
-      serviceTypes: ['Brow Shape & Tint', 'Classic Lash Extensions', 'Hybrid Lashes', 'Volume Lashes'],
-      selected: false,
-      requiresLength: true
-    }
-  ];
+  services: ServiceOption[] = [];
 
   bookingFlowSteps: BookingFlowStep[] = [
-    {
-      stepNumber: 1,
-      title: 'Services Selected',
-      description: 'Choose your services'
-    },
-    {
-      stepNumber: 2,
-      title: 'Book Session',
-      description: 'Choose date and time'
-    },
-    {
-      stepNumber: 3,
-      title: 'Review & Pay',
-      description: 'Check and pay deposit'
-    },
-    {
-      stepNumber: 4,
-      title: 'Confirmation',
-      description: 'View your receipt'
-    }
+    { stepNumber: 1, title: 'Services Selected', description: 'Choose your services' },
+    { stepNumber: 2, title: 'Book Session', description: 'Choose date and time' },
+    { stepNumber: 3, title: 'Review & Pay', description: 'Check and pay deposit' },
+    { stepNumber: 4, title: 'Confirmation', description: 'View your receipt' }
   ];
 
   readonly currentBookingFlowStep = 1;
 
-  readonly lengthOptions: ServiceLength[] = ['Short', 'Medium', 'Long', 'Extra Long'];
-
-  readonly lengthPriceAddOns: Record<ServiceLength, number> = {
-    Short: 0,
-    Medium: 60,
-    Long: 120,
-    'Extra Long': 180
-  };
-
   selectedServiceDetails: SelectedServiceDetail[] = [];
-
   bookingPreference: BookingPreference = null;
 
+  favoriteGalleryImages: GalleryImage[] = [];
+  isLoadingFavoriteImages = false;
+  favoriteImagesErrorMessage = '';
+
+  isLoadingServices = false;
+  servicesErrorMessage = '';
+
+  activeFavoritePickerServiceId = '';
+
   ngOnInit(): void {
-    this.restoreSavedBookingState();
+    this.loadServices();
+    this.loadFavoriteGalleryImages();
 
     this.bookingStateService.resetBookingFlow$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -210,6 +163,32 @@ export class ServicesComponent implements OnInit, DoCheck {
     });
   }
 
+  get activeFavoritePickerService(): ServiceOption | undefined {
+    return this.services.find(service => service.id === this.activeFavoritePickerServiceId);
+  }
+
+  get activeFavoritePickerCategoryLabel(): string {
+    const service = this.activeFavoritePickerService;
+
+    if (!service) {
+      return '';
+    }
+
+    return service.title;
+  }
+
+  get activeFavoriteImages(): GalleryImage[] {
+    if (!this.activeFavoritePickerServiceId) {
+      return [];
+    }
+
+    return this.getFavoriteImagesForService(this.activeFavoritePickerServiceId);
+  }
+
+  get hasActiveFavoriteImages(): boolean {
+    return this.activeFavoriteImages.length > 0;
+  }
+
   toggleService(service: ServiceOption): void {
     service.selected = !service.selected;
 
@@ -237,9 +216,12 @@ export class ServicesComponent implements OnInit, DoCheck {
     this.selectedServiceDetails.push({
       serviceId: service.id,
       selectedType: '',
+      selectedServiceTypeId: null,
       selectedLength: '',
+      selectedLengthOptionId: null,
       inspoNote: '',
-      inspoPreviewUrl: ''
+      inspoPreviewUrl: '',
+      favoriteGalleryImageId: null
     });
   }
 
@@ -258,9 +240,12 @@ export class ServicesComponent implements OnInit, DoCheck {
       detail = {
         serviceId,
         selectedType: '',
+        selectedServiceTypeId: null,
         selectedLength: '',
+        selectedLengthOptionId: null,
         inspoNote: '',
-        inspoPreviewUrl: ''
+        inspoPreviewUrl: '',
+        favoriteGalleryImageId: null
       };
 
       this.selectedServiceDetails.push(detail);
@@ -269,8 +254,28 @@ export class ServicesComponent implements OnInit, DoCheck {
     return detail;
   }
 
+  getServiceDisplayImage(service: ServiceOption): string {
+    const detail = this.getServiceDetail(service.id);
+
+    return detail.inspoPreviewUrl || service.imageUrl;
+  }
+
+  getServiceDisplayAltText(service: ServiceOption): string {
+    const detail = this.getServiceDetail(service.id);
+
+    if (detail.inspoPreviewUrl) {
+      return `${service.title} selected inspiration image`;
+    }
+
+    return service.altText;
+  }
+
   requiresLength(service: ServiceOption): boolean {
     return service.requiresLength === true;
+  }
+
+  getLengthOptionsForService(service: ServiceOption): ServiceLength[] {
+    return service.lengthOptions.map(lengthOption => lengthOption.name as ServiceLength);
   }
 
   getLengthAddOnPrice(service: ServiceOption): number {
@@ -280,11 +285,15 @@ export class ServicesComponent implements OnInit, DoCheck {
       return 0;
     }
 
-    return this.lengthPriceAddOns[detail.selectedLength];
+    const selectedLength = service.lengthOptions.find(
+      lengthOption => lengthOption.name === detail.selectedLength
+    );
+
+    return selectedLength?.priceAddOn ?? 0;
   }
 
   getServiceEstimatedPrice(service: ServiceOption): number {
-    return service.price + this.getLengthAddOnPrice(service);
+    return service.basePrice + this.getLengthAddOnPrice(service);
   }
 
   isBookingFlowStepCompleted(stepNumber: number): boolean {
@@ -304,6 +313,30 @@ export class ServicesComponent implements OnInit, DoCheck {
     this.saveBookingState();
   }
 
+  onServiceTypeChange(service: ServiceOption): void {
+    const detail = this.getServiceDetail(service.id);
+
+    const selectedType = service.serviceTypeOptions.find(
+      type => type.name === detail.selectedType
+    );
+
+    detail.selectedServiceTypeId = selectedType?.id ?? null;
+
+    this.saveBookingState();
+  }
+
+  onLengthChange(service: ServiceOption): void {
+    const detail = this.getServiceDetail(service.id);
+
+    const selectedLength = service.lengthOptions.find(
+      length => length.name === detail.selectedLength
+    );
+
+    detail.selectedLengthOptionId = selectedLength?.id ?? null;
+
+    this.saveBookingState();
+  }
+
   onInspoImageSelected(event: Event, serviceId: string): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -316,29 +349,81 @@ export class ServicesComponent implements OnInit, DoCheck {
 
     reader.onload = () => {
       const detail = this.getServiceDetail(serviceId);
+
       detail.inspoPreviewUrl = reader.result as string;
+      detail.favoriteGalleryImageId = null;
+
       this.saveBookingState();
+
+      input.value = '';
     };
 
     reader.readAsDataURL(file);
   }
 
+  openFavoritePicker(serviceId: string): void {
+    this.activeFavoritePickerServiceId = serviceId;
+  }
+
+  closeFavoritePicker(): void {
+    this.activeFavoritePickerServiceId = '';
+  }
+
+  selectFavoriteInspoImage(galleryImage: GalleryImage): void {
+    if (!this.activeFavoritePickerServiceId) {
+      return;
+    }
+
+    const detail = this.getServiceDetail(this.activeFavoritePickerServiceId);
+
+    detail.inspoPreviewUrl = galleryImage.imageUrl;
+    detail.favoriteGalleryImageId = galleryImage.id;
+
+    this.saveBookingState();
+    this.closeFavoritePicker();
+  }
+
+  clearInspoImage(serviceId: string): void {
+    const detail = this.getServiceDetail(serviceId);
+
+    detail.inspoPreviewUrl = '';
+    detail.favoriteGalleryImageId = null;
+
+    this.saveBookingState();
+  }
+
+  getFavoriteImagesForService(serviceId: string): GalleryImage[] {
+    const category = this.getGalleryCategoryForService(serviceId);
+
+    return this.favoriteGalleryImages.filter(image => image.category === category);
+  }
+
   saveBookingState(): void {
     const selectedServices = this.selectedServices.map(service => {
       const detail = this.getServiceDetail(service.id);
+      const displayImageUrl = detail.inspoPreviewUrl || service.imageUrl;
 
       return {
         id: service.id,
+        salonServiceId: service.salonServiceId,
         title: service.title,
         description: service.description,
-        imageUrl: service.imageUrl,
-        altText: service.altText,
+        imageUrl: displayImageUrl,
+        altText: detail.inspoPreviewUrl
+          ? `${service.title} selected inspiration image`
+          : service.altText,
         duration: service.duration,
+        durationMinutes: service.durationMinutes,
         price: this.getServiceEstimatedPrice(service),
+        basePrice: service.basePrice,
         selectedType: detail.selectedType,
+        selectedServiceTypeId: detail.selectedServiceTypeId,
         selectedLength: detail.selectedLength,
+        selectedLengthOptionId: detail.selectedLengthOptionId,
+        lengthAddOnPrice: this.getLengthAddOnPrice(service),
         inspoNote: detail.inspoNote,
         inspoPreviewUrl: detail.inspoPreviewUrl,
+        favoriteGalleryImageId: detail.favoriteGalleryImageId,
         requiresLength: service.requiresLength
       };
     });
@@ -359,6 +444,49 @@ export class ServicesComponent implements OnInit, DoCheck {
     this.bookingStateService.saveState(bookingState);
   }
 
+  private loadServices(): void {
+    this.isLoadingServices = true;
+    this.servicesErrorMessage = '';
+
+    this.salonServiceService
+      .getActiveServices()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: services => {
+          this.services = services.map(service => this.mapSalonServiceToServiceOption(service));
+          this.restoreSavedBookingState();
+          this.isLoadingServices = false;
+        },
+        error: error => {
+          console.error('Failed to load salon services:', error);
+          this.services = [];
+          this.servicesErrorMessage = 'Services could not be loaded right now.';
+          this.isLoadingServices = false;
+        }
+      });
+  }
+
+  private loadFavoriteGalleryImages(): void {
+    this.isLoadingFavoriteImages = true;
+    this.favoriteImagesErrorMessage = '';
+
+    this.galleryService
+      .getFavoriteGalleryImages()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: favoriteImages => {
+          this.favoriteGalleryImages = favoriteImages.filter(image => image.isFavorite);
+          this.isLoadingFavoriteImages = false;
+        },
+        error: error => {
+          console.error('Failed to load favorite gallery images:', error);
+          this.favoriteGalleryImages = [];
+          this.favoriteImagesErrorMessage = 'Your favourite gallery images could not be loaded right now.';
+          this.isLoadingFavoriteImages = false;
+        }
+      });
+  }
+
   private restoreSavedBookingState(): void {
     const savedState = this.bookingStateService.getState();
 
@@ -367,7 +495,7 @@ export class ServicesComponent implements OnInit, DoCheck {
     }
 
     this.bookingPreference = savedState.bookingPreference;
-    this.selectedServiceDetails = savedState.selectedServiceDetails ?? [];
+    this.selectedServiceDetails = this.mapSavedServiceDetails(savedState.selectedServiceDetails ?? []);
 
     this.services = this.services.map(service => {
       const savedService = savedState.selectedServices.find(
@@ -405,5 +533,49 @@ export class ServicesComponent implements OnInit, DoCheck {
     if (!this.hasSelectedServices) {
       this.bookingPreference = null;
     }
+  }
+
+  private getGalleryCategoryForService(serviceId: string): GalleryDatabaseCategory {
+    const serviceCategoryMap: Record<string, GalleryDatabaseCategory> = {
+      manicure: 'manicure',
+      pedicure: 'pedicure',
+      makeup: 'makeup',
+      lashes: 'lashes'
+    };
+
+    return serviceCategoryMap[serviceId] ?? 'manicure';
+  }
+
+  private mapSalonServiceToServiceOption(service: SalonService): ServiceOption {
+    return {
+      id: service.slug,
+      salonServiceId: service.id,
+      title: service.title,
+      description: service.description,
+      imageUrl: service.imageUrl,
+      altText: service.altText,
+      duration: `${service.durationMinutes} min`,
+      durationMinutes: service.durationMinutes,
+      price: service.basePrice,
+      basePrice: service.basePrice,
+      serviceTypes: service.serviceTypes.map(type => type.name),
+      serviceTypeOptions: service.serviceTypes,
+      lengthOptions: service.lengthOptions,
+      selected: false,
+      requiresLength: service.requiresLength
+    };
+  }
+
+  private mapSavedServiceDetails(savedDetails: SavedServiceDetail[]): SelectedServiceDetail[] {
+    return savedDetails.map(detail => ({
+      serviceId: detail.serviceId,
+      selectedType: detail.selectedType,
+      selectedServiceTypeId: detail.selectedServiceTypeId ?? null,
+      selectedLength: detail.selectedLength,
+      selectedLengthOptionId: detail.selectedLengthOptionId ?? null,
+      inspoNote: detail.inspoNote,
+      inspoPreviewUrl: detail.inspoPreviewUrl,
+      favoriteGalleryImageId: detail.favoriteGalleryImageId ?? null
+    }));
   }
 }

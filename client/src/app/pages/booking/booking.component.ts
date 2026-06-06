@@ -1,22 +1,32 @@
 import { CommonModule } from '@angular/common';
 import { Component, DoCheck, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import {
+  BookingMode,
+  CreateBooking,
+  PreferredContactMethod
+} from '../../_models/booking';
+import { AccountService } from '../../_services/account.service';
+import { BookingService as BookingApiService } from '../../_services/booking.service';
+import {
+  BookingState,
   BookingStateService,
   SavedServiceSelection
 } from '../../_services/booking-state.service';
 
-type BookingMode = 'combined' | 'separate';
-
-interface BookingService {
+interface BookingPageService {
   id: string;
+  salonServiceId: number;
   title: string;
   selectedType: string;
+  selectedServiceTypeId: number | null;
   selectedLength: string;
+  selectedLengthOptionId: number | null;
   inspoNote: string;
   inspoPreviewUrl: string;
+  favoriteGalleryImageId: number | null;
   imageUrl: string;
   altText: string;
   durationMinutes: number;
@@ -39,7 +49,7 @@ interface ClientDetails {
   fullName: string;
   phoneNumber: string;
   emailAddress: string;
-  preferredContactMethod: string;
+  preferredContactMethod: PreferredContactMethod;
 }
 
 @Component({
@@ -51,13 +61,15 @@ interface ClientDetails {
 })
 export class BookingComponent implements OnInit, DoCheck {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly accountService = inject(AccountService);
   private readonly bookingStateService = inject(BookingStateService);
+  private readonly bookingApiService = inject(BookingApiService);
+
   private lastSavedBookingDetails = '';
 
   bookingMode: BookingMode = 'combined';
-
-  selectedServices: BookingService[] = [];
-
+  selectedServices: BookingPageService[] = [];
   calendarDays: CalendarDay[] = [];
 
   readonly timeSlots = [
@@ -73,10 +85,8 @@ export class BookingComponent implements OnInit, DoCheck {
   ];
 
   currentCalendarDate = new Date();
-
   selectedCombinedDate = '';
   selectedCombinedTime = '13:00';
-
   unavailableCombinedTimeSlots: string[] = [];
 
   clientDetails: ClientDetails = {
@@ -85,6 +95,9 @@ export class BookingComponent implements OnInit, DoCheck {
     emailAddress: '',
     preferredContactMethod: ''
   };
+
+  isCreatingBooking = false;
+  bookingErrorMessage = '';
 
   ngOnInit(): void {
     this.currentCalendarDate.setDate(1);
@@ -126,6 +139,7 @@ export class BookingComponent implements OnInit, DoCheck {
 
   get isPreviousMonthDisabled(): boolean {
     const today = this.getToday();
+
     const previousMonth = new Date(
       this.currentCalendarDate.getFullYear(),
       this.currentCalendarDate.getMonth() - 1,
@@ -182,6 +196,22 @@ export class BookingComponent implements OnInit, DoCheck {
     return 'Choose a date and time for each selected service.';
   }
 
+  get canReviewAndPay(): boolean {
+    if (!this.hasSelectedServices) {
+      return false;
+    }
+
+    if (!this.clientDetails.preferredContactMethod) {
+      return false;
+    }
+
+    if (this.bookingMode === 'combined') {
+      return !!this.selectedCombinedDate && !!this.selectedCombinedTime;
+    }
+
+    return this.selectedServices.every(service => service.selectedDate && service.selectedTime);
+  }
+
   setBookingMode(mode: BookingMode): void {
     this.bookingMode = mode;
     this.saveBookingDetails();
@@ -229,7 +259,7 @@ export class BookingComponent implements OnInit, DoCheck {
     this.saveBookingDetails();
   }
 
-  selectServiceDate(service: BookingService, day: CalendarDay): void {
+  selectServiceDate(service: BookingPageService, day: CalendarDay): void {
     if (day.isPast || day.isUnavailable) {
       return;
     }
@@ -238,7 +268,7 @@ export class BookingComponent implements OnInit, DoCheck {
     this.saveBookingDetails();
   }
 
-  selectServiceTime(service: BookingService, time: string): void {
+  selectServiceTime(service: BookingPageService, time: string): void {
     if (this.isServiceTimeUnavailable(service, time)) {
       return;
     }
@@ -251,12 +281,13 @@ export class BookingComponent implements OnInit, DoCheck {
     return this.unavailableCombinedTimeSlots.includes(time);
   }
 
-  isServiceTimeUnavailable(service: BookingService, time: string): boolean {
+  isServiceTimeUnavailable(service: BookingPageService, time: string): boolean {
     return service.unavailableTimeSlots.includes(time);
   }
 
   calculateEndTime(startTime: string, durationMinutes: number): string {
     const [hours, minutes] = startTime.split(':').map(Number);
+
     const startDate = new Date();
 
     startDate.setHours(hours, minutes, 0, 0);
@@ -280,6 +311,45 @@ export class BookingComponent implements OnInit, DoCheck {
     });
   }
 
+  createPendingBookingAndReview(): void {
+    if (!this.canReviewAndPay || this.isCreatingBooking) {
+      return;
+    }
+
+    const bookingRequest = this.buildCreateBookingRequest();
+
+    if (!bookingRequest) {
+      return;
+    }
+
+    this.isCreatingBooking = true;
+    this.bookingErrorMessage = '';
+
+    this.bookingApiService.createPendingBooking(bookingRequest).subscribe({
+      next: bookingReview => {
+        this.bookingStateService.savePendingBookingId(bookingReview.bookingId);
+        this.isCreatingBooking = false;
+
+        this.router.navigate(['/review-booking'], {
+          queryParams: {
+            bookingId: bookingReview.bookingId,
+            mode: this.bookingMode
+          }
+        });
+      },
+      error: error => {
+        console.error('Failed to create pending booking:', error);
+
+        this.bookingErrorMessage = this.accountService.getErrorMessage(
+          error,
+          'Your booking could not be created. Please check your details and try again.'
+        );
+
+        this.isCreatingBooking = false;
+      }
+    });
+  }
+
   private loadSelectedServices(): void {
     const savedState = this.bookingStateService.getState();
 
@@ -297,17 +367,25 @@ export class BookingComponent implements OnInit, DoCheck {
     }
   }
 
-  private mapSavedServiceToBookingService(service: SavedServiceSelection): BookingService {
+  private mapSavedServiceToBookingService(service: SavedServiceSelection): BookingPageService {
+    const displayImageUrl = service.inspoPreviewUrl || service.imageUrl;
+
     return {
       id: service.id,
+      salonServiceId: service.salonServiceId,
       title: service.title,
       selectedType: service.selectedType,
+      selectedServiceTypeId: service.selectedServiceTypeId,
       selectedLength: service.selectedLength,
+      selectedLengthOptionId: service.selectedLengthOptionId,
       inspoNote: service.inspoNote,
       inspoPreviewUrl: service.inspoPreviewUrl,
-      imageUrl: service.imageUrl,
-      altText: service.altText,
-      durationMinutes: this.parseDurationMinutes(service.duration),
+      favoriteGalleryImageId: service.favoriteGalleryImageId,
+      imageUrl: displayImageUrl,
+      altText: service.inspoPreviewUrl
+        ? `${service.title} selected inspiration image`
+        : service.altText,
+      durationMinutes: service.durationMinutes || this.parseDurationMinutes(service.duration),
       price: service.price,
       selectedDate: '',
       selectedTime: '13:00',
@@ -327,17 +405,16 @@ export class BookingComponent implements OnInit, DoCheck {
 
   private generateCalendarDays(): void {
     const today = this.getToday();
-
     const year = this.currentCalendarDate.getFullYear();
     const month = this.currentCalendarDate.getMonth();
 
     const firstDayOfMonth = new Date(year, month, 1);
     const firstDayWeekIndex = (firstDayOfMonth.getDay() + 6) % 7;
-
     const calendarStartDate = new Date(year, month, 1 - firstDayWeekIndex);
 
     this.calendarDays = Array.from({ length: 35 }, (_, index) => {
       const date = new Date(calendarStartDate);
+
       date.setDate(calendarStartDate.getDate() + index);
       date.setHours(0, 0, 0, 0);
 
@@ -380,8 +457,10 @@ export class BookingComponent implements OnInit, DoCheck {
 
     if (savedState.appointmentDetails) {
       this.bookingMode = savedState.appointmentDetails.bookingMode;
-      this.selectedCombinedDate = savedState.appointmentDetails.selectedCombinedDate || this.selectedCombinedDate;
-      this.selectedCombinedTime = savedState.appointmentDetails.selectedCombinedTime || this.selectedCombinedTime;
+      this.selectedCombinedDate =
+        savedState.appointmentDetails.selectedCombinedDate || this.selectedCombinedDate;
+      this.selectedCombinedTime =
+        savedState.appointmentDetails.selectedCombinedTime || this.selectedCombinedTime;
 
       this.selectedServices = this.selectedServices.map(service => {
         const savedServiceAppointment = savedState.appointmentDetails?.services.find(
@@ -411,7 +490,7 @@ export class BookingComponent implements OnInit, DoCheck {
       return;
     }
 
-    const nextBookingDetails = {
+    const nextBookingDetails: BookingState = {
       bookingPreference: this.bookingMode,
       selectedServiceDetails: existingState.selectedServiceDetails,
       selectedServices: existingState.selectedServices,
@@ -425,7 +504,13 @@ export class BookingComponent implements OnInit, DoCheck {
           selectedTime: service.selectedTime
         }))
       },
-      clientDetails: this.clientDetails
+      clientDetails: {
+        fullName: this.clientDetails.fullName,
+        phoneNumber: this.clientDetails.phoneNumber,
+        emailAddress: this.clientDetails.emailAddress,
+        preferredContactMethod: this.clientDetails.preferredContactMethod
+      },
+      pendingBookingId: existingState.pendingBookingId
     };
 
     const nextSavedBookingDetails = JSON.stringify(nextBookingDetails);
@@ -438,18 +523,57 @@ export class BookingComponent implements OnInit, DoCheck {
     this.bookingStateService.saveState(nextBookingDetails);
   }
 
+  private buildCreateBookingRequest(): CreateBooking | null {
+    const invalidService = this.selectedServices.find(
+      service => !service.selectedServiceTypeId
+    );
+
+    if (invalidService) {
+      this.bookingErrorMessage = `Please choose a valid service type for ${invalidService.title}.`;
+      return null;
+    }
+
+    const invalidLengthService = this.selectedServices.find(
+      service => service.selectedLength && !service.selectedLengthOptionId
+    );
+
+    if (invalidLengthService) {
+      this.bookingErrorMessage = `Please choose a valid length for ${invalidLengthService.title}.`;
+      return null;
+    }
+
+    return {
+      bookingMode: this.bookingMode,
+      clientFullName: this.clientDetails.fullName,
+      clientEmailAddress: this.clientDetails.emailAddress,
+      clientPhoneNumber: this.clientDetails.phoneNumber,
+      preferredContactMethod: this.clientDetails.preferredContactMethod,
+      items: this.selectedServices.map(service => ({
+        salonServiceId: service.salonServiceId,
+        salonServiceTypeId: service.selectedServiceTypeId as number,
+        salonServiceLengthOptionId: service.selectedLengthOptionId,
+        appointmentDate:
+          this.bookingMode === 'combined'
+            ? this.selectedCombinedDate
+            : service.selectedDate,
+        startTime:
+          this.bookingMode === 'combined'
+            ? this.selectedCombinedTime
+            : service.selectedTime,
+        notes: service.inspoNote || null,
+        galleryImageId: service.favoriteGalleryImageId,
+        uploadedReferenceImageUrl: null
+      }))
+    };
+  }
+
   private isDateUnavailable(date: Date): boolean {
-    /*
-      Backend-ready placeholder:
-      Later, replace this with real booked dates from the API.
-      Example:
-      return this.bookedDatesFromApi.includes(this.toIsoDate(date));
-    */
     return false;
   }
 
   private getToday(): Date {
     const today = new Date();
+
     today.setHours(0, 0, 0, 0);
 
     return today;
@@ -464,29 +588,17 @@ export class BookingComponent implements OnInit, DoCheck {
   }
 
   private autofillClientDetails(): void {
-    const savedUser = localStorage.getItem('user');
+    const user = this.accountService.currentUser();
 
-    if (!savedUser) {
+    if (!user) {
       return;
     }
 
-    try {
-      const user = JSON.parse(savedUser);
-
-      const firstName = user.firstName ?? user.name ?? '';
-      const lastName = user.lastName ?? user.surname ?? '';
-      const fullName = `${firstName} ${lastName}`.trim();
-
-      this.clientDetails = {
-        ...this.clientDetails,
-        fullName: fullName || user.fullName || '',
-        emailAddress: user.email ?? user.emailAddress ?? '',
-        phoneNumber: user.phoneNumber ?? user.phone ?? ''
-      };
-    } catch {
-      this.clientDetails = {
-        ...this.clientDetails
-      };
-    }
+    this.clientDetails = {
+      ...this.clientDetails,
+      fullName: user.fullName || `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+      emailAddress: user.email ?? '',
+      phoneNumber: user.phoneNumber ?? ''
+    };
   }
 }

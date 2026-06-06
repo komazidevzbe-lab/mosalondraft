@@ -7,9 +7,7 @@
   <header class="services-header">
     <div class="services-page-heading">
       <span></span>
-
       <h1>BOOK YOUR <span>SERVICES</span></h1>
-
       <span></span>
     </div>
 
@@ -58,14 +56,22 @@
   <div class="services-shell">
     <!-- ===============================
          Row 1: Service cards
-         Step 1 is already represented by the top progress tracker.
-         This spacer keeps the left progress line visually connected.
          =============================== -->
 
     <div class="services-progress-start-spacer" aria-hidden="true"></div>
 
     <section class="services-section">
-      <div class="service-card-grid">
+      <div class="favorite-picker-message" *ngIf="isLoadingServices">
+        <i class="fa-solid fa-spinner"></i>
+        Loading services...
+      </div>
+
+      <div class="favorite-picker-message" *ngIf="!isLoadingServices && servicesErrorMessage">
+        <i class="fa-regular fa-circle-xmark"></i>
+        {{ servicesErrorMessage }}
+      </div>
+
+      <div class="service-card-grid" *ngIf="!isLoadingServices && !servicesErrorMessage">
         <article
           class="service-card"
           *ngFor="let service of services"
@@ -82,10 +88,7 @@
           </button>
 
           <div class="service-image-wrap">
-            <img
-              [src]="service.imageUrl"
-              [alt]="service.altText"
-            />
+            <img [src]="service.imageUrl" [alt]="service.altText" />
           </div>
 
           <div class="service-card-body">
@@ -99,7 +102,7 @@
               </span>
 
               <span>
-                From R{{ service.price }}
+                From R{{ service.basePrice }}
               </span>
             </div>
 
@@ -113,7 +116,6 @@
                 [class.fa-check]="service.selected"
                 [class.fa-plus]="!service.selected"
               ></i>
-
               {{ service.selected ? 'Added' : 'Add' }}
             </button>
           </div>
@@ -123,7 +125,6 @@
 
     <!-- ===============================
          Row 2: Service details progress + service detail cards
-         This row keeps step 2 aligned with the selected service details.
          =============================== -->
 
     <aside
@@ -133,7 +134,6 @@
     >
       <div class="progress-step active">
         <span>2</span>
-
         <div>
           <h3>Pick Details</h3>
           <p>Customise selected services</p>
@@ -149,11 +149,7 @@
           [class.detail-card-with-length]="requiresLength(service)"
         >
           <div class="detail-card-header">
-            <img
-              [src]="service.imageUrl"
-              [alt]="service.altText"
-            />
-
+            <img [src]="getServiceDisplayImage(service)" [alt]="getServiceDisplayAltText(service)" />
             <h3>{{ service.title }}</h3>
 
             <button
@@ -169,8 +165,10 @@
           <div class="detail-card-body">
             <div class="form-group">
               <label>Service Type</label>
-
-              <select [(ngModel)]="getServiceDetail(service.id).selectedType">
+              <select
+                [(ngModel)]="getServiceDetail(service.id).selectedType"
+                (ngModelChange)="onServiceTypeChange(service)"
+              >
                 <option value="">Choose type</option>
                 <option
                   *ngFor="let type of service.serviceTypes"
@@ -183,11 +181,13 @@
 
             <div class="form-group" *ngIf="requiresLength(service)">
               <label>Length</label>
-
-              <select [(ngModel)]="getServiceDetail(service.id).selectedLength">
+              <select
+                [(ngModel)]="getServiceDetail(service.id).selectedLength"
+                (ngModelChange)="onLengthChange(service)"
+              >
                 <option value="">Choose</option>
                 <option
-                  *ngFor="let length of lengthOptions"
+                  *ngFor="let length of getLengthOptionsForService(service)"
                   [value]="length"
                 >
                   {{ length }}
@@ -196,31 +196,50 @@
             </div>
 
             <div class="upload-row">
-              <label>Upload Reference <span>(optional)</span></label>
+              <label>Reference Image <span>(optional)</span></label>
 
-              <label class="upload-box">
-                <input
-                  type="file"
-                  accept="image/*"
-                  (change)="onInspoImageSelected($event, service.id)"
-                />
+              <div class="reference-actions">
+                <button
+                  type="button"
+                  class="reference-action-button"
+                  (click)="openFavoritePicker(service.id)"
+                >
+                  <i class="fa-regular fa-heart"></i>
+                  Choose from Favourites
+                </button>
 
-                <ng-container *ngIf="!getServiceDetail(service.id).inspoPreviewUrl">
+                <label class="reference-action-button upload-device-button">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    (change)="onInspoImageSelected($event, service.id)"
+                  />
                   <i class="fa-solid fa-arrow-up-from-bracket"></i>
-                  <strong>Upload</strong>
-                </ng-container>
+                  Upload from Device
+                </label>
+              </div>
 
+              <div
+                class="reference-preview"
+                *ngIf="getServiceDetail(service.id).inspoPreviewUrl"
+              >
                 <img
-                  *ngIf="getServiceDetail(service.id).inspoPreviewUrl"
                   [src]="getServiceDetail(service.id).inspoPreviewUrl"
-                  alt="Uploaded inspiration preview"
+                  alt="Selected inspiration preview"
                 />
-              </label>
+
+                <button
+                  type="button"
+                  (click)="clearInspoImage(service.id)"
+                  aria-label="Remove selected reference image"
+                >
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
             </div>
 
             <div class="form-group notes-group">
               <label>Notes</label>
-
               <textarea
                 rows="2"
                 [(ngModel)]="getServiceDetail(service.id).inspoNote"
@@ -234,7 +253,6 @@
 
     <!-- ===============================
          Row 3: Booking preference progress + preference cards
-         This row keeps step 3 aligned with the booking preference section.
          =============================== -->
 
     <aside
@@ -244,7 +262,6 @@
     >
       <div class="progress-step active">
         <span>3</span>
-
         <div>
           <h3>Booking Preference</h3>
           <p>One session or separate visits</p>
@@ -271,9 +288,11 @@
           <div>
             <h3>Combined Session</h3>
             <p>
-              {{ hasSingleSelectedService
-                ? 'Your selected service will be booked as one session.'
-                : 'Enjoy all selected services in one extended session.' }}
+              {{
+                hasSingleSelectedService
+                  ? 'Your selected service will be booked as one session.'
+                  : 'Enjoy all selected services in one extended session.'
+              }}
             </p>
             <span>Recommended</span>
           </div>
@@ -306,9 +325,11 @@
           <div>
             <h3>Separate Sessions</h3>
             <p>
-              {{ hasSingleSelectedService
-                ? 'Available when you select more than one service.'
-                : 'Book each service on different dates or times.' }}
+              {{
+                hasSingleSelectedService
+                  ? 'Available when you select more than one service.'
+                  : 'Book each service on different dates or times.'
+              }}
             </p>
             <span>Flexible</span>
           </div>
@@ -326,7 +347,6 @@
 
     <!-- ===============================
          Row 4: Review summary progress + receipt summary
-         The summary changes naturally for one service or multiple services.
          =============================== -->
 
     <aside
@@ -336,7 +356,6 @@
     >
       <div class="progress-step active">
         <span>4</span>
-
         <div>
           <h3>Review Summary</h3>
           <p>Check before continuing</p>
@@ -355,10 +374,7 @@
             class="ticket-service-row"
             *ngFor="let service of selectedServices"
           >
-            <img
-              [src]="service.imageUrl"
-              [alt]="service.altText"
-            />
+            <img [src]="getServiceDisplayImage(service)" [alt]="getServiceDisplayAltText(service)" />
 
             <div class="ticket-service-main">
               <h4>{{ service.title }}</h4>
@@ -395,7 +411,6 @@
             <div class="ticket-total-icon">
               <i class="fa-solid fa-bag-shopping"></i>
             </div>
-
             <div>
               <p>Estimated Services</p>
               <strong>{{ totalSelectedServices }}</strong>
@@ -406,11 +421,14 @@
             <div class="ticket-total-icon">
               <i class="fa-regular fa-calendar"></i>
             </div>
-
             <div>
               <p>Booking Preference</p>
               <strong>
-                {{ activeBookingPreference === 'combined' ? 'Combined Session' : 'Separate Sessions' }}
+                {{
+                  activeBookingPreference === 'combined'
+                    ? 'Combined Session'
+                    : 'Separate Sessions'
+                }}
               </strong>
             </div>
           </div>
@@ -419,7 +437,6 @@
             <div class="ticket-total-icon">
               <i class="fa-regular fa-credit-card"></i>
             </div>
-
             <div>
               <p>Estimated Total</p>
               <strong>R{{ totalEstimatedPrice }}</strong>
@@ -443,4 +460,75 @@
       </div>
     </section>
   </div>
+
+  <!-- ===============================
+       Favourite inspo picker modal
+       =============================== -->
+
+  <section
+    class="favorite-picker-backdrop"
+    *ngIf="activeFavoritePickerServiceId"
+    (click)="closeFavoritePicker()"
+  >
+    <article
+      class="favorite-picker-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="favorite-picker-header">
+        <div>
+          <p>CHOOSE FROM FAVOURITES</p>
+          <h2>{{ activeFavoritePickerCategoryLabel }} Inspiration</h2>
+          <span>Only favourites from this service category are shown.</span>
+        </div>
+
+        <button
+          type="button"
+          class="favorite-picker-close"
+          (click)="closeFavoritePicker()"
+          aria-label="Close favourites picker"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+
+      <div class="favorite-picker-message" *ngIf="isLoadingFavoriteImages">
+        <i class="fa-solid fa-spinner"></i>
+        Loading your favourites...
+      </div>
+
+      <div
+        class="favorite-picker-message"
+        *ngIf="!isLoadingFavoriteImages && favoriteImagesErrorMessage"
+      >
+        <i class="fa-regular fa-circle-xmark"></i>
+        {{ favoriteImagesErrorMessage }}
+      </div>
+
+      <div
+        class="favorite-picker-message"
+        *ngIf="!isLoadingFavoriteImages && !favoriteImagesErrorMessage && !hasActiveFavoriteImages"
+      >
+        <i class="fa-regular fa-heart"></i>
+        You do not have any favourite images for {{ activeFavoritePickerCategoryLabel }} yet.
+      </div>
+
+      <div
+        class="favorite-picker-grid"
+        *ngIf="!isLoadingFavoriteImages && !favoriteImagesErrorMessage && hasActiveFavoriteImages"
+      >
+        <button
+          type="button"
+          class="favorite-picker-card"
+          *ngFor="let image of activeFavoriteImages"
+          (click)="selectFavoriteInspoImage(image)"
+        >
+          <img [src]="image.imageUrl" [alt]="image.altText" />
+          <span>
+            <i class="fa-solid fa-check"></i>
+            Use Image
+          </span>
+        </button>
+      </div>
+    </article>
+  </section>
 </section>

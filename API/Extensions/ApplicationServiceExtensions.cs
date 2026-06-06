@@ -64,11 +64,27 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IGalleryService, GalleryService>();
 
         // ===============================
+        // Booking and service catalogue services
+        // These support the full services booking flow.
+        // ===============================
+
+        services.AddScoped<ISalonServiceCatalogService, SalonServiceCatalogService>();
+        services.AddScoped<IBookingService, BookingService>();
+        services.AddScoped<IPaymentService, PayFastPaymentService>();
+
+        // ===============================
         // Cloudinary settings
-        // Used later for salon service, gallery, profile, or portfolio images.
+        // Used for image/file upload storage.
         // ===============================
 
         services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
+
+        // ===============================
+        // PayFast settings
+        // Used for deposit payment initiation and verification.
+        // ===============================
+
+        services.Configure<PayFastSettings>(config.GetSection("PayFastSettings"));
 
         return services;
     }

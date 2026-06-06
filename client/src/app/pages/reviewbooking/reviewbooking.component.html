@@ -9,7 +9,6 @@
       <span>
         <i class="fa-solid fa-check"></i>
       </span>
-
       <div>
         <h3>Services Selected</h3>
         <p>You chose your services</p>
@@ -22,7 +21,6 @@
       <span>
         <i class="fa-solid fa-check"></i>
       </span>
-
       <div>
         <h3>Book Session</h3>
         <p>Date and time selected</p>
@@ -33,7 +31,6 @@
 
     <div class="booking-flow-step active">
       <span>3</span>
-
       <div>
         <h3>Review &amp; Pay</h3>
         <p>Check and pay deposit</p>
@@ -44,7 +41,6 @@
 
     <div class="booking-flow-step">
       <span>4</span>
-
       <div>
         <h3>Confirmation</h3>
         <p>View your receipt</p>
@@ -65,7 +61,6 @@
         <span>
           <i class="fa-solid fa-check"></i>
         </span>
-
         <div>
           <h3>Services Done</h3>
           <p>You selected {{ services.length }} services</p>
@@ -89,28 +84,26 @@
           <p>Please check your appointment details before paying your deposit.</p>
         </div>
 
+        <div class="empty-review-state" *ngIf="isLoadingReview">
+          <i class="fa-solid fa-spinner"></i>
+          <h3>Loading booking</h3>
+          <p>Please wait while we load your booking details.</p>
+        </div>
+
         <div
           class="empty-review-state"
-          *ngIf="!hasReviewData"
+          *ngIf="!isLoadingReview && (!hasReviewData || reviewErrorMessage)"
         >
           <i class="fa-regular fa-calendar-xmark"></i>
-
           <h3>No booking details found</h3>
-
           <p>
-            Please go back to the booking page and complete your appointment details.
+            {{ reviewErrorMessage || 'Please go back to the booking page and complete your appointment details.' }}
           </p>
-
-          <a routerLink="/booking">
-            Back to Booking
-          </a>
+          <a routerLink="/booking">Back to Booking</a>
         </div>
       </header>
 
-      <section
-        class="review-ticket"
-        *ngIf="hasReviewData"
-      >
+      <section class="review-ticket" *ngIf="hasReviewData">
         <div class="review-ticket-services">
           <h2>SELECTED SERVICES</h2>
 
@@ -118,10 +111,7 @@
             class="review-ticket-service-row"
             *ngFor="let service of services"
           >
-            <img
-              [src]="service.imageUrl"
-              [alt]="service.altText"
-            />
+            <img [src]="service.imageUrl" [alt]="service.altText" />
 
             <div class="review-ticket-service-main">
               <h3>{{ service.title }}</h3>
@@ -160,7 +150,6 @@
             <div class="ticket-total-icon">
               <i class="fa-regular fa-calendar"></i>
             </div>
-
             <div>
               <p>Booking Mode</p>
               <strong>{{ formattedBookingMode }}</strong>
@@ -171,7 +160,6 @@
             <div class="ticket-total-icon">
               <i class="fa-regular fa-clock"></i>
             </div>
-
             <div>
               <p>Total Duration</p>
               <strong>{{ formattedDuration }}</strong>
@@ -182,7 +170,6 @@
             <div class="ticket-total-icon">
               <i class="fa-regular fa-credit-card"></i>
             </div>
-
             <div>
               <p>Total Amount</p>
               <strong>R{{ totalPrice }}</strong>
@@ -193,7 +180,6 @@
             <div class="ticket-total-icon">
               <i class="fa-solid fa-lock"></i>
             </div>
-
             <div>
               <p>Deposit Required</p>
               <strong>R{{ depositAmount }}</strong>
@@ -204,7 +190,6 @@
             <div class="ticket-total-icon">
               <i class="fa-solid fa-wallet"></i>
             </div>
-
             <div>
               <p>Balance Remaining</p>
               <strong>R{{ balanceRemaining }}</strong>
@@ -227,7 +212,6 @@
         <span>
           <i class="fa-solid fa-check"></i>
         </span>
-
         <div>
           <h3>Booking Done</h3>
           <p>You selected your date and time</p>
@@ -235,10 +219,7 @@
       </div>
     </aside>
 
-    <section
-      class="review-section"
-      *ngIf="hasReviewData"
-    >
+    <section class="review-section" *ngIf="hasReviewData">
       <section class="details-review-grid">
         <article class="review-detail-card">
           <h2>APPOINTMENT DETAILS</h2>
@@ -283,7 +264,6 @@
                 *ngFor="let service of services"
               >
                 <span>{{ service.title }}</span>
-
                 <strong>
                   {{ service.date }} from {{ service.time }} to {{ service.endTime }}
                 </strong>
@@ -331,7 +311,6 @@
     >
       <div class="side-step active">
         <span>3</span>
-
         <div>
           <h3>Pay Deposit</h3>
           <p>Secure your booking</p>
@@ -339,10 +318,7 @@
       </div>
     </aside>
 
-    <section
-      class="review-section"
-      *ngIf="hasReviewData"
-    >
+    <section class="review-section" *ngIf="hasReviewData">
       <section class="review-payment-card">
         <div class="review-payment-summary">
           <h2>PAYMENT SUMMARY</h2>
@@ -384,16 +360,22 @@
             You will pay the deposit amount only. The remaining balance will be due at your appointment.
           </p>
 
-          <a
+          <button
             class="payfast-button"
-            routerLink="/confirmation"
+            type="button"
+            [disabled]="isInitiatingPayment"
+            (click)="initiatePayFastPayment()"
           >
-            PAY DEPOSIT WITH PAYFAST
+            {{ isInitiatingPayment ? 'STARTING PAYMENT...' : 'PAY DEPOSIT WITH PAYFAST' }}
             <i class="fa-solid fa-arrow-right"></i>
-          </a>
+          </button>
 
-          <span>
-            Backend PayFast integration will be connected later.
+          <span *ngIf="!paymentErrorMessage">
+            You will be redirected to PayFast to complete your secure payment.
+          </span>
+
+          <span *ngIf="paymentErrorMessage">
+            {{ paymentErrorMessage }}
           </span>
         </aside>
       </section>

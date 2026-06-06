@@ -9,7 +9,6 @@
       <span>
         <i class="fa-solid fa-check"></i>
       </span>
-
       <div>
         <h3>Services Selected</h3>
         <p>You chose your services</p>
@@ -20,7 +19,6 @@
 
     <div class="booking-flow-step active">
       <span>2</span>
-
       <div>
         <h3>Book Session</h3>
         <p>Choose date and time</p>
@@ -31,7 +29,6 @@
 
     <div class="booking-flow-step">
       <span>3</span>
-
       <div>
         <h3>Review &amp; Pay</h3>
         <p>Check and pay deposit</p>
@@ -42,7 +39,6 @@
 
     <div class="booking-flow-step">
       <span>4</span>
-
       <div>
         <h3>Confirmation</h3>
         <p>View your receipt</p>
@@ -63,7 +59,6 @@
         <span>
           <i class="fa-solid fa-check"></i>
         </span>
-
         <div>
           <h3>Services Done</h3>
           <p>You selected {{ selectedServices.length }} services</p>
@@ -73,37 +68,29 @@
 
     <section class="booking-content-section">
       <header class="booking-header">
-        <a
-          class="back-to-services-link"
-          routerLink="/services"
-        >
+        <a class="back-to-services-link" routerLink="/services">
           <i class="fa-solid fa-arrow-left"></i>
           Edit Services
         </a>
 
         <div class="booking-header-text">
           <h1>
-            {{ bookingMode === 'combined' ? 'Book Your Combined Session' : 'Book Your Separate Sessions' }}
+            {{
+              bookingMode === 'combined'
+                ? 'Book Your Combined Session'
+                : 'Book Your Separate Sessions'
+            }}
           </h1>
-
           <p>{{ bookingIntroText }}</p>
         </div>
 
-        <div
-          class="empty-booking-state"
-          *ngIf="!hasSelectedServices"
-        >
+        <div class="empty-booking-state" *ngIf="!hasSelectedServices">
           <i class="fa-regular fa-calendar-xmark"></i>
-
           <h3>No services selected yet</h3>
-
           <p>
             Please go back to the services page and choose the services you want to book.
           </p>
-
-          <a routerLink="/services">
-            Back to Services
-          </a>
+          <a routerLink="/services">Back to Services</a>
         </div>
 
         <div
@@ -149,33 +136,24 @@
         </div>
       </header>
 
-      <section
-        class="selected-services-card"
-        *ngIf="hasSelectedServices"
-      >
+      <section class="selected-services-card" *ngIf="hasSelectedServices">
         <div class="selected-services-list">
           <article
             class="selected-service"
             *ngFor="let service of selectedServices"
           >
-            <img
-              [src]="service.imageUrl"
-              [alt]="service.altText"
-            />
+            <img [src]="service.imageUrl" [alt]="service.altText" />
 
             <div>
               <h3>{{ service.title }}</h3>
-
               <p>
                 <strong>Service Type:</strong>
                 {{ service.selectedType }}
               </p>
-
               <p *ngIf="service.selectedLength">
                 <strong>Length:</strong>
                 {{ service.selectedLength }}
               </p>
-
               <span>
                 <i class="fa-regular fa-clock"></i>
                 {{ service.durationMinutes }} min
@@ -197,20 +175,20 @@
     >
       <div class="side-step active">
         <span>2</span>
-
         <div>
           <h3>
-            {{ bookingMode === 'combined' ? 'Combined Booking' : 'Separate Booking' }}
+            {{
+              bookingMode === 'combined'
+                ? 'Combined Booking'
+                : 'Separate Booking'
+            }}
           </h3>
           <p>Choose date and time</p>
         </div>
       </div>
     </aside>
 
-    <section
-      class="booking-content-section"
-      *ngIf="hasSelectedServices"
-    >
+    <section class="booking-content-section" *ngIf="hasSelectedServices">
       <!-- ===============================
            Combined booking layout
            =============================== -->
@@ -325,19 +303,14 @@
             *ngFor="let service of selectedServices; let index = index"
           >
             <div class="separate-service-info">
-              <img
-                [src]="service.imageUrl"
-                [alt]="service.altText"
-              />
+              <img [src]="service.imageUrl" [alt]="service.altText" />
 
               <div>
                 <h3>{{ index + 1 }}. {{ service.title }}</h3>
                 <p>{{ service.selectedType }}</p>
-
                 <small *ngIf="service.selectedLength">
                   Length: {{ service.selectedLength }}
                 </small>
-
                 <span>
                   <i class="fa-regular fa-clock"></i>
                   {{ service.durationMinutes }} min
@@ -421,7 +394,6 @@
     >
       <div class="side-step active">
         <span>3</span>
-
         <div>
           <h3>Client Details</h3>
           <p>Confirm contact method</p>
@@ -429,10 +401,7 @@
       </div>
     </aside>
 
-    <section
-      class="booking-content-section"
-      *ngIf="hasSelectedServices"
-    >
+    <section class="booking-content-section" *ngIf="hasSelectedServices">
       <section class="client-details-card">
         <h3>CLIENT DETAILS</h3>
 
@@ -493,23 +462,27 @@
       *ngIf="hasSelectedServices"
     ></div>
 
-    <footer
-      class="booking-action-bar"
-      *ngIf="hasSelectedServices"
-    >
+    <footer class="booking-action-bar" *ngIf="hasSelectedServices">
       <p>
         <i class="fa-solid fa-circle-info"></i>
         You’ll review everything and pay your deposit on the next page.
       </p>
 
-      <a
-        class="review-booking-button"
-        routerLink="/review-booking"
-        [queryParams]="{ mode: bookingMode }"
-      >
-        REVIEW &amp; PAY
-        <i class="fa-solid fa-arrow-right"></i>
-      </a>
+      <div>
+        <p class="booking-error-message" *ngIf="bookingErrorMessage">
+          {{ bookingErrorMessage }}
+        </p>
+
+        <button
+          class="review-booking-button"
+          type="button"
+          [disabled]="!canReviewAndPay || isCreatingBooking"
+          (click)="createPendingBookingAndReview()"
+        >
+          {{ isCreatingBooking ? 'CREATING BOOKING...' : 'REVIEW & PAY' }}
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
     </footer>
   </div>
 </section>

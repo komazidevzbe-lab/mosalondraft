@@ -31,4 +31,27 @@ public class SalonService
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    // ===============================
+    // Service type relationship
+    // Example: Gel Manicure, Acrylic Set, Soft Glam, Volume Lashes.
+    // ===============================
+
+    public ICollection<SalonServiceType> ServiceTypes { get; set; } = new List<SalonServiceType>();
+
+    // ===============================
+    // Service length option relationship
+    // Example: Short, Medium, Long, Extra Long.
+    // Only services that require length selection should have length options.
+    // ===============================
+
+    public ICollection<SalonServiceLengthOption> LengthOptions { get; set; } = new List<SalonServiceLengthOption>();
+
+    // ===============================
+    // Booking item relationship
+    // Stores every booking item that used this salon service.
+    // This keeps old bookings stable even if the service is edited later.
+    // ===============================
+
+    public ICollection<BookingServiceItem> BookingItems { get; set; } = new List<BookingServiceItem>();
 }

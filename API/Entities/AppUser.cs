@@ -28,4 +28,11 @@ public class AppUser : IdentityUser<int>
     // ===============================
 
     public ICollection<GalleryImageFavorite> GalleryImageFavorites { get; set; } = new List<GalleryImageFavorite>();
+
+    // ===============================
+    // Booking relationship
+    // This stores bookings created by the logged-in user.
+    // ===============================
+
+    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 }

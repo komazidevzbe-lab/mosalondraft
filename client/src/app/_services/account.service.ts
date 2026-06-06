@@ -11,14 +11,15 @@ import { ResetPasswordRequest } from '../_models/reset-password-request';
 import { User } from '../_models/user';
 import { VerifyResetCodeRequest } from '../_models/verify-reset-code-request';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class AccountService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
   currentUser = signal<User | null>(null);
 
-  // Holds the pending auto-logout timer so it can be cleared/reset.
   private logoutTimer: ReturnType<typeof setTimeout> | null = null;
 
   roles = computed(() => {
@@ -41,6 +42,7 @@ export class AccountService {
 
   getUserRole(): string {
     const roles = this.roles();
+
     return roles.length > 0 ? roles[0] : '';
   }
 
@@ -103,7 +105,6 @@ export class AccountService {
 
     sessionStorage.setItem('user', JSON.stringify(user));
     this.currentUser.set(user);
-
     this.startAutoLogoutTimer(expiryMs - now);
   }
 
@@ -117,6 +118,7 @@ export class AccountService {
 
     try {
       const user = JSON.parse(userJson) as User;
+
       this.setCurrentUser(user);
     } catch (error) {
       console.error('Failed to load user from storage:', error);
@@ -169,7 +171,6 @@ export class AccountService {
 
     if (error?.error?.errors) {
       const validationErrors = error.error.errors;
-
       const firstKey = Object.keys(validationErrors)[0];
 
       if (firstKey && Array.isArray(validationErrors[firstKey])) {
@@ -203,6 +204,7 @@ export class AccountService {
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
+
       return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
     } catch (error) {
       console.error('Failed to decode JWT expiry:', error);

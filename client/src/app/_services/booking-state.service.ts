@@ -1,97 +1,119 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
-export type BookingPreference = 'combined' | 'separate' | null;
+import { BookingMode, PreferredContactMethod } from '../_models/booking';
+
 export type ServiceLength = 'Short' | 'Medium' | 'Long' | 'Extra Long';
 
-export interface SavedSelectedServiceDetail {
-  serviceId: string;
-  selectedType: string;
-  selectedLength: ServiceLength | '';
-  inspoNote: string;
-  inspoPreviewUrl: string;
-}
+export type BookingPreference = BookingMode | null;
 
 export interface SavedServiceSelection {
   id: string;
+  salonServiceId: number;
   title: string;
   description: string;
   imageUrl: string;
   altText: string;
   duration: string;
+  durationMinutes: number;
   price: number;
+  basePrice: number;
   selectedType: string;
+  selectedServiceTypeId: number | null;
   selectedLength: ServiceLength | '';
+  selectedLengthOptionId: number | null;
+  lengthAddOnPrice: number;
   inspoNote: string;
   inspoPreviewUrl: string;
+  favoriteGalleryImageId: number | null;
   requiresLength?: boolean;
 }
 
-export interface SavedBookingAppointment {
-  bookingMode: 'combined' | 'separate';
+export interface SavedServiceDetail {
+  serviceId: string;
+  selectedType: string;
+  selectedServiceTypeId: number | null;
+  selectedLength: ServiceLength | '';
+  selectedLengthOptionId: number | null;
+  inspoNote: string;
+  inspoPreviewUrl: string;
+  favoriteGalleryImageId: number | null;
+}
+
+export interface SavedAppointmentService {
+  serviceId: string;
+  selectedDate: string;
+  selectedTime: string;
+}
+
+export interface SavedAppointmentDetails {
+  bookingMode: BookingMode;
   selectedCombinedDate: string;
   selectedCombinedTime: string;
-  services: {
-    serviceId: string;
-    selectedDate: string;
-    selectedTime: string;
-  }[];
+  services: SavedAppointmentService[];
 }
 
 export interface SavedClientDetails {
   fullName: string;
   phoneNumber: string;
   emailAddress: string;
-  preferredContactMethod: string;
+  preferredContactMethod: PreferredContactMethod;
 }
 
-export interface SavedBookingState {
+export interface BookingState {
   bookingPreference: BookingPreference;
-  selectedServiceDetails: SavedSelectedServiceDetail[];
+  selectedServiceDetails: SavedServiceDetail[];
   selectedServices: SavedServiceSelection[];
-  appointmentDetails?: SavedBookingAppointment;
+  appointmentDetails?: SavedAppointmentDetails;
   clientDetails?: SavedClientDetails;
+  pendingBookingId?: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookingStateService {
-  private readonly storageKey = 'moBookingState';
+  private readonly storageKey = 'moSalonBookingState';
+
   private readonly resetBookingFlowSubject = new Subject<void>();
 
-  readonly resetBookingFlow$ = this.resetBookingFlowSubject.asObservable();
+  resetBookingFlow$ = this.resetBookingFlowSubject.asObservable();
 
-  saveState(state: SavedBookingState): void {
-    const existingState = this.getState();
-
-    const mergedState: SavedBookingState = {
-      ...existingState,
-      ...state,
-      selectedServiceDetails: state.selectedServiceDetails,
-      selectedServices: state.selectedServices
-    };
-
-    localStorage.setItem(this.storageKey, JSON.stringify(mergedState));
+  saveState(state: BookingState): void {
+    sessionStorage.setItem(this.storageKey, JSON.stringify(state));
   }
 
-  getState(): SavedBookingState | null {
-    const savedState = localStorage.getItem(this.storageKey);
+  getState(): BookingState | null {
+    const stateJson = sessionStorage.getItem(this.storageKey);
 
-    if (!savedState) {
+    if (!stateJson) {
       return null;
     }
 
     try {
-      return JSON.parse(savedState) as SavedBookingState;
-    } catch {
+      return JSON.parse(stateJson) as BookingState;
+    } catch (error) {
+      console.error('Failed to parse booking state:', error);
       this.clearState();
       return null;
     }
   }
 
+  savePendingBookingId(bookingId: number): void {
+    const currentState = this.getState();
+
+    if (!currentState) {
+      return;
+    }
+
+    this.saveState({
+      ...currentState,
+      pendingBookingId: bookingId
+    });
+  }
+
   clearState(): void {
-    localStorage.removeItem(this.storageKey);
+    sessionStorage.removeItem(this.storageKey);
   }
 
   resetBookingFlow(): void {
