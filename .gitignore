@@ -499,3 +499,7 @@ client/node_modules/
 **/node_modules/
 API/appsettings.json
 API/appsettings.Development.json
+client/ssl/localhost-key.pem
+client/ssl/localhost.pem
+client/install.pem
+client/install-key.pem

@@ -23,22 +23,6 @@ public static class ApplicationServiceExtensions
         });
 
         // ===============================
-        // CORS policy
-        // Allows the Angular client to communicate with the API during development.
-        // ===============================
-
-        services.AddCors(options =>
-        {
-            options.AddPolicy("CorsPolicy", policy =>
-            {
-                policy
-                    .WithOrigins("http://localhost:4200", "https://localhost:4200")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-            });
-        });
-
-        // ===============================
         // AutoMapper
         // Registers mapping profiles for DTO mapping.
         // ===============================

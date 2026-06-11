@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { environment } from '../../environments/environment';
 import {
   ClientReviewResponse,
   ContactMessage,
@@ -17,10 +18,11 @@ export class ContactService {
 
   // ===============================
   // API connection
-  // All Contact page requests go through this service.
+  // Uses environment.apiUrl so local development and Azure deployment
+  // both use the correct backend URL.
   // ===============================
 
-  private readonly baseUrl = 'https://localhost:5001/api/';
+  private readonly baseUrl = environment.apiUrl;
 
   // ===============================
   // Contact messages
